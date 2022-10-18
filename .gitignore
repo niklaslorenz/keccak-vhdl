@@ -1,2 +1,4 @@
 sha3-c/build/
 .idea/
+test_results/
+sha3-vhdl/work/
