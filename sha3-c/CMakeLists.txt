@@ -15,4 +15,5 @@ FetchContent_MakeAvailable(googletest)
 add_library(keccak src/keccak_p.cpp)
 target_include_directories(keccak PUBLIC include)
 
+add_subdirectory(calculator)
 add_subdirectory(test)
