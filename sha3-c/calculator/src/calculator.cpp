@@ -145,9 +145,6 @@ int main(int argc, const char** argv) {
     }
     inputFile.close();
     outputFile.close();
-    if(ret == 0) {
-        std::cout << "Generated test results" << std::endl;
-    }
     return ret;
 
 }
