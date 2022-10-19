@@ -4,7 +4,7 @@ Goal of this project is to provide vhdl and c++ implementations for the SHA-3 ha
 ## Project Status
 Currently we have a calculator application written in c++ as well as some rudimentary
 implementations of the keccak functions in vhdl.
-See [How to use](#HowToUse) for an introduction into the applications.
+See [How to use](#How-To-Use) for an introduction into the applications.
 ### The Calculator
 The calculator application tcan generate hashes for every SHA-3 function
 as well as transform the KECCAK-State-Arrays with the five different functions used in SHA-3.
@@ -26,7 +26,7 @@ keccak-p is a concatenation of five different functions: theta, rho, pi, chi and
 This project uses the nvc vhdl simulator. You can get it [here](https://github.com/nickg/nvc)
 
 ## How To Build
-Make sure you meet all the [build requirements](#BuildRequirements).
+Make sure you meet all the [build requirements](#Build-Requirements).
 First clone the repository. Inside the repository execute the following commands:
 - `./configure.sh` to setup the cmake project
 - `./build.sh` to build the entire project
