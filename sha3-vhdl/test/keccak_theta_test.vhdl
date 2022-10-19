@@ -36,7 +36,7 @@ begin
 		variable input_state : StateArray;
 		begin
 			file_open(challenge_buf, "../test_instances/raw_state_arrays.txt", read_mode);
-			file_open(result_buf, "../test_results/theta.txt", read_mode);
+			file_open(result_buf, "../test_solutions/theta.txt", read_mode);
 			while not endfile(challenge_buf) loop
 				assert not endfile(result_buf) report "Expected test result in result file" severity FAILURE;
 				readline(challenge_buf, challenge);

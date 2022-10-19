@@ -5,12 +5,11 @@ use IEEE.std_logic_1164.all;
 package keccak_types is
 
 subtype Lane is std_logic_vector(63 downto 0);
-type StateArray is array(24 downto 0) of Lane;
 
+type StateArray is array(24 downto 0) of Lane;
 function "=" (a : StateArray; b : StateArray) return boolean;
 
 function to_StateArray(v : std_logic_vector(1599 downto 0)) return StateArray;
-
 function to_std_logic_vector(s : StateArray) return std_logic_vector;
 
 end package keccak_types;

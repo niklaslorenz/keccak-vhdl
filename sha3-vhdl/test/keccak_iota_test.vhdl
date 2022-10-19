@@ -8,17 +8,18 @@ use work.all;
 use work.keccak_types.all;
 use work.testutil.all;
 
-entity keccak_rho_test is
-end entity keccak_rho_test;
+entity keccak_iota_test is
+end entity keccak_iota_test;
 
-architecture arch of keccak_rho_test is
+architecture arch of keccak_iota_test is
 
-	component keccak_rho is
+	component keccak_iota is
 		port(
 			input : in StateArray;
+			roundIndex : in natural;
 			output : out StateArray
 		);
-	end component keccak_rho;
+	end component keccak_iota;
 
 	file challenge_buf : text;
 	file result_buf : text;
@@ -27,7 +28,7 @@ architecture arch of keccak_rho_test is
 	signal output : StateArray;
 begin
 
-	theta : keccak_rho port map(input => input, output => output);
+	theta : keccak_iota port map(input => input, roundIndex => 0, output => output);
 
 	verify : process
 		variable challenge : line;
@@ -36,7 +37,7 @@ begin
 		variable input_state : StateArray;
 		begin
 			file_open(challenge_buf, "../test_instances/raw_state_arrays.txt", read_mode);
-			file_open(result_buf, "../test_solutions/rho.txt", read_mode);
+			file_open(result_buf, "../test_solutions/iota.txt", read_mode);
 			while not endfile(challenge_buf) loop
 				assert not endfile(result_buf) report "Expected test result in result file" severity FAILURE;
 				readline(challenge_buf, challenge);
@@ -45,7 +46,7 @@ begin
 				convertInput(result, result_state);
 				input <= input_state;
 				wait for 10ns;
-				assert output = result_state report "Failed keccak_rho Test: Expected: " & convertOutput(result_state) & " But got: " & convertOutput(output) severity ERROR;
+				assert output = result_state report "Failed keccak_iota Test: Expected: " & convertOutput(result_state) & " But got: " & convertOutput(output) severity ERROR;
 			end loop;
 			assert endfile(result_buf) report "Expected end of result file" severity FAILURE;
 			wait;
