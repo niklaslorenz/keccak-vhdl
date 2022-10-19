@@ -22,7 +22,11 @@ keccak-p is a concatenation of five different functions: theta, rho, pi, chi and
 |keccak-p|Concatenation of the previous functions|not yet implemented|
 |keccak-f|Repeats keccak-p 24 times with different round constants|not implemented yet|
 
+## Build Requirements
+This project uses the nvc vhdl simulator. You can get it [here](https://github.com/nickg/nvc)
+
 ## How To Build
+Make sure you meet all the [build requirements](#BuildRequirements).
 First clone the repository. Inside the repository execute the following commands:
 - `./configure.sh` to setup the cmake project
 - `./build.sh` to build the entire project
