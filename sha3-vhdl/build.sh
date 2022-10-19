@@ -8,7 +8,9 @@ sources=("keccak_types" \
 "keccak_rho" \
 "keccak_pi" \
 "keccak_chi" \
-"keccak_iota")
+"keccak_iota" \
+"keccak_p" \
+"keccak_f")
 
 test_instances=("keccak_theta_test" \
 "keccak_rho_test" \
