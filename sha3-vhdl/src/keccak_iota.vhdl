@@ -40,7 +40,7 @@ architecture arch of keccak_iota is
             2147483649,
             9223372039002292232);
 begin
-	output(0) <= input(1) xor Lane(std_logic_vector(to_unsigned(constants(roundIndex), 64)));
+	output(0) <= input(0) xor Lane(std_logic_vector(to_unsigned(constants(roundIndex), 64)));
 	forward : for i in 1 to 24 generate
 		output(i) <= input(i);
 	end generate;
