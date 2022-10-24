@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sha3/keccak_p.h>
+#include <sha3/sha3.h>
 
 enum Function {
     sha224,
@@ -14,6 +15,8 @@ enum Function {
     pi,
     chi,
     iota,
+    keccak_p,
+    keccak_f,
     nop
 };
 
@@ -27,7 +30,18 @@ Function getFunction(const char* arg) {
     if(strcmp(arg, "pi") == 0) return pi;
     if(strcmp(arg, "chi") == 0) return chi;
     if(strcmp(arg, "iota") == 0) return iota;
+    if(strcmp(arg, "keccak-p") == 0) return keccak_p;
+    if(strcmp(arg, "keccak-f") == 0) return keccak_f;
     return nop;
+}
+
+void simpleKeccak_p(keccak::StateArray& result, const keccak::StateArray& input) {
+    keccak::StateArray temp1 = input, temp2;
+    keccak::theta(temp2, temp1);
+    keccak::rho(temp1, temp2);
+    keccak::pi(temp2, temp1);
+    keccak::chi(temp1, temp2);
+    keccak::iota(result, temp1, 0);
 }
 
 void simpleIota(keccak::StateArray& result, const keccak::StateArray& input) {
@@ -41,6 +55,8 @@ void (*getPermutation(Function f))(keccak::StateArray&, const keccak::StateArray
         case pi: return keccak::pi;
         case chi: return keccak::chi;
         case iota: return simpleIota;
+        case keccak_p: return simpleKeccak_p;
+        case keccak_f: return keccak::keccak_f;
         default: return nullptr;
     }
 }
@@ -135,6 +151,8 @@ int main(int argc, const char** argv) {
         case pi:
         case chi:
         case iota:
+        case keccak_p:
+        case keccak_f:
             calculatePermutations(f, inputFile, outputFile);
             ret = 0;
             break;

@@ -12,6 +12,8 @@ cd ./build
 ./sha3-c/Debug/calculator/calculator pi ./test_instances/raw_state_arrays.txt ./test_solutions/pi.txt
 ./sha3-c/Debug/calculator/calculator chi ./test_instances/raw_state_arrays.txt ./test_solutions/chi.txt
 ./sha3-c/Debug/calculator/calculator iota ./test_instances/raw_state_arrays.txt ./test_solutions/iota.txt
+./sha3-c/Debug/calculator/calculator keccak-p ./test_instances/raw_state_arrays.txt ./test_solutions/keccak_p.txt
+./sha3-c/Debug/calculator/calculator keccak-f ./test_instances/raw_state_arrays.txt ./test_solutions/keccak_f.txt
 popd > /dev/null
 
 echo read test instances
