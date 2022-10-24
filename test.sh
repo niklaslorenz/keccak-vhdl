@@ -2,7 +2,7 @@
 
 cp -r ./test_instances ./build
 mkdir -p ./build/test_solutions/
-rm ./build/test_solutions/*.txt
+rm -f ./build/test_solutions/*.txt
 
 echo generate test solutions
 pushd . > /dev/null

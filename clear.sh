@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -r ./build
+rm -r -f ./build

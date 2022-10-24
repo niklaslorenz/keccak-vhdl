@@ -22,13 +22,13 @@ test_sources=("testutil")
 test_sources+=(${test_instances[@]})
 
 echo export test instances
+mkdir -p ../build/sha3-vhdl
 echo ${test_instances[@]} > ../build/sha3-vhdl/test_instances
 
 pushd . > /dev/null
-mkdir -p ../build/sha3-vhdl
 cd ../build/sha3-vhdl
 echo clear vhdl work directory
-rm -r ./work
+rm -r -f ./work
 echo build vhdl sources
 for f in ${sources[@]}; do
 nvc -a "${src_dir}/${f}.vhdl"
