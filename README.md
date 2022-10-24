@@ -1,4 +1,4 @@
-# keccak-vhdl
+# sha3-vhdl
 Goal of this project is to provide vhdl and c++ implementations for the SHA-3 hash functions
 
 ## Project Status
