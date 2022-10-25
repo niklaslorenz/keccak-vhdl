@@ -14,7 +14,13 @@ port(
 end entity keccak_iota;
 
 architecture arch of keccak_iota is
-	type constants_t is array(0 to 23) of natural;
+
+	function create(i1, i2, i3, i4 : natural range 0 to 65535) return unsigned(63 downto 0) is
+	begin
+		return std_logic_vector(i1) & std_logic_vector(i2) & std_logic_vector(i3) & std_logic_vector(i4);
+	end function create;
+
+	type constants_t is array(0 to 23) of unsigned(63 downto 0);
 	constant constants : constants_t := (1,
             32898,
             9223372036854808714,
@@ -39,6 +45,10 @@ architecture arch of keccak_iota is
             9223372036854808704,
             2147483649,
             9223372039002292232);
+
+	signal debug_roundIndex : natural range 0 to 23;
+	signal debug_const : natural;
+
 begin
 	output(0) <= input(0) xor Lane(std_logic_vector(to_unsigned(constants(roundIndex), 64)));
 	forward : for i in 1 to 24 generate
