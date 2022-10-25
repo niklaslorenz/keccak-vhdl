@@ -14,7 +14,7 @@ void execute(const std::function<void(keccak::StateArray&, const keccak::StateAr
     while(!input.eof()) {
         input >> state;
         f(result, state);
-        output << result;
+        output << result << std::endl;
     }
 }
 

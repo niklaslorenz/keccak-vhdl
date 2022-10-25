@@ -18,26 +18,18 @@ package body testutil is
 
 	procedure convertInput(input_line : inout line; res : out StateArray) is
 		variable good : boolean;
-		variable hex_raw : std_logic_vector(1599 downto 0);
 		variable hex : std_logic_vector(1599 downto 0);
 	begin
-		hread(input_line, hex_raw, good);
+		hread(input_line, hex, good);
 		assert good severity FAILURE;
-		for i in 0 to 199 loop
-			hex(i * 8 + 7 downto i * 8) := hex_raw(1599 - (i * 8) downto 1599 - (i * 8 + 7));
-		end loop;
 		res := to_StateArray(hex);
 	end procedure convertInput;
 
 	function convertOutput(state : in StateArray) return string is
-		variable hex_raw : std_logic_vector(1599 downto 0);
 		variable hex : std_logic_vector(1599 downto 0);
 		variable str : line;
 	begin
-		hex_raw := to_std_logic_vector(state);
-		for i in 0 to 199 loop
-			hex(i * 8 + 7 downto i * 8) := hex_raw(1599 - (i * 8) downto 1599 - (i * 8 + 7));
-		end loop;
+		hex := to_std_logic_vector(state);
 		hwrite(str, hex);
 		return str.all;
 	end function convertOutput;
