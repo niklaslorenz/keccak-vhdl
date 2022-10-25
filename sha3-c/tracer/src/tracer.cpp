@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <sha3/util.h>
 #include <sha3/keccak_p.h>
 
 int main(int argc, const char** argv) {

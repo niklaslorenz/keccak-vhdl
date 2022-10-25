@@ -49,39 +49,28 @@ namespace sha3 {
         if(pad_length == 1) {
             *pad_begin = 0b10000110;
         } else {
+            memset(pad_begin + 1, 0, pad_length - 2);
             *pad_begin = 0b00000110;
-            for(int i = 1; i < pad_length - 1; i++) {
-                pad_begin[i] = 0;
-            }
             pad_begin[pad_length - 1] = 0b10000000;
         }
         *result = (char*) res;
         return padded_length;
     }
     
-    std::ostream& operator <<(std::ostream& stream, const Hash& value) {
-        stream << std::hex;
-        for(int i = 0; i < value.size(); i++) {
-            stream << std::setw(2) << std::setfill('0') << (int) value.value()[i] << std::flush;
-        }
-        stream << std::dec << std::flush;
-        return stream;
-    }
-    
     static Hash hash(const char* message, std::size_t length, std::size_t output_length) {
         assert(output_length <= 64);
-        const size_t blockSize = 200 - 2 * output_length;
+        const size_t block_size = 200 - 2 * output_length;
         char* padded = nullptr;
-        size_t padded_size = sha3::pad(&padded, message, length, blockSize);
-        size_t block_count = padded_size / blockSize;
-        assert(padded_size % blockSize == 0);
+        size_t padded_size = sha3::pad(&padded, message, length, block_size);
+        size_t block_count = padded_size / block_size;
+        assert(padded_size % block_size == 0);
         keccak::StateArray state;
         keccak::StateArray in;
         memset(&state, 0, 200);
         for(size_t i = 0; i < block_count; i++) {
-            void* block = padded + 200 * i;
+            void* block = padded + block_size * i;
             memset(&in, 0, 200);
-            memcpy(&in, block, blockSize);
+            memcpy(&in, block, block_size);
             for(uint8_t y = 0; y < 5; y++) {
                 for (uint8_t x = 0; x < 5; x++) {
                     in[y][x] xor_eq state[y][x];
@@ -112,4 +101,13 @@ namespace sha3 {
         return hash(message, length, 64);
     }
     
+}
+
+std::ostream& operator <<(std::ostream& stream, const sha3::Hash& value) {
+    stream << std::hex;
+    for(int i = 0; i < value.size(); i++) {
+        stream << std::setw(2) << std::setfill('0') << (int) (unsigned char) value.value()[i] << std::flush;
+    }
+    stream << std::dec << std::flush;
+    return stream;
 }

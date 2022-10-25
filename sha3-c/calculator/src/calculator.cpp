@@ -2,123 +2,50 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
-#include <sha3/keccak_p.h>
 #include <sha3/sha3.h>
-#include <sha3/util.h>
 
-using namespace sha3::util;
-
-enum Function {
-    sha224,
-    sha256,
-    sha384,
-    sha512,
-    theta,
-    rho,
-    pi,
-    chi,
-    iota,
-    keccak_p,
-    keccak_f,
-    nop
-};
-
-Function getFunction(const char* arg) {
-    if(strcmp(arg, "sha224") == 0) return sha224;
-    if(strcmp(arg, "sha256") == 0) return sha256;
-    if(strcmp(arg, "sha384") == 0) return sha384;
-    if(strcmp(arg, "sha512") == 0) return sha512;
-    if(strcmp(arg, "theta") == 0) return theta;
-    if(strcmp(arg, "rho") == 0) return rho;
-    if(strcmp(arg, "pi") == 0) return pi;
-    if(strcmp(arg, "chi") == 0) return chi;
-    if(strcmp(arg, "iota") == 0) return iota;
-    if(strcmp(arg, "keccak-p") == 0) return keccak_p;
-    if(strcmp(arg, "keccak-f") == 0) return keccak_f;
-    return nop;
+sha3::Hash (*getHashFunction(const char* name))(const char *, size_t) {
+    if(strcmp(name, "sha3-224") == 0) return sha3::sha3_224;
+    if(strcmp(name, "sha3-256") == 0) return sha3::sha3_256;
+    if(strcmp(name, "sha3-384") == 0) return sha3::sha3_384;
+    if(strcmp(name, "sha3-512") == 0) return sha3::sha3_512;
+    return nullptr;
 }
 
-void simpleKeccak_p(keccak::StateArray& result, const keccak::StateArray& input) {
-    keccak::StateArray temp1 = input, temp2;
-    keccak::theta(temp2, temp1);
-    keccak::rho(temp1, temp2);
-    keccak::pi(temp2, temp1);
-    keccak::chi(temp1, temp2);
-    keccak::iota(result, temp1, 0);
-}
-
-void simpleIota(keccak::StateArray& result, const keccak::StateArray& input) {
-    keccak::iota(result, input, 0);
-}
-
-void (*getPermutation(Function f))(keccak::StateArray&, const keccak::StateArray&) {
-    switch(f) {
-        case theta: return keccak::theta;
-        case rho: return keccak::rho;
-        case pi: return keccak::pi;
-        case chi: return keccak::chi;
-        case iota: return simpleIota;
-        case keccak_p: return simpleKeccak_p;
-        case keccak_f: return keccak::keccak_f;
-        default: return nullptr;
-    }
-}
-
-void calculateHashes(Function f, std::ifstream& input) {
-
-}
-
-void calculatePermutations(Function f, std::ifstream& input, std::ofstream& output) {
-    std::string line;
-    auto permutation = getPermutation(f);
-    keccak::StateArray in, out;
-    while(std::getline(input, line)) {
-        parseStateArray(in, line);
-        permutation(out, in);
-        output << parseStateArray(out) << std::endl;
+void calculate(std::istream& in, std::ostream& out, sha3::Hash (*function)(const char*, size_t)) {
+    std::string input_line;
+    while(getline(in, input_line)) {
+        if(strcmp(input_line.c_str(), "quit") == 0) {
+            break;
+        }
+        sha3::Hash hash = function(input_line.c_str(), input_line.size());
+        out << hash << std::endl;
     }
 }
 
 int main(int argc, const char** argv) {
-
-    if(argc != 4) {
-        std::cerr << "Expected three arguments <function, input file, output file> but got " << argc - 1 << std::endl;
+    const std::string syntax = "calculator <function> [<input file> <output file>]\nFunctions are expressed as \"sha3-<n>\" with <n> being the hash length\nExample: sha3-256";
+    if(argc != 4 && argc != 2) {
+        std::cout << "Usage: " << syntax << std::endl;
         return 1;
     }
 
-    Function f = getFunction(argv[1]);
-    std::ifstream inputFile;
-    inputFile.open(argv[2]);
-    std::ofstream outputFile;
-    outputFile.open(argv[3]);
-
-    int ret;
-
-    switch(f) {
-        case sha224:
-        case sha256:
-        case sha384:
-        case sha512:
-            calculateHashes(f, inputFile);
-            ret = 0;
-            break;
-        case theta:
-        case rho:
-        case pi:
-        case chi:
-        case iota:
-        case keccak_p:
-        case keccak_f:
-            calculatePermutations(f, inputFile, outputFile);
-            ret = 0;
-            break;
-        default:
-            std::cerr << "Unrecognised Function: " << argv[1] << std::endl;
-            ret = 1;
-            break;
+    auto function = getHashFunction(argv[1]);
+    if(function == nullptr) {
+        std::cout << "unknown function: " << argv[1] << std::endl;
+        return 1;
     }
-    inputFile.close();
-    outputFile.close();
-    return ret;
+
+    if(argc == 2) {
+        calculate(std::cin, std::cout, function);
+    } else {
+        std::ifstream inputFile;
+        inputFile.open(argv[2]);
+        std::ofstream outputFile;
+        outputFile.open(argv[3]);
+        calculate(inputFile, outputFile, function);
+    }
+
+    return 0;
 
 }
