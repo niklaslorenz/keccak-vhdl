@@ -1,19 +1,31 @@
 #!/bin/bash
 
+echo run cmake tests
+
+pushd . > /dev/null
+cd ./build/sha3-c/Debug
+ctest
+passed_cmake_tests=$?
+popd > /dev/null
+if [ $passed_cmake_tests -ne 0 ]; then
+echo -e "\e[31mFailed\e[0m cmake tests"
+exit $passed_cmake_tests
+fi
+
 cp -r ./test_instances ./build
 mkdir -p ./build/test_solutions/
 rm -f ./build/test_solutions/*.txt
 
-echo generate test solutions
 pushd . > /dev/null
 cd ./build
-./sha3-c/Debug/calculator/calculator theta ./test_instances/raw_state_arrays.txt ./test_solutions/theta.txt
-./sha3-c/Debug/calculator/calculator rho ./test_instances/raw_state_arrays.txt ./test_solutions/rho.txt
-./sha3-c/Debug/calculator/calculator pi ./test_instances/raw_state_arrays.txt ./test_solutions/pi.txt
-./sha3-c/Debug/calculator/calculator chi ./test_instances/raw_state_arrays.txt ./test_solutions/chi.txt
-./sha3-c/Debug/calculator/calculator iota ./test_instances/raw_state_arrays.txt ./test_solutions/iota.txt
-./sha3-c/Debug/calculator/calculator keccak-p ./test_instances/raw_state_arrays.txt ./test_solutions/keccak_p.txt
-./sha3-c/Debug/calculator/calculator keccak-f ./test_instances/raw_state_arrays.txt ./test_solutions/keccak_f.txt
+echo generate test solutions
+./sha3-c/Debug/tracer/tracer theta ./test_instances/raw_state_arrays.txt ./test_solutions/theta.txt
+./sha3-c/Debug/tracer/tracer rho ./test_instances/raw_state_arrays.txt ./test_solutions/rho.txt
+./sha3-c/Debug/tracer/tracer pi ./test_instances/raw_state_arrays.txt ./test_solutions/pi.txt
+./sha3-c/Debug/tracer/tracer chi ./test_instances/raw_state_arrays.txt ./test_solutions/chi.txt
+./sha3-c/Debug/tracer/tracer iota 0 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_0.txt
+./sha3-c/Debug/tracer/tracer iota 11 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_11.txt
+./sha3-c/Debug/tracer/tracer iota 23 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_23.txt
 popd > /dev/null
 
 echo read test instances
