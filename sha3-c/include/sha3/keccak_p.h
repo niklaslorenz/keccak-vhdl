@@ -32,4 +32,7 @@ namespace keccak {
 
 }
 
+std::istream& operator >>(std::istream& stream, keccak::StateArray& stateArray);
+std::ostream& operator <<(std::ostream& stream, const keccak::StateArray& stateArray);
+
 #endif //KECCAK_KECCAK_P_H

@@ -2,6 +2,7 @@
 #include <sha3/sha3.h>
 #include <iostream>
 #include <iomanip>
+#include <cstring>
 
 void print(std::array<uint64_t, 4>& result) {
     std::cout << std::hex;
@@ -23,7 +24,7 @@ int main(int argc, const char** argv) {
     }
     if(argc == 2) {
         auto result = sha3::sha3_256(argv[1], strlen(argv[1]));
-        print(result);
+        std::cout << result << std::endl;
         return 0;
     }
     std::string str;

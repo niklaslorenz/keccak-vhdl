@@ -1,10 +1,40 @@
 
-#include "sha3/keccak_p.h"
+#include <sha3/keccak_p.h>
 #include <cassert>
 #include <iostream>
-#include <bitset>
+#include <stdexcept>
+#include <string>
+#include <iomanip>
 
 namespace keccak {
+    
+    std::istream& operator >>(std::istream& stream, StateArray& stateArray) {
+        std::string line;
+        std::getline(stream, line);
+        if(line.length() < 400) {
+            line = std::string(400 - line.length(), '0').append(line);
+        } else if(line.length() > 400) {
+            throw std::runtime_error("Input too large for a state array!");
+        }
+        std::stringstream lineStream(line);
+        for(int y = 0; y < 5; y++) {
+            for(int x = 0; x < 5; x++) {
+                lineStream >> std::hex >> stateArray[4 - y][4 - x];
+            }
+        }
+        return stream;
+    }
+    
+    std::ostream& operator <<(std::ostream& stream, const StateArray& stateArray) {
+        stream << std::hex;
+        for(size_t y = 0; y < 5; y++) {
+            for(size_t x = 0; x < 5; x++) {
+                stream << std::setw(16) << std::setfill('0') << stateArray[4 - y][4 - x] << std::flush;
+            }
+        }
+        stream << std::dec << std::flush;
+        return stream;
+    }
 
     static const std::array<std::array<uint16_t, 5>, 5> rho_shifts {
             0, 1, 62, 28, 27,
