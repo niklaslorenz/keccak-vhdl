@@ -16,7 +16,11 @@ architecture arch of keccak_f_test is
 	component keccak_f is
 		port(
 			input : in StateArray;
-			output : out StateArray
+            rst : in boolean;
+            clk : in std_logic;
+            start : in boolean;
+            output : out StateArray;
+            ready : out boolean
 		);
 	end component keccak_f;
 
@@ -24,11 +28,27 @@ architecture arch of keccak_f_test is
 	file result_buf : text;
 	
 	signal input : StateArray;
+	signal reset : boolean;
+	signal clock : std_logic := '0';
+	signal start : boolean;
 	signal output : StateArray;
+	signal ready : boolean;
+	
+	signal finished : boolean := false;
+	signal debug_input_vector : std_logic_vector(1599 downto 0);
 begin
 
-	theta : keccak_f port map(input => input, output => output);
-
+	f : keccak_f port map(input => input, rst => reset, clk => clock, start => start, output => output, ready => ready);
+    
+    clk : process
+    begin
+        
+        if not finished then
+            clock <= not clock;
+            wait for 5ns;
+        end if;
+    end process;
+    
 	verify : process
 		variable challenge : line;
 		variable result : line;
@@ -43,11 +63,25 @@ begin
 				readline(result_buf, result);
 				convertInput(challenge, input_state);
 				convertInput(result, result_state);
+                debug_input_vector <= to_std_logic_vector(input_state);
+				start <= false;
+				reset <= true;
+				wait until falling_edge(clock);
+				reset <= false;
 				input <= input_state;
-				wait for 10ns;
+				wait until rising_edge(clock);
+				start <= true;
+				wait until rising_edge(clock);
+				wait until rising_edge(clock);
+				for i in 0 to 23 loop
+                    assert not ready report "Expected the calculation to be running but it signaled 'ready' in clock cycle " & integer'image(i) severity ERROR;
+                    wait until rising_edge(clock);
+				end loop;
+				assert ready report "Expected the calculation to be done but it was not yet" severity ERROR;
 				assert output = result_state report "Failed keccak_f Test: Expected: " & convertOutput(result_state) & " But got: " & convertOutput(output) severity ERROR;
 			end loop;
 			assert endfile(result_buf) report "Expected end of result file" severity FAILURE;
+			finished <= true;
 			wait;
 	end process verify;
 end architecture arch;

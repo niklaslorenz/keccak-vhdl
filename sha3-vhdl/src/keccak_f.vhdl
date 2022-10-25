@@ -7,11 +7,8 @@ use work.all;
 use work.keccak_types.all;
 
 entity keccak_f is
-generic(
-	InputSize : Natural range 576 to 1152
-);
 port(
-	input : in std_logic_vector(InputSize - 1 downto 0);
+	input : in StateArray;
 	rst : in boolean;
 	clk : in std_logic;
 	start : in boolean;
@@ -34,6 +31,8 @@ architecture arch of keccak_f is
 	signal current_round : Natural range 0 to 23;
 	signal permutation_output : StateArray;
 	signal running : boolean := false;
+	
+	signal debug_input_vector, debug_output_vector : std_logic_vector(1599 downto 0);
 begin
 	
 	permutation : keccak_p port map(input => permutation_input, roundIndex => current_round, output => permutation_output);
@@ -50,7 +49,7 @@ begin
 					running <= true;
 					current_round <= 0;
 				end if;
-				permutation_input <= to_StateArray(input & std_logic_vector(to_unsigned(0, 1600 - InputSize)));
+				permutation_input <= input;
 			else
 				permutation_input <= permutation_output;
 				if current_round = 23 then
@@ -64,5 +63,8 @@ begin
 	
 	output <= permutation_output;
 	ready <= not running;
+	
+	debug_input_vector <= to_std_logic_vector(input);
+	debug_output_vector <= to_std_logic_vector(permutation_output);
 	
 end architecture arch;

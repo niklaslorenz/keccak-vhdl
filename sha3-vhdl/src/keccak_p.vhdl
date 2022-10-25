@@ -1,5 +1,7 @@
 
 library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
 use work.keccak_types.all;
 use work.all;
@@ -54,10 +56,20 @@ architecture arch of keccak_p is
 	signal rho_out : StateArray;
 	signal pi_out : StateArray;
 	signal chi_out : StateArray;
+	
+	signal out_temp : StateArray;
+	
+	signal debug_input_vector, debug_output_vector : std_logic_vector(1599 downto 0);
+	
 begin
 	theta : keccak_theta port map(input => input, output => theta_out);
 	rho : keccak_rho port map(input => theta_out, output => rho_out);
 	pi : keccak_pi port map(input => rho_out, output => pi_out);
 	chi : keccak_chi port map(input => pi_out, output => chi_out);
-	iota : keccak_iota port map(input => chi_out, roundIndex => roundIndex, output => output);
+	iota : keccak_iota port map(input => chi_out, roundIndex => roundIndex, output => out_temp);
+	output <= out_temp;
+	
+	debug_input_vector <= to_std_logic_vector(input);
+	debug_output_vector <= to_std_logic_vector(out_temp);
+	
 end architecture arch;
