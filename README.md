@@ -2,13 +2,13 @@
 Goal of this project is to provide vhdl and c++ implementations for the SHA-3 hash functions
 
 ## Project Status
-Currently we have a calculator application written in c++ as well as some rudimentary
+Currently we have the sha3-c library, a calculator application written in c++ as well as some rudimentary
 implementations of the keccak functions in vhdl.
 See [How to use](#How-To-Use) for an introduction into the applications.
 ### The Calculator
-The calculator application tcan generate hashes for every SHA-3 function
-as well as transform the KECCAK-State-Arrays with the five different functions used in SHA-3.
-The main usage for the calculator is to automatically generate test solutions for vhdl tests.
+The calculator application can generate hashes for every SHA-3 function either in an iteractive mode
+or by providing it with an input file. It then will generate the hash of every line in that file and
+write it to the output desination.
 ### VHDL Functions
 SHA-3 uses a round function (keccak-f) that repeats a so called permutation function (keccak-p) 24 times.
 keccak-p is a concatenation of five different functions: theta, rho, pi, chi and iota.
@@ -23,7 +23,7 @@ keccak-p is a concatenation of five different functions: theta, rho, pi, chi and
 |keccak-f|Repeats keccak-p 24 times with different round constants|not implemented yet|
 
 ## Build Requirements
-This project uses the nvc vhdl simulator. You can get it [here](https://github.com/nickg/nvc)
+This project uses the nvc vhdl simulator. You can get it [here](https://github.com/nickg/nvc).
 
 ## How To Build
 Make sure you meet all the [build requirements](#Build-Requirements).
