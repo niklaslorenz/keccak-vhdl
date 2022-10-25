@@ -12,8 +12,9 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_library(keccak src/keccak_p.cpp)
+add_library(keccak src/keccak_p.cpp src/util.cpp)
 target_include_directories(keccak PUBLIC include)
 
 add_subdirectory(calculator)
+add_subdirectory(tracer)
 add_subdirectory(test)

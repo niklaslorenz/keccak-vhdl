@@ -26,6 +26,8 @@ namespace keccak {
 
     void iota(StateArray& result, const StateArray& input, uint8_t roundIndex);
 
+    void keccak_p(StateArray& result, const StateArray& input, uint8_t roundIndex);
+
     void keccak_f(StateArray& result, const StateArray& input);
 
 }

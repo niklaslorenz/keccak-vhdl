@@ -4,6 +4,9 @@
 #include <fstream>
 #include <sha3/keccak_p.h>
 #include <sha3/sha3.h>
+#include <sha3/util.h>
+
+using namespace sha3::util;
 
 enum Function {
     sha224,
@@ -63,53 +66,6 @@ void (*getPermutation(Function f))(keccak::StateArray&, const keccak::StateArray
 
 void calculateHashes(Function f, std::ifstream& input) {
 
-}
-
-inline char parseHexChar(char hex) {
-    int temp = hex - '0';
-    if(hex >= '0' && hex <= '9') {
-        return (char) (hex - '0');
-    }
-    if(hex >= 'A' && hex <= 'F') {
-        return (char) (hex - 'A' + 10);
-    }
-    if(hex >= 'a' && hex <= 'f') {
-        return (char) (hex - 'a' + 10);
-    }
-    throw std::runtime_error("Unrecognisable hex character");
-}
-
-inline char getHexChar(unsigned char number) {
-    if(number < 10) {
-        return (char)('0' + number);
-    }
-    if(number < 16) {
-        return (char)('A' + number - 10);
-    }
-    throw std::runtime_error("Cannot convert to hex value");
-}
-
-void parseStateArray(keccak::StateArray& result, const std::string& str) {
-    size_t len = std::min(str.length(), 2 * sizeof(keccak::StateArray));
-    std::string parsed = str;
-    if(len % 2 != 0) {
-        parsed.append("0");
-    }
-    char* res = (char*)(void*)&result;
-    for(size_t i = 0; i < len / 2; i++) {
-        res[i] = (char) ((parseHexChar(parsed.c_str()[2 * i]) << 4) | (parseHexChar(parsed.c_str()[2 * i + 1]) & 0b00001111));
-    }
-}
-
-std::string parseStateArray(const keccak::StateArray& stateArray) {
-    char str[401];
-    str[400] = 0;
-    auto state = (unsigned char*)(void*)&stateArray;
-    for(int i = 0; i < 200; i++) {
-        str[2 * i] = getHexChar((unsigned char)(state[i] >> 4));
-        str[2 * i + 1] = getHexChar((unsigned char)(state[i] & 0b00001111));
-    }
-    return std::string{str};
 }
 
 void calculatePermutations(Function f, std::ifstream& input, std::ofstream& output) {

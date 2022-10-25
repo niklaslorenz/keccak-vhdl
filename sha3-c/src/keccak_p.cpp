@@ -90,6 +90,15 @@ namespace keccak {
         result[0][0] xor_eq roundConstants[roundIndex];
     }
 
+    void keccak_p(StateArray& result, const StateArray& input, uint8_t roundIndex) {
+        StateArray temp1 = input, temp2;
+        theta(temp2, temp1);
+        rho(temp1, temp2);
+        pi(temp2, temp1);
+        chi(temp1, temp2);
+        iota(result, temp1, roundIndex);
+    }
+
     void keccak_f(StateArray& result, const StateArray& input) {
         StateArray temp1 = input, temp2;
         for(uint8_t i = 0; i < 24; i++) {
