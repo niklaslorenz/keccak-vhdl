@@ -27,7 +27,7 @@ architecture arch of keccak_rho_test is
 	signal output : StateArray;
 begin
 
-	theta : keccak_rho port map(input => input, output => output);
+	rho : keccak_rho port map(input => input, output => output);
 
 	verify : process
 		variable challenge : line;

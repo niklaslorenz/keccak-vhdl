@@ -27,7 +27,7 @@ architecture arch of keccak_pi_test is
 	signal output : StateArray;
 begin
 
-	theta : keccak_pi port map(input => input, output => output);
+	pi : keccak_pi port map(input => input, output => output);
 
 	verify : process
 		variable challenge : line;

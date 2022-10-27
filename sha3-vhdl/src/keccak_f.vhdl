@@ -48,13 +48,13 @@ begin
 				if start then
 					running <= true;
 					current_round <= 0;
+                    permutation_input <= input;
 				end if;
-				permutation_input <= input;
 			else
-				permutation_input <= permutation_output;
 				if current_round = 23 then
 					running <= false;
 				else
+                    permutation_input <= permutation_output;
 					current_round <= current_round + 1;
 				end if;
 			end if;

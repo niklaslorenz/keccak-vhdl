@@ -22,13 +22,14 @@ architecture arch of keccak_iota_test is
 	end component keccak_iota;
 
 	file challenge_buf : text;
-	file result_buf : text;
+	file result_0_buf, result_11_buf, result_23_buf : text;
 	
 	signal input : StateArray;
 	signal output : StateArray;
+	signal roundIndex : natural range 0 to 23;
 begin
 
-	theta : keccak_iota port map(input => input, roundIndex => 0, output => output);
+	iota : keccak_iota port map(input => input, roundIndex => roundIndex, output => output);
 
 	verify : process
 		variable challenge : line;
@@ -37,18 +38,38 @@ begin
 		variable input_state : StateArray;
 		begin
 			file_open(challenge_buf, "../test_instances/raw_state_arrays.txt", read_mode);
-			file_open(result_buf, "../test_solutions/iota.txt", read_mode);
+			file_open(result_0_buf, "../test_solutions/iota_0.txt", read_mode);
+			file_open(result_11_buf, "../test_solutions/iota_11.txt", read_mode);
+			file_open(result_23_buf, "../test_solutions/iota_23.txt", read_mode);
 			while not endfile(challenge_buf) loop
-				assert not endfile(result_buf) report "Expected test result in result file" severity FAILURE;
 				readline(challenge_buf, challenge);
-				readline(result_buf, result);
 				convertInput(challenge, input_state);
-				convertInput(result, result_state);
 				input <= input_state;
+				
+				assert not endfile(result_0_buf) report "Expected test result in result file" severity FAILURE;
+				readline(result_0_buf, result);
+				convertInput(result, result_state);
+				roundIndex <= 0;
 				wait for 10ns;
-				assert output = result_state report "Failed keccak_iota Test: Expected: " & convertOutput(result_state) & " But got: " & convertOutput(output) severity ERROR;
+				assert output = result_state report "Failed keccak_iota_0 Test: Expected: " & convertOutput(result_state) & " But got: " & convertOutput(output) severity ERROR;
+				
+				assert not endfile(result_11_buf) report "Expected test result in result file" severity FAILURE;
+				readline(result_11_buf, result);
+				convertInput(result, result_state);
+				roundIndex <= 11;
+				wait for 10ns;
+				assert output = result_state report "Failed keccak_iota_11 Test: Expected: " & convertOutput(result_state) & " But got: " & convertOutput(output) severity ERROR;
+				
+				assert not endfile(result_23_buf) report "Expected test result in result file" severity FAILURE;
+				readline(result_23_buf, result);
+				convertInput(result, result_state);
+				roundIndex <= 23;
+				wait for 10ns;
+				assert output = result_state report "Failed keccak_iota_23 Test: Expected: " & convertOutput(result_state) & " But got: " & convertOutput(output) severity ERROR;
 			end loop;
-			assert endfile(result_buf) report "Expected end of result file" severity FAILURE;
+			assert endfile(result_0_buf) report "Expected end of result file" severity FAILURE;
+			assert endfile(result_11_buf) report "Expected end of result file" severity FAILURE;
+			assert endfile(result_23_buf) report "Expected end of result file" severity FAILURE;
 			wait;
 	end process verify;
 end architecture arch;

@@ -42,11 +42,11 @@ begin
     
     clk : process
     begin
-        
-        if not finished then
+        while not finished loop
             clock <= not clock;
             wait for 5ns;
-        end if;
+        end loop;
+        wait;
     end process;
     
 	verify : process
@@ -72,6 +72,7 @@ begin
 				wait until rising_edge(clock);
 				start <= true;
 				wait until rising_edge(clock);
+				start <= false;
 				wait until rising_edge(clock);
 				for i in 0 to 23 loop
                     assert not ready report "Expected the calculation to be running but it signaled 'ready' in clock cycle " & integer'image(i) severity ERROR;

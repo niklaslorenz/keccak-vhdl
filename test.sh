@@ -19,13 +19,16 @@ rm -f ./build/test_solutions/*.txt
 pushd . > /dev/null
 cd ./build
 echo generate test solutions
-./sha3-c/Debug/tracer/tracer theta ./test_instances/raw_state_arrays.txt ./test_solutions/theta.txt
-./sha3-c/Debug/tracer/tracer rho ./test_instances/raw_state_arrays.txt ./test_solutions/rho.txt
-./sha3-c/Debug/tracer/tracer pi ./test_instances/raw_state_arrays.txt ./test_solutions/pi.txt
-./sha3-c/Debug/tracer/tracer chi ./test_instances/raw_state_arrays.txt ./test_solutions/chi.txt
-./sha3-c/Debug/tracer/tracer iota 0 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_0.txt
-./sha3-c/Debug/tracer/tracer iota 11 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_11.txt
-./sha3-c/Debug/tracer/tracer iota 23 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_23.txt
+tracer="./sha3-c/Debug/tracer/tracer"
+$tracer theta ./test_instances/raw_state_arrays.txt ./test_solutions/theta.txt
+$tracer rho ./test_instances/raw_state_arrays.txt ./test_solutions/rho.txt
+$tracer pi ./test_instances/raw_state_arrays.txt ./test_solutions/pi.txt
+$tracer chi ./test_instances/raw_state_arrays.txt ./test_solutions/chi.txt
+$tracer iota 0 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_0.txt
+$tracer iota 11 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_11.txt
+$tracer iota 23 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_23.txt
+$tracer keccak-p 0 ./test_instances/raw_state_arrays.txt ./test_solutions/keccak_p.txt
+$tracer keccak-f ./test_instances/raw_state_arrays.txt ./test_solutions/keccak_f.txt
 popd > /dev/null
 
 echo read test instances

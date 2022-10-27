@@ -27,7 +27,7 @@ architecture arch of keccak_chi_test is
 	signal output : StateArray;
 begin
 
-	theta : keccak_chi port map(input => input, output => output);
+	chi : keccak_chi port map(input => input, output => output);
 
 	verify : process
 		variable challenge : line;
