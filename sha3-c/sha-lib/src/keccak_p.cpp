@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <iomanip>
+#include <cstring>
 
 namespace keccak {
 
@@ -116,16 +117,23 @@ namespace keccak {
 }
 
 std::istream& operator >>(std::istream& stream, keccak::StateArray& stateArray) {
+    memset(&stateArray, 0, 200);
     std::string line;
     std::getline(stream, line);
-    if(line.length() < 400) {
+    int inputLength = line.length();
+    if(inputLength == 0) {
+        throw keccak::end_of_input();
+    } else if(inputLength < 400) {
         line = std::string(400 - line.length(), '0').append(line);
-    } else if(line.length() > 400) {
+    } else if(inputLength > 400) {
         throw std::runtime_error("Input too large for a state array!");
     }
-    std::stringstream lineStream(line);
+    std::stringstream lineStream;
+    size_t position = 0;
     for(int y = 0; y < 5; y++) {
         for(int x = 0; x < 5; x++) {
+            lineStream = std::stringstream {line.substr(position, 16)};
+            position += 16;
             lineStream >> std::hex >> stateArray[4 - y][4 - x];
         }
     }

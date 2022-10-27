@@ -12,47 +12,59 @@ void execute(const std::function<void(keccak::StateArray&, const keccak::StateAr
     keccak::StateArray state;
     keccak::StateArray result;
     while(!input.eof()) {
-        input >> state;
+        try {
+            input >> state;
+        } catch(keccak::end_of_input&) {
+            break;
+        }
         f(result, state);
         output << result << std::endl;
     }
 }
 
-int iota(int argc, const char** argv, std::istream& input, std::ostream& output) {
-    if(argc != 1) {
-        std::cout << "Expected one function parameter: <round index>" << std::endl;
-        return 1;
-    }
-    int roundIndex;
-    std::stringstream arg(argv[0]);
-    arg >> roundIndex;
-    if(roundIndex < 0 || roundIndex > 23) {
-        std::cout << "The round index must be between 0 and 23" << std::endl;
-        return 1;
-    }
-    execute([roundIndex](keccak::StateArray& res, const keccak::StateArray& input) {keccak::iota(res, input, roundIndex);}, input, output);
-    return 0;
+std::function<void(keccak::StateArray&, const keccak::StateArray&, uint8_t)> getRoundDependentFunction(const std::string& name) {
+    if(name == "iota") return keccak::iota;
+    if(name == "keccak-p") return keccak::keccak_p;
+    return nullptr;
 }
 
-std::function<void(keccak::StateArray&, const keccak::StateArray&)> getPermutationFunction(const std::string& name) {
+std::function<void(keccak::StateArray&, const keccak::StateArray&)> getRoundIndependentFunction(const std::string& name) {
     if(name == "theta") return keccak::theta;
     if(name == "rho") return keccak::rho;
     if(name == "pi") return keccak::pi;
     if(name == "chi") return keccak::chi;
+    if(name == "keccak-f") return keccak::keccak_f;
     return nullptr;
 }
 
 std::function<int(int argc, const char** argv, std::istream&, std::ostream&)> getFunctionForName(const std::string& name) {
-    if(name == "iota") return iota;
+    auto roundDependentFunction = getRoundDependentFunction(name);
+    if(roundDependentFunction != nullptr) {
+        return [roundDependentFunction, name](int argc, const char** argv, std::istream& input, std::ostream& output){
+            if(argc != 1) {
+                std::cout << "Expected one function parameter for function " << name << ": <round index>" << std::endl;
+                return 1;
+            }
+            int roundIndex;
+            std::stringstream arg(argv[0]);
+            arg >> roundIndex;
+            if(roundIndex < 0 || roundIndex > 23) {
+                std::cout << "The round index must be between 0 and 23" << std::endl;
+                return 1;
+            }
+            execute([roundIndex, roundDependentFunction](keccak::StateArray& res, const keccak::StateArray& input) {roundDependentFunction(res, input, roundIndex);}, input, output);
+            return 0;
+        };
+    }
 
-    auto permutation = getPermutationFunction(name);
-    if(permutation != nullptr) {
-        return [permutation, name](int argc, const char** argv, std::istream& input, std::ostream& output) {
+    auto roundIndependentFunction = getRoundIndependentFunction(name);
+    if(roundIndependentFunction != nullptr) {
+        return [roundIndependentFunction, name](int argc, const char** argv, std::istream& input, std::ostream& output) {
             if(argc != 0) {
                 std::cout << "expected no function parameters for function " << name << std::endl;
                 return 1;
             }
-            execute(permutation, input, output);
+            execute(roundIndependentFunction, input, output);
             return 0;
         };
     }

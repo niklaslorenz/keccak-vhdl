@@ -11,6 +11,9 @@ namespace keccak {
     typedef uint64_t Lane;
     typedef std::array<std::array<Lane, 5>, 5> StateArray;
 
+    struct end_of_input {
+    };
+
     inline constexpr Lane rotl(Lane lane, uint16_t amount) {
         amount %= 64;
         return lane << amount | lane >> (64 - amount);
