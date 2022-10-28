@@ -10,7 +10,9 @@ sources=("keccak_types" \
 "keccak_chi" \
 "keccak_iota" \
 "keccak_p" \
-"keccak_f")
+"keccak_f" \
+"sha3_types" \
+"sha3")
 
 test_instances=("keccak_theta_test" \
 "keccak_rho_test" \
