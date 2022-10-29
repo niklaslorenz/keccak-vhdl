@@ -29,6 +29,7 @@ $tracer iota 11 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_11.t
 $tracer iota 23 ./test_instances/raw_state_arrays.txt ./test_solutions/iota_23.txt
 $tracer keccak-p 0 ./test_instances/raw_state_arrays.txt ./test_solutions/keccak_p.txt
 $tracer keccak-f ./test_instances/raw_state_arrays.txt ./test_solutions/keccak_f.txt
+$tracer pad256 ./test_instances/text_inputs.txt ./test_solutions/pad256.txt
 popd > /dev/null
 
 echo read test instances

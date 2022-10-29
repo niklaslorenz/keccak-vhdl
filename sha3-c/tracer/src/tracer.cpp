@@ -3,8 +3,10 @@
 //
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sha3/keccak_p.h>
+#include <sha3/sha3.h>
 #include <sstream>
 #include <functional>
 
@@ -20,6 +22,30 @@ void execute(const std::function<void(keccak::StateArray&, const keccak::StateAr
         f(result, state);
         output << result << std::endl;
     }
+}
+
+const std::function<void(std::istream& input, std::ostream& output)> getPadFunction(const std::string& name) {
+    size_t block_size = 0;
+    if(name == "pad224") block_size = 1152 / 8;
+    if(name == "pad256") block_size = 1088 / 8;
+    if(name == "pad384") block_size = 832 / 8;
+    if(name == "pad512") block_size = 576 / 8;
+    if(block_size == 0) {
+        return nullptr;
+    }
+    return [block_size](std::istream& input, std::ostream& output){
+        std::string line;
+        while(std::getline(input, line)) {
+            char* result = nullptr;
+            size_t output_size = sha3::pad(&result, line.c_str(), line.length(), block_size);
+            output << std::hex;
+            for(int i = 0; i < output_size; i++) {
+                output << std::setw(2) << std::setfill('0') << (int) (unsigned char) result[i] << std::flush;
+            }
+            output << std::dec << std::endl;
+            delete result;
+        }
+    };
 }
 
 std::function<void(keccak::StateArray&, const keccak::StateArray&, uint8_t)> getRoundDependentFunction(const std::string& name) {
@@ -65,6 +91,17 @@ std::function<int(int argc, const char** argv, std::istream&, std::ostream&)> ge
                 return 1;
             }
             execute(roundIndependentFunction, input, output);
+            return 0;
+        };
+    }
+
+    auto padFunction = getPadFunction(name);
+    if(padFunction != nullptr) {
+        return [padFunction, name](int argc, const char** argv, std::istream& input, std::ostream& output) {
+            if(argc != 1) {
+                std::cout << "expected one function parameter for function " << name << ": <block size>" << std::endl;
+            }
+            padFunction(input, output);
             return 0;
         };
     }
