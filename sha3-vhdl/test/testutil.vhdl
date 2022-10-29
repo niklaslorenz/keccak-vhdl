@@ -12,6 +12,8 @@ package testutil is
 
 	function convertOutput(state : in StateArray) return string;
 
+	function reverseByteOrder(input : std_logic_vector) return std_logic_vector;
+
 end package testutil;
 
 package body testutil is
@@ -33,5 +35,15 @@ package body testutil is
 		hwrite(str, hex);
 		return str.all;
 	end function convertOutput;
+
+	function reverseByteOrder(input : std_logic_vector) return std_logic_vector is
+		constant len : natural := input'length;
+		variable output : std_logic_vector(len - 1 downto 0) := (others => '0');
+	begin
+		for i in 0 to (len / 8) - 1 loop
+			output(i * 8 + 7 downto i * 8) := input(len - i * 8 - 1 downto len - i * 8 - 8);
+		end loop;
+		return output;
+	end function reverseByteOrder;
 
 end package body testutil;

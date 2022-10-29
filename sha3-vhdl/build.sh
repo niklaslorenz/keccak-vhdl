@@ -38,10 +38,18 @@ rm -r -f ./work
 echo build vhdl sources
 for f in ${sources[@]}; do
 nvc -a "${src_dir}/${f}.vhdl"
+if [ $? -ne 0 ]; then
+echo build aborted
+exit 1
+fi
 done
 echo build vhdl test sources
 for f in ${test_sources[@]}; do
 nvc -a "${test_dir}/${f}.vhdl"
+if [ $? -ne 0 ]; then
+echo build aborted
+exit 1
+fi
 done
 echo elaborate vhdl test instances
 for f in ${test_instances[@]}; do

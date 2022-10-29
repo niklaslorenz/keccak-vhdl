@@ -5,6 +5,7 @@ use IEEE.numeric_std.all;
 
 use work.keccak_types.all;
 use work.sha3_types.all;
+use work.testutil.all;
 use work.all;
 
 entity sha3_helloworld_test is
@@ -24,25 +25,11 @@ architecture arch of sha3_helloworld_test is
     );
     end component sha3;
 
-    function pad(str : string; blockSize : natural) return std_logic_vector is
-        variable pad_begin : natural;
-        variable blck : std_logic_vector(blockSize - 1 downto 0) := (others => '0');
-        variable c : std_logic_vector(7 downto 0);
-    begin
-        for i in str'range loop
-            c := std_logic_vector(to_unsigned(character'pos(str(i)), 8));
-            blck((i - 1) * 8 + 7 downto (i - 1) * 8) := c(3 downto 0) & c(7 downto 4);
-        end loop;
-        pad_begin := str'length * 8;
-        blck(pad_begin + 2 downto pad_begin) := "110";
-        blck(blockSize - 1) := '1';
-        return blck;
-    end function pad;
-
     constant t : sha3_type := sha256;
     constant input_text : string := "Hello World!";
-    constant input_block : std_logic_vector := pad(input_text, 1600 - 2 * getHashSize(t));
-    constant hash : std_logic_vector := x"d0e47486bbf4c16acac26f8b653592973c1362909f90262877089f9c8a4536af";
+    constant input_block : std_logic_vector := sha_pad(input_text, t);
+    constant raw_hash : std_logic_vector(255 downto 0) := x"d0e47486bbf4c16acac26f8b653592973c1362909f90262877089f9c8a4536af";
+    constant hash : std_logic_vector(255 downto 0) := reverseByteOrder(raw_hash);
 
     signal rst : boolean := true;
     signal clk : std_logic := '0';
@@ -51,6 +38,7 @@ architecture arch of sha3_helloworld_test is
     signal ready : boolean;
     signal finished : boolean := false;
     signal debug_padded : std_logic_vector(511 downto 0) := input_block(511 downto 0);
+    signal hash_debug : std_logic_vector(255 downto 0) := hash;
 begin
 
     sha : sha3 generic map (t => t) port map(input => input_block, rst => rst, clk => clk, start => start, mode => init, output => output, ready => ready);
@@ -70,6 +58,7 @@ begin
         rst <= false;
         start <= true;
         wait until rising_edge(clk);
+        start <= false;
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         while not ready loop
