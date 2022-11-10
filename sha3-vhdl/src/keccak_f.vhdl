@@ -9,11 +9,11 @@ use work.keccak_types.all;
 entity keccak_f is
 port(
 	input : in StateArray;
-	rst : in boolean;
+	rst : in std_logic;
 	clk : in std_logic;
-	start : in boolean;
+	start : in std_logic;
 	output : out StateArray;
-	ready : out boolean
+	ready : out std_logic
 );
 end entity keccak_f;
 
@@ -30,7 +30,7 @@ architecture arch of keccak_f is
 	signal permutation_input : StateArray;
 	signal current_round : Natural range 0 to 23;
 	signal permutation_output : StateArray;
-	signal running : boolean := false;
+	signal running : std_logic := '0';
 	
 	signal debug_input_vector, debug_output_vector : std_logic_vector(1599 downto 0);
 begin
@@ -39,20 +39,20 @@ begin
 	
 	process(clk, rst) is
 	begin
-		if rst = true then
+		if rst = '1' then
 			permutation_input <= to_StateArray(std_logic_vector(to_unsigned(0, 1600)));
-			running <= false;
+			running <= '0';
 			current_round <= 0;
 		elsif rising_edge(clk) then
-			if not running then
-				if start then
-					running <= true;
+			if running = '0' then
+				if start = '1' then
+					running <= '1';
 					current_round <= 0;
                     permutation_input <= input;
 				end if;
 			else
 				if current_round = 23 then
-					running <= false;
+					running <= '0';
 				else
                     permutation_input <= permutation_output;
 					current_round <= current_round + 1;

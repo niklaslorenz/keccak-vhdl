@@ -6,15 +6,15 @@ use work.sha3_types.all;
 use work.all;
 
 entity sha3 is
-generic(t : sha3_type);
+generic (t : sha3_type := sha256);
 port(
     input : in std_logic_vector(1599 - 2 * getHashSize(t) downto 0);
-    rst : in boolean;
+    rst : in std_logic;
     clk : in std_logic;
-    start : in boolean;
+    start : in std_logic;
     mode : in sha3_mode;
     output : out std_logic_vector(getHashSize(t) - 1 downto 0);
-    ready : out boolean
+    ready : out std_logic
 );
 end entity sha3;
 
@@ -22,11 +22,11 @@ architecture arch of sha3 is
     component keccak_f is
     port(
         input : in StateArray;
-        rst : in boolean;
+        rst : in std_logic;
         clk : in std_logic;
-        start : in boolean;
+        start : in std_logic;
         output : out StateArray;
-        ready : out boolean
+        ready : out std_logic
     );
     end component keccak_f;
     signal f_input : StateArray;
