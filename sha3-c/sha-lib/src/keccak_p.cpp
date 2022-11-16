@@ -9,7 +9,7 @@
 
 namespace keccak {
 
-    static const std::array<std::array<uint16_t, 5>, 5> rho_shifts {
+    const std::array<std::array<uint8_t, 5>, 5> rho_shifts {
             0, 1, 62, 28, 27,
             36, 44, 6, 55, 20,
             3, 10, 43, 25, 39,
@@ -17,7 +17,7 @@ namespace keccak {
             18, 2, 61, 56, 14
     };
 
-    static const std::array<Lane, 24> roundConstants {
+    const std::array<Lane, 24> roundConstants {
             1ULL,
             32898ULL,
             9223372036854808714ULL,

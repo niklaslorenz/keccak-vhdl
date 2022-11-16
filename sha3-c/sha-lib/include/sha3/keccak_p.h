@@ -14,6 +14,10 @@ namespace keccak {
     struct end_of_input {
     };
 
+    extern const std::array<std::array<uint8_t, 5, 5> rho_shifts;
+
+    extern const std::array<Lane, 24> roundConstants;
+
     inline constexpr Lane rotl(Lane lane, uint16_t amount) {
         amount %= 64;
         return lane << amount | lane >> (64 - amount);
