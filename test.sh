@@ -58,4 +58,4 @@ echo executed ${total_tests} tests
 echo passed: ${passed_tests}
 echo failed: ${failed_tests}
 popd > /dev/null
-exit $failed
+exit $([ $failed_tests -ne 0 ] && echo 1 || echo 0)
