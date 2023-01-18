@@ -7,6 +7,9 @@ use work.util.all;
 
 package slice_functions is
 
+    function pi(slice : slice_t) return slice_t;
+    function chi(slice : slice_t) return slice_t;
+
     function theta_sums(slice : slice_t) return std_logic_vector;
     function theta(lower_sums : std_logic_vector(4 downto 0); higher_sums : std_logic_vector(4 downto 0); slice : slice_t) return slice_t;
     function theta(previous_slice : slice_t; this_slice : slice_t) return slice_t;
@@ -14,6 +17,27 @@ package slice_functions is
 end package slice_functions;
 
 package body slice_functions is
+
+    function pi(slice : slice_t) return slice_t is
+        variable result : slice_t(24 downto 0);
+    begin
+        perm_y : for y in 0 to 4 generate
+            perm_x : for x in 0 to 4 generate
+                result(full_lane_index(x, y)) := slice(full_lane_index((x + 3 * y) mod 5, x));
+            end generate;
+        end generate;
+        return result;
+    end function;
+
+    function chi(slice : slice_t) return slice_t is
+        variable result : slice_t(24 downto 0);
+    begin
+        gen_y : for y in 0 to 4 generate
+            gen_x : for x in 0 to 4 generate
+                result(full_lane_index(x, y)) <= slice(full_lane_index(x, y)) xor (not slice(full_lane_index((x + 1) mod 5, y)) and slice(full_lane_index((x + 2) mod 5, y)));
+            end generate;
+        end generate;
+    end function;
 
     function theta_sums(slice : slice_t) return std_logic_vector is
         variable column_sums : std_logic_vector(4 downto 0) := (others => '0');
