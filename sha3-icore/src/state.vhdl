@@ -11,6 +11,7 @@ package state is
 
     subtype atom_index_t is natural range 0 to 1;
     subtype lane_index_t is natural range 0 to 12;
+    subtype full_lane_index_t is natural range 0 to 24;
     subtype slice_index_t is natural range 0 to 63;
 
     procedure set_lane(state: inout block_t; data : in lane_t; index : in lane_index_t);
