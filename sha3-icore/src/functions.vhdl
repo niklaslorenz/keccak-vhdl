@@ -19,24 +19,24 @@ end package slice_functions;
 package body slice_functions is
 
     function pi(slice : slice_t) return slice_t is
-        variable result : slice_t(24 downto 0);
+        variable result : slice_t;
     begin
-        perm_y : for y in 0 to 4 generate
-            perm_x : for x in 0 to 4 generate
+        for y in 0 to 4 loop
+            for x in 0 to 4 loop
                 result(full_lane_index(x, y)) := slice(full_lane_index((x + 3 * y) mod 5, x));
-            end generate;
-        end generate;
+            end loop;
+        end loop;
         return result;
     end function;
 
     function chi(slice : slice_t) return slice_t is
-        variable result : slice_t(24 downto 0);
+        variable result : slice_t;
     begin
-        gen_y : for y in 0 to 4 generate
-            gen_x : for x in 0 to 4 generate
-                result(full_lane_index(x, y)) <= slice(full_lane_index(x, y)) xor (not slice(full_lane_index((x + 1) mod 5, y)) and slice(full_lane_index((x + 2) mod 5, y)));
-            end generate;
-        end generate;
+        for y in 0 to 4 loop
+            for x in 0 to 4 loop
+                result(full_lane_index(x, y)) := slice(full_lane_index(x, y)) xor (not slice(full_lane_index((x + 1) mod 5, y)) and slice(full_lane_index((x + 2) mod 5, y)));
+            end loop;
+        end loop;
     end function;
 
     function theta_sums(slice : slice_t) return std_logic_vector is
