@@ -1,0 +1,5 @@
+#!/bin/bash
+pushd . >/dev/null
+cd ../build/sha3-icore
+rm -r work
+popd >/dev/null

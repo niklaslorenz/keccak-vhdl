@@ -1,0 +1,7 @@
+#!/bin/bash
+pushd . >/dev/null
+cd ../build/sha3-icore
+nvc -a "../../sha3-icore/test/$1.vhdl"
+nvc -e "$1"
+nvc -r -w "$1"
+popd >/dev/null
