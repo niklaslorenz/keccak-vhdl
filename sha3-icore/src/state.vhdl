@@ -7,6 +7,7 @@ package state is
     subtype lane_t is std_logic_vector(63 downto 0);
     type block_t is array(natural range 0 to 12) of lane_t;
     subtype tile_slice_t is std_logic_vector(12 downto 0);
+    subtype remote_slice_t is std_logic_vector(11 downto 0);
     subtype slice_t is std_logic_vector(24 downto 0);
 
     subtype atom_index_t is natural range 0 to 1;
