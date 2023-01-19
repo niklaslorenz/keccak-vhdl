@@ -1,10 +1,16 @@
 src_dir=$(pwd)/src
 test_dir=$(pwd)/test
 
-sources=("slices" \
-"state_holder")
+sources=( \
+"state" \
+"util" \
+"round_constants" \
+"functions" \
+"modules/reader" \
+)
 
-test_instances=("state_holder_test")
+test_instances=("state_test" \
+theta_test)
 
 test_sources=("")
 test_sources+=(${test_instances[@]})

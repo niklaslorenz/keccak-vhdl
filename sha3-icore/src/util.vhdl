@@ -5,6 +5,8 @@ use work.state.all;
 
 package util is
 
+    subtype round_index_t is natural range 0 to 23;
+
     function to_lane(vec : std_ulogic_vector) return lane_t;
 
     function full_lane_index(x : natural range 0 to 4; y : natural range 0 to 4) return full_lane_index_t;
