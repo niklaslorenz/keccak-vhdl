@@ -7,6 +7,7 @@ sources=( \
 "round_constants" \
 "functions" \
 "modules/reader" \
+"modules/buffer" \
 "sha3_atom" \
 )
 
