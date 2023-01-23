@@ -1,9 +1,15 @@
+-- This is a manual test, since the atom's
+-- state is not accessible at this stage yet.
+-- Use the generated wave form to verify
+-- the correctnes of this stage
+
 library IEEE;
 
 use IEEE.std_logic_1164.all;
+use work.state.all;
+use work.round_constants;
 
 entity atom_read_test is
-    port();
 end entity;
 
 architecture arch of atom_read_test is
@@ -20,9 +26,9 @@ architecture arch of atom_read_test is
             );
     end component;
 
-    signal clk : std_logic;
-    signal rst : std_logic;
-    signal enable : std_logic;
+    signal clk : std_logic := '0';
+    signal rst : std_logic := '0';
+    signal enable : std_logic := '0';
     signal data_in : lane_t;
     signal data_out_0 : lane_t;
     signal data_out_1 : lane_t;
@@ -52,9 +58,11 @@ begin
         wait until rising_edge(clk);
         enable <= '1';
         for i in 0 to 16 loop
+            data_in <= round_constants.get(i);
             wait until rising_edge(clk);
         end loop;
         enable <= '0';
+        wait until rising_edge(clk);
         finished <= true;
         wait;
     end process;

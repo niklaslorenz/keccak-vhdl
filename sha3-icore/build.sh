@@ -7,10 +7,14 @@ sources=( \
 "round_constants" \
 "functions" \
 "modules/reader" \
+"sha3_atom" \
 )
 
-test_instances=("state_test" \
-theta_test)
+test_instances=( \
+"state_test" \
+"theta_test" \
+"atom_read_test" \
+)
 
 test_sources=("")
 test_sources+=(${test_instances[@]})
