@@ -21,6 +21,7 @@ package slice_buffer is
         results : in buffer_data_t;
         output : out lane_t;
         data : out buffer_data_t;
+        -- control signals
         ready : out std_logic;
         finished : out std_logic;
         isFirst : out std_logic;
@@ -45,6 +46,7 @@ package body slice_buffer is
         results : in buffer_data_t;
         output : out lane_t;
         data : out buffer_data_t;
+        -- control signals
         ready : out std_logic;
         finished : out std_logic;
         isFirst : out std_logic;
@@ -63,17 +65,6 @@ package body slice_buffer is
     begin
         incoming_state_transmission := input(31 downto 0);
         incoming_result_transmission := input(63 downto 32);
-
-        if iterator = 0 then
-            isFirst := '1';
-        else
-            isFirst := '0';
-        end if;
-        if iterator = 7 then
-            isLast := '1';
-        else
-            isLast := '0';
-        end if;
 
         -- transmit own state
         if iterator <= 7 then
@@ -124,12 +115,32 @@ package body slice_buffer is
         -- merge received slices with own block
         if iterator >= 1 and iterator <= 8 then
             if atom_index = 1 then
-                data(1) := state(iterator * 2 + 15) & incoming_state_transmission(27 downto 16);
-                data(0) := state(iterator * 2 + 14) & incoming_state_transmission(11 downto  0);
+                data(1) := get_slice_tile(state, iterator * 2 + 15) & incoming_state_transmission(27 downto 16);
+                data(0) := get_slice_tile(state, iterator * 2 + 14) & incoming_state_transmission(11 downto  0);
+                current_slice := iterator * 2 + 14;
             else
-                data(1) := incoming_state_transmission(27 downto 16) & state(iterator * 2 - 1);
-                data(0) := incoming_state_transmission(11 downto  0) & state(iterator * 2 - 2);
+                data(1) := incoming_state_transmission(27 downto 16) & get_slice_tile(state, iterator * 2 - 1);
+                data(0) := incoming_state_transmission(11 downto  0) & get_slice_tile(state, iterator * 2 - 2);
+                current_slice := iterator * 2 - 2;
             end if;
+            if iterator = 1 then
+                isFirst := '1';
+            else
+                isFirst := '0';
+            end if;
+            if iterator = 8 then
+                isLast := '1';
+            else
+                isLast := '0';
+            end if;
+            ready := '1';
+        else
+            data(0) := (others => '0');
+            data(1) := (others => '1');
+            isFirst := '0';
+            isLast := '0';
+            ready := '0';
+            current_slice := 0;
         end if;
 
         -- finalize incoming result transmission
@@ -152,7 +163,14 @@ package body slice_buffer is
             end if;
         end if;
 
+        if iterator >= 11 then
+            finished := '1';
+        else
+            finished := '0';
+        end if;
+
         output := outgoing_result_transmission & outgoing_state_transmission;
+        iterator := iterator + 1;
     end procedure;
 
 end package body;

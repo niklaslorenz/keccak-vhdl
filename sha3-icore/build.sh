@@ -15,6 +15,7 @@ test_instances=( \
 "state_test" \
 "theta_test" \
 "atom_read_test" \
+"buffer_data_transmit_test" \
 )
 
 test_sources=("")

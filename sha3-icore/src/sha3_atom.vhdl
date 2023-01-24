@@ -38,14 +38,16 @@ begin
         variable state : block_t;
         variable mode : mode_t;
         variable round : round_index_t;
-        variable slice_index : natural range 0 to 63;
 
         --modules
         variable reader : reader_t;
         variable reader_ready : std_logic;
 
         variable slice_buffer : buffer_t;
+        variable slice_buffer_data : buffer_data_t;
         variable slice_buffer_ready : std_logic;
+        variable slice_buffer_finished : std_logic;
+        variable slice_index : slice_index_t;
 
         procedure enter_read(mode : inout mode_t; reader : inout reader_t) is
         begin
@@ -88,11 +90,13 @@ begin
                     end if;
                 elsif mode = theta then
                     -- TODO calculate theta here
-                    if slice_index = 63 then
-                        slice_index := 0;
+                    -- sync(slice_buffer, state, slice_buffer_data, slice_buffer_ready, slice_buffer_finished, slice_index);
+                    if slice_buffer_ready = '1' then
+
+                    end if;
+                    
+                    if slice_buffer_finished = '1' then
                         enter_rho(mode);
-                    else
-                        slice_index := slice_index + 1;
                     end if;
                 elsif mode = rho then
                     rho(state, atom_index);
