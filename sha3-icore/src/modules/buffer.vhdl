@@ -7,7 +7,7 @@ package slice_buffer is
 
     type buffer_data_t is array(natural range 0 to 1) of slice_t;
 
-    subtype buffer_t is natural range 0 to 255;
+    subtype buffer_t is natural range 0 to 12;
 
     subtype transmission_word_t is std_logic_vector(31 downto 0);
 
@@ -25,7 +25,7 @@ package slice_buffer is
         ready : out std_logic;
         finished : out std_logic;
         isFirst : out std_logic;
-        isLast : out std_logic;
+        computeEdgeCase : out std_logic;
         current_slice : out slice_index_t
     );
 
@@ -50,7 +50,7 @@ package body slice_buffer is
         ready : out std_logic;
         finished : out std_logic;
         isFirst : out std_logic;
-        isLast : out std_logic;
+        computeEdgeCase : out std_logic;
         current_slice : out slice_index_t
     ) is
 
@@ -88,8 +88,14 @@ package body slice_buffer is
                 outgoing_result_transmission := "000" & results(1)(24 downto 12)
                                              &  "000" & results(0)(24 downto 12);
             end if;
+            if iterator = 9 then -- so that the results of this last computation arrives in iteration 10
+                computeEdgeCase := '1';
+            else
+                computeEdgeCase := '0';
+            end if;
         else
             outgoing_result_transmission := zero;
+            computeEdgeCase := '0';
         end if;
 
         --finalize own results
@@ -128,17 +134,11 @@ package body slice_buffer is
             else
                 isFirst := '0';
             end if;
-            if iterator = 8 then
-                isLast := '1';
-            else
-                isLast := '0';
-            end if;
             ready := '1';
         else
             data(0) := (others => '0');
             data(1) := (others => '1');
             isFirst := '0';
-            isLast := '0';
             ready := '0';
             current_slice := 0;
         end if;

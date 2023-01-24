@@ -33,8 +33,8 @@ begin
         variable buf1_state : block_t;
         variable buf0_output, buf0_input, buf1_input, buf1_output : lane_t;
         variable buf0_data, buf1_data : buffer_data_t;
-        variable buf0_ready, buf0_finished, buf0_isFirst, buf0_isLast : std_logic;
-        variable buf1_ready, buf1_finished, buf1_isFirst, buf1_isLast : std_logic;
+        variable buf0_ready, buf0_finished, buf0_isFirst, buf0_edgeCase : std_logic;
+        variable buf1_ready, buf1_finished, buf1_isFirst, buf1_edgeCase : std_logic;
         variable buf0_current_slice, buf1_current_slice : slice_index_t;
         constant zero : lane_t := (others => '0');
     begin
@@ -60,8 +60,8 @@ begin
         lane12 <= buf0_state(12);
         wait until rising_edge(clk);
         for i in 0 to 10 loop
-            sync(buf0, buf0_state, 0, buf0_input, ((others => '0'), (others => '0')), buf0_output, buf0_data, buf0_ready, buf0_finished, buf0_isFirst, buf0_isLast, buf0_current_slice);
-            sync(buf1, buf1_state, 1, buf1_input, ((others => '0'), (others => '0')), buf1_output, buf1_data, buf1_ready, buf1_finished, buf1_isFirst, buf1_isLast, buf1_current_slice);
+            sync(buf0, buf0_state, 0, buf0_input, ((others => '0'), (others => '0')), buf0_output, buf0_data, buf0_ready, buf0_finished, buf0_isFirst, buf0_edgeCase, buf0_current_slice);
+            sync(buf1, buf1_state, 1, buf1_input, ((others => '0'), (others => '0')), buf1_output, buf1_data, buf1_ready, buf1_finished, buf1_isFirst, buf1_edgeCase, buf1_current_slice);
             buf0_input := buf1_output;
             buf1_input := buf0_output;
 
@@ -88,6 +88,14 @@ begin
                 assert buf0_data(1) = get_slice_tile(buf1_state, i * 2 - 1)(12 downto 1) & get_slice_tile(buf0_state, i * 2 - 1) severity FAILURE;
                 assert buf1_data(0) = get_slice_tile(buf1_state, i * 2 + 14)(12 downto 1) & get_slice_tile(buf0_state, i * 2 + 14) severity FAILURE;
                 assert buf1_data(1) = get_slice_tile(buf1_state, i * 2 + 15)(12 downto 1) & get_slice_tile(buf0_state, i * 2 + 15) severity FAILURE;
+            end if;
+            if i = 9 then
+                assert buf0_edgeCase = '1' severity FAILURE;
+                assert buf1_edgeCase = '1' severity FAILURE;
+            else
+                assert buf0_edgeCase = '0' severity FAILURE;
+                assert buf1_edgeCase = '0' severity FAILURE;
+
             end if;
             if i >= 9 then
                 assert buf0_current_slice = 0;
