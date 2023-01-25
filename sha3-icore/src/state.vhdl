@@ -57,7 +57,7 @@ package body state is
         constant ZERO : lane_t := (others => '0');
     begin
         for i in 0 to 12 loop
-            set_lane(state, ZERO, lane_index_t(i));
+            set_lane(state, ZERO, i);
         end loop;
     end procedure;
 

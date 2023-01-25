@@ -13,6 +13,8 @@ package util is
 
     function mergeSlice(f : tile_slice_t; r : remote_slice_t; atom_index : atom_index_t) return slice_t;
 
+    function asBit(condition : boolean) return std_logic;
+
 end package;
 
 package body util is
@@ -33,6 +35,15 @@ package body util is
             return r & f;
         else
             return f & r;
+        end if;
+    end function;
+
+    function asBit(condition : boolean) return std_logic is
+    begin
+        if condition then
+            return '1';
+        else
+            return '0';
         end if;
     end function;
     

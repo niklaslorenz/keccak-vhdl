@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 use work.state.all;
 use work.reader.all;
 use work.util.all;
@@ -25,15 +26,25 @@ architecture arch of sha3_atom is
     type mode_t is (read, theta, rho, gamma, valid, write);
     -- Debug Signals
     signal dbg_state : block_t;
-    signal lane0, lane1, lane4, lane5, lane10, lane12 : lane_t;
+    signal lane0, lane1, lane2, lane3, lane4, lane5, lane6, lane7, lane8, lane9, lane10, lane11, lane12 : lane_t;
+    signal dbg_reading, dbg_theta, dbg_rho, dbg_gamma : std_logic;
+    signal dbg_round : std_logic_vector(4 downto 0);
+    signal dbg_slice : std_logic_vector(6 downto 0);
 
 begin
 
     lane0 <= dbg_state(0);
     lane1 <= dbg_state(1);
+    lane2 <= dbg_state(2);
+    lane3 <= dbg_state(3);
     lane4 <= dbg_state(4);
     lane5 <= dbg_state(5);
+    lane6 <= dbg_state(6);
+    lane7 <= dbg_state(7);
+    lane8 <= dbg_state(8);
+    lane9 <= dbg_state(9);
     lane10 <= dbg_state(10);
+    lane11 <= dbg_state(11);
     lane12 <= dbg_state(12);
 
     process(clk, rst) is
@@ -107,6 +118,7 @@ begin
             round := 0;
             data_out <= zero;
             ready <= '0';
+            lane0 <= state(0);
         elsif rising_edge(clk) then
             if enable = '1' then
                 if mode = read then
@@ -200,6 +212,12 @@ begin
             end if;
         end if;
         dbg_state <= state;
+        dbg_reading <= asBit(mode = read);
+        dbg_theta <= asBit(mode = theta);
+        dbg_rho <= asBit(mode = rho);
+        dbg_gamma <= asBit(mode = gamma);
+        dbg_round <= std_logic_vector(to_unsigned(round, dbg_round'length));
+        dbg_slice <= std_logic_vector(to_unsigned(buf_index, dbg_slice'length));
     end process;
 
 end architecture;

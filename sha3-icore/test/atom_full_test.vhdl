@@ -55,9 +55,12 @@ begin
     test : process is
 
     begin
+        wait for 2ns;
         rst <= '1';
         wait for 2ns;
         rst <= '0';
+        global_data_in <= (others => '0');
+        wait until rising_edge(clk);
         wait until rising_edge(clk);
         enable <= '1';
         while atom0_ready = '0' loop
