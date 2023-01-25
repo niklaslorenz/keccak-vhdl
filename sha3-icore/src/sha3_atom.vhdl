@@ -11,6 +11,8 @@ entity sha3_atom is
         clk : in std_logic;
         rst : in std_logic;
         enable : in std_logic;
+        write_data : in std_logic;
+        read_data : in std_logic;
         atom_index : in atom_index_t;
         data_in : in lane_t;
 
@@ -20,7 +22,7 @@ entity sha3_atom is
 end entity;
 
 architecture arch of sha3_atom is
-    type mode_t is (read, theta, rho, gamma, valid);
+    type mode_t is (read, theta, rho, gamma, valid, write);
     -- Debug Signals
     signal dbg_state : block_t;
     signal lane0, lane1, lane4, lane5, lane10, lane12 : lane_t;
@@ -44,6 +46,7 @@ begin
         --modules
         variable reader : reader_t;
         variable reader_ready : std_logic;
+        variable reader_out : lane_t;
 
         variable buf : buffer_t;
         variable buf_results : buffer_data_t;
@@ -64,6 +67,7 @@ begin
         begin
             init_reader(reader);
             mode := read;
+            round := 0;
         end procedure;
 
         procedure enter_theta(mode : inout mode_t) is
@@ -83,6 +87,16 @@ begin
             init_buffer(buf);
             buf_results := ((others => '0'), (others => '0'));
             mode := gamma;
+        end procedure;
+
+        procedure enter_write(mode : inout mode_t) is
+        begin
+            init_reader(reader);
+            mode := write;
+        end procedure;
+
+        procedure enter_valid(mode : inout mode_t) is
+            mode := valid;
         end procedure;
 
     begin
@@ -137,18 +151,49 @@ begin
                 elsif mode = gamma then
                     -- TODO calculate gamma here and remember, last round no theta
                     sync(buf, state, atom_index, data_in, buf_results, buf_out, buf_data, buf_ready, buf_finished, buf_isFirst, buf_computeEdgeCase, buf_index);
-                    
-                    if buf_index = 63 then
-                        buf_index := 0;
-                        if round = 23 then
-                            round := 0;
-                            mode := valid;
+                    if buf_ready = '1' then
+                        if buf_isFirst = '1' then
+                            buf_lowEdgeData := buf_data(0);
+                            gamma((others => '0'), buf_data(0), buf_index, round, round = 23, theta_sums0, buf_firstIterationResult);
+                            gamma(theta_sums0, buf_data(1), buf_index + 1, round, round = 23, theta_sums1, buf_firstIterationResult);
                         else
-                            round := round + 1;
-                            mode := rho;
+                            gamma(theta_sums1, buf_data(0), buf_index, round, round = 23, theta_sums0, buf_results(0));
+                            gamma(theta_sums0, buf_data(0), buf_index + 1, round, round = 23, theta_sums1, buf_results(1));
                         end if;
                     end if;
-
+                    if buf_computeEdgeCase = '1' then
+                        if atom_index = '0' then
+                            gamma(theta_sums1, buf_lowEdgeData, 0, round, round = 23, theta_sums0, buf_results(0));
+                        else
+                            gamma(theta_sums1, buf_lowEdgeData, 16, round, round = 23, theta_sums0, buf_results(0));
+                        end if;
+                        buf_results(1) := buf_firstIterationResult;
+                    end if;
+                    data_out <= buf_out;
+                    ready <= '0';
+                    if buf_finished = '1' then
+                        if round = 23 then
+                            round := 0;
+                            enter_valid(mode);
+                        else
+                            round := round + 1;
+                            enter_rho(mode);
+                        end if;
+                    end if;
+                elsif mode = valid then
+                    if write_data = '1' then
+                        enter_write(mode);
+                    elsif read_data = '1'
+                        enter_read(mode);
+                    end if;
+                    data_out <= zero;
+                    ready <= '1';
+                elsif mode = write then
+                    write(reader, state, atom_index, reader_out, reader_ready);
+                    if reader_ready = '1' then
+                        enter_valid(mode);
+                    end if;
+                    data_out <= reader_out;
                     ready <= '0';
                 end if;
             end if;
