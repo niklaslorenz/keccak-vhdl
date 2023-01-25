@@ -44,6 +44,8 @@ package body reader is
     begin
         if atom_index = 0 and iterator <= 3 then
             data_out := state(iterator);
+        else
+            data_out := (others => '0');
         end if;
         if iterator >= 4 then
             ready := '1';

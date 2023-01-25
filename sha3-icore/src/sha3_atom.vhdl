@@ -96,6 +96,7 @@ begin
         end procedure;
 
         procedure enter_valid(mode : inout mode_t) is
+        begin
             mode := valid;
         end procedure;
 
@@ -162,7 +163,7 @@ begin
                         end if;
                     end if;
                     if buf_computeEdgeCase = '1' then
-                        if atom_index = '0' then
+                        if atom_index = 0 then
                             gamma(theta_sums1, buf_lowEdgeData, 0, round, round = 23, theta_sums0, buf_results(0));
                         else
                             gamma(theta_sums1, buf_lowEdgeData, 16, round, round = 23, theta_sums0, buf_results(0));
@@ -183,7 +184,7 @@ begin
                 elsif mode = valid then
                     if write_data = '1' then
                         enter_write(mode);
-                    elsif read_data = '1'
+                    elsif read_data = '1' then
                         enter_read(mode);
                     end if;
                     data_out <= zero;

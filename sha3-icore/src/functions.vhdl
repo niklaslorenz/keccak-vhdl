@@ -49,6 +49,7 @@ package body slice_functions is
                 result(full_lane_index(x, y)) := slice(full_lane_index(x, y)) xor (not slice(full_lane_index((x + 1) mod 5, y)) and slice(full_lane_index((x + 2) mod 5, y)));
             end loop;
         end loop;
+        return result;
     end function;
 
     procedure rho(data : inout block_t; atom_index : atom_index_t) is
