@@ -23,6 +23,8 @@ package state is
 
     procedure reset(state : inout block_t);
 
+    function isValid(state : block_t) return boolean;
+
 end package;
 
 package body state is
@@ -60,5 +62,17 @@ package body state is
             set_lane(state, ZERO, i);
         end loop;
     end procedure;
+
+    function isValid(state : block_t) return boolean is
+    begin
+        for l in 0 to 12 loop
+            for i in 0 to 63 loop
+                if state(l)(i) /= '1' and state(l)(i) /= '0' then
+                    return false;
+                end if;
+            end loop;
+        end loop;
+        return true;
+    end function;
 
 end package body;

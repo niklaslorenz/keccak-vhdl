@@ -10,6 +10,7 @@ use work.slice_functions.all;
 entity sha3_atom is
     port(
         clk : in std_logic;
+        update : in std_logic;
         rst : in std_logic;
         enable : in std_logic;
         write_data : in std_logic;
@@ -27,9 +28,11 @@ architecture arch of sha3_atom is
     -- Debug Signals
     signal dbg_state : block_t;
     signal lane0, lane1, lane2, lane3, lane4, lane5, lane6, lane7, lane8, lane9, lane10, lane11, lane12 : lane_t;
-    signal dbg_reading, dbg_theta, dbg_rho, dbg_gamma : std_logic;
+    signal dbg_reading, dbg_theta, dbg_rho, dbg_gamma, dbg_edge_case, dbg_buf_ready : std_logic;
     signal dbg_round : std_logic_vector(4 downto 0);
     signal dbg_slice : std_logic_vector(6 downto 0);
+    signal dbg_buf_iterator : std_logic_vector(5 downto 0);
+    signal dbg_result0, dbg_result1 : slice_t;
 
 begin
 
@@ -47,7 +50,7 @@ begin
     lane11 <= dbg_state(11);
     lane12 <= dbg_state(12);
 
-    process(clk, rst) is
+    process(clk, rst, update) is
         constant zero : lane_t := (others => '0');
 
         variable state : block_t;
@@ -209,6 +212,7 @@ begin
                     data_out <= reader_out;
                     ready <= '0';
                 end if;
+                assert isValid(state) severity FAILURE;
             end if;
         end if;
         dbg_state <= state;
@@ -218,6 +222,11 @@ begin
         dbg_gamma <= asBit(mode = gamma);
         dbg_round <= std_logic_vector(to_unsigned(round, dbg_round'length));
         dbg_slice <= std_logic_vector(to_unsigned(buf_index, dbg_slice'length));
+        dbg_result0 <= buf_results(0);
+        dbg_result1 <= buf_results(1);
+        dbg_edge_case <= buf_computeEdgeCase;
+        dbg_buf_iterator <= std_logic_vector(to_unsigned(buf, dbg_buf_iterator'length));
+        dbg_buf_ready <= buf_ready;
     end process;
 
 end architecture;

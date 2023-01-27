@@ -117,7 +117,7 @@ package body slice_functions is
         else
             sums := theta_sums(slice);
             slice_sums := sums;
-            result := theta(previous_sums, sums, slice);
+            result := theta(previous_sums, sums, iota_slice);
         end if;
     end procedure;
 

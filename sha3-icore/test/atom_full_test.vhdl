@@ -11,6 +11,7 @@ architecture arch of atom_full_test is
     component sha3_atom is
         port(
             clk : in std_logic;
+            update : in std_logic;
             rst : in std_logic;
             enable : in std_logic;
             write_data : in std_logic;
@@ -24,6 +25,7 @@ architecture arch of atom_full_test is
     end component;
 
     signal clk : std_logic := '0';
+    signal update : std_logic := '0';
     signal finished : boolean := false;
     
     signal rst : std_logic := '0';
@@ -40,6 +42,15 @@ begin
     atom1_in <= global_data_in OR atom0_out;
     global_data_out <= atom0_out OR atom1_out;
 
+    update_clock : process is
+    begin
+        while not finished loop
+            update <= not update;
+            wait for 1ns;
+        end loop;
+        wait;
+    end process;
+
     clock : process is
     begin
         while not finished loop
@@ -49,8 +60,8 @@ begin
         wait;
     end process;
 
-    atom0 : sha3_atom port map(clk, rst, enable, write, read, 0, atom0_in, atom0_out, atom0_ready);
-    atom1 : sha3_atom port map(clk, rst, enable, write, read, 1, atom1_in, atom1_out, atom1_ready);
+    atom0 : sha3_atom port map(clk, update, rst, enable, write, read, 0, atom0_in, atom0_out, atom0_ready);
+    atom1 : sha3_atom port map(clk, update, rst, enable, write, read, 1, atom1_in, atom1_out, atom1_ready);
 
     test : process is
 
@@ -61,23 +72,22 @@ begin
         rst <= '0';
         global_data_in <= (others => '0');
         wait until rising_edge(clk);
-        wait until rising_edge(clk);
         enable <= '1';
         while atom0_ready = '0' loop
             wait until rising_edge(clk);
         end loop;
         enable <= '0';
-        wait until rising_edge(clk);
+        wait until falling_edge(clk);
         enable <= '1';
         write <= '1';
-        wait until rising_edge(clk);
+        wait until falling_edge(clk);
         write <= '0';
         for i in 0 to 3 loop
             hash(64 * i + 63 downto 64 * i) <= global_data_out;
             wait until rising_edge(clk);
         end loop;
         enable <= '0';
-        wait until rising_edge(clk);
+        wait until falling_edge(clk);
 
         finished <= true;
         wait;
