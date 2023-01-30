@@ -33,7 +33,8 @@ architecture arch of sha3_atom is
     type mode_t is (read, theta, rho, gamma, valid, write);
     -- Debug Signals
     signal dbg_state : block_t;
-    signal dbg_reading, dbg_theta, dbg_rho, dbg_gamma, dbg_edge_case, dbg_buf_ready : std_logic;
+    signal dbg_reader_iterator : std_logic_vector(5 downto 0);
+    signal dbg_reading, dbg_theta, dbg_rho, dbg_gamma, dbg_buf_first, dbg_buf_loop, dbg_edge_case : std_logic;
     signal dbg_round : std_logic_vector(4 downto 0);
     signal dbg_slice : std_logic_vector(6 downto 0);
     signal dbg_buf_iterator : std_logic_vector(5 downto 0);
@@ -50,23 +51,24 @@ begin
         variable mode : mode_t;
         variable round : round_index_t;
 
-        --modules
         variable reader : reader_t;
         variable reader_ready : std_logic;
         variable reader_out : lane_t;
 
         variable buf : buffer_t;
+        -- sync inputs
         variable buf_results : buffer_data_t;
         variable buf_out : lane_t;
         variable buf_data : buffer_data_t;
-        variable buf_ready : std_logic;
-        variable buf_finished : std_logic;
-        variable buf_isFirst : std_logic;
+        -- sync control signals
+        variable buf_computeFirst : std_logic;
+        variable buf_computeLoop : std_logic;
         variable buf_computeEdgeCase : std_logic;
         variable buf_index : slice_index_t;
-        variable buf_edgeData : buffer_data_t;
+        variable buf_finished : std_logic;
+        -- buffer computation data
         variable buf_lowEdgeData : slice_t;
-        variable buf_firstIterationResult : slice_t;
+        variable buf_edgeCaseUpperSlice : slice_t;
         variable theta_sums0 : std_logic_vector(4 downto 0);
         variable theta_sums1 : std_logic_vector(4 downto 0);
 
@@ -124,27 +126,21 @@ begin
                     data_out <= zero;
                     ready <= '0';
                 elsif mode = theta then
-                    sync(buf, state, atom_index, data_in, buf_results, buf_out, buf_data, buf_ready, buf_finished, buf_isFirst, buf_computeEdgeCase, buf_index);
-                    if buf_ready = '1' then
-                        if buf_isFirst = '1' then
-                            buf_lowEdgeData := buf_data(0);
-                            theta_sums0 := theta_sums(buf_data(0));
-                            theta_sums1 := theta_sums(buf_data(1));
-                            buf_firstIterationResult := theta(theta_sums0, theta_sums1, buf_data(1));
-                        else
-                            theta_sums0 := theta_sums1;
-                            theta_sums1 := theta_sums(buf_data(0));
-                            buf_results(0) := theta(theta_sums0, theta_sums1, buf_data(0));
-                            theta_sums0 := theta_sums1;
-                            theta_sums1 := theta_sums(buf_data(1));
-                            buf_results(1) := theta(theta_sums0, theta_sums1, buf_data(1));
-                        end if;
-                    end if;
-                    if buf_computeEdgeCase = '1' then
-                        theta_sums0 := theta_sums1;
-                        theta_sums1 := theta_sums(buf_lowEdgeData);
-                        buf_results(0) := theta(theta_sums0, theta_sums1, buf_lowEdgeData);
-                        buf_results(1) := buf_firstIterationResult;
+                    sync(buf, state, atom_index, data_in, buf_results, buf_out, buf_data, buf_computeFirst, buf_computeLoop, buf_computeEdgeCase, buf_index, buf_finished);
+                    if buf_computeFirst = '1' then
+                        buf_lowEdgeData := buf_data(0);
+                        theta_sums0 := theta_sums(buf_data(0));
+                        theta_sums1 := theta_sums(buf_data(1));
+                        buf_edgeCaseUpperSlice := theta(theta_sums0, theta_sums1, buf_data(1));
+                    elsif buf_computeLoop = '1' then
+                        theta_sums0 := theta_sums(buf_data(0));
+                        buf_results(0) := theta(theta_sums1, theta_sums0, buf_data(0));
+                        theta_sums1 := theta_sums(buf_data(1));
+                        buf_results(1) := theta(theta_sums0, theta_sums1, buf_data(1));
+                    elsif buf_computeEdgeCase = '1' then
+                        theta_sums0 := theta_sums(buf_lowEdgeData);
+                        buf_results(0) := theta(theta_sums1, theta_sums0, buf_lowEdgeData);
+                        buf_results(1) := buf_edgeCaseUpperSlice;
                     end if;
                     data_out <= buf_out;
                     ready <= '0';
@@ -158,24 +154,21 @@ begin
                     enter_gamma(mode);
                 elsif mode = gamma then
                     -- TODO calculate gamma here and remember, last round no theta
-                    sync(buf, state, atom_index, data_in, buf_results, buf_out, buf_data, buf_ready, buf_finished, buf_isFirst, buf_computeEdgeCase, buf_index);
-                    if buf_ready = '1' then
-                        if buf_isFirst = '1' then
-                            buf_lowEdgeData := buf_data(0);
-                            gamma((others => '0'), buf_data(0), buf_index, round, round = 23, theta_sums0, buf_firstIterationResult);
-                            gamma(theta_sums0, buf_data(1), buf_index + 1, round, round = 23, theta_sums1, buf_firstIterationResult);
-                        else
-                            gamma(theta_sums1, buf_data(0), buf_index, round, round = 23, theta_sums0, buf_results(0));
-                            gamma(theta_sums0, buf_data(0), buf_index + 1, round, round = 23, theta_sums1, buf_results(1));
-                        end if;
-                    end if;
-                    if buf_computeEdgeCase = '1' then
+                    sync(buf, state, atom_index, data_in, buf_results, buf_out, buf_data, buf_computeFirst, buf_computeLoop, buf_computeEdgeCase, buf_index, buf_finished);
+                    if buf_computeFirst = '1' then
+                        buf_lowEdgeData := buf_data(0);
+                        gamma((others => '0'), buf_data(0), buf_index, round, round = 23, theta_sums0, buf_edgeCaseUpperSlice);
+                        gamma(theta_sums0, buf_data(1), buf_index + 1, round, round = 23, theta_sums1, buf_edgeCaseUpperSlice);
+                    elsif buf_computeLoop = '1' then
+                        gamma(theta_sums1, buf_data(0), buf_index, round, round = 23, theta_sums0, buf_results(0));
+                        gamma(theta_sums0, buf_data(0), buf_index + 1, round, round = 23, theta_sums1, buf_results(1));
+                    elsif buf_computeEdgeCase = '1' then
                         if atom_index = 0 then
                             gamma(theta_sums1, buf_lowEdgeData, 0, round, round = 23, theta_sums0, buf_results(0));
                         else
-                            gamma(theta_sums1, buf_lowEdgeData, 16, round, round = 23, theta_sums0, buf_results(0));
+                            gamma(theta_sums1, buf_lowEdgeData, 32, round, round = 23, theta_sums0, buf_results(0));
                         end if;
-                        buf_results(1) := buf_firstIterationResult;
+                        buf_results(1) := buf_edgeCaseUpperSlice;
                     end if;
                     data_out <= buf_out;
                     ready <= '0';
@@ -212,13 +205,15 @@ begin
         dbg_theta <= asBit(mode = theta);
         dbg_rho <= asBit(mode = rho);
         dbg_gamma <= asBit(mode = gamma);
+        dbg_reader_iterator <= std_logic_vector(to_unsigned(reader, dbg_reader_iterator'length));
         dbg_round <= std_logic_vector(to_unsigned(round, dbg_round'length));
         dbg_slice <= std_logic_vector(to_unsigned(buf_index, dbg_slice'length));
         dbg_result0 <= buf_results(0);
         dbg_result1 <= buf_results(1);
+        dbg_buf_first <= buf_computeFirst;
+        dbg_buf_loop <= buf_computeLoop;
         dbg_edge_case <= buf_computeEdgeCase;
         dbg_buf_iterator <= std_logic_vector(to_unsigned(buf, dbg_buf_iterator'length));
-        dbg_buf_ready <= buf_ready;
     end process;
 
 end architecture;

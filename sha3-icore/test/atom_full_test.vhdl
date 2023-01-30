@@ -77,18 +77,19 @@ begin
             wait until rising_edge(clk);
         end loop;
         enable <= '0';
-        wait until falling_edge(clk);
+        wait until rising_edge(clk);
         enable <= '1';
         write <= '1';
-        wait until falling_edge(clk);
+        wait until rising_edge(clk);
         write <= '0';
+        wait until rising_edge(clk);
+        wait until rising_edge(clk);
         for i in 0 to 3 loop
             hash(64 * i + 63 downto 64 * i) <= global_data_out;
             wait until rising_edge(clk);
         end loop;
         enable <= '0';
-        wait until falling_edge(clk);
-
+        wait until rising_edge(clk);
         finished <= true;
         wait;
     end process;

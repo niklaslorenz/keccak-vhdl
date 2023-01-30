@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use work.state.all;
+use work.util.all;
 
 
 package slice_buffer is
@@ -22,11 +23,11 @@ package slice_buffer is
         output : out lane_t;
         data : out buffer_data_t;
         -- control signals
-        ready : out std_logic;
-        finished : out std_logic;
-        isFirst : out std_logic;
+        computeFirst : out std_logic;
+        computeLoop : out std_logic;
         computeEdgeCase : out std_logic;
-        current_slice : out slice_index_t
+        current_slice : out slice_index_t;
+        finished : out std_logic
     );
 
 end package;
@@ -47,11 +48,11 @@ package body slice_buffer is
         output : out lane_t;
         data : out buffer_data_t;
         -- control signals
-        ready : out std_logic;
-        finished : out std_logic;
-        isFirst : out std_logic;
+        computeFirst : out std_logic;
+        computeLoop : out std_logic;
         computeEdgeCase : out std_logic;
-        current_slice : out slice_index_t
+        current_slice : out slice_index_t;
+        finished : out std_logic
     ) is
 
         constant zero : transmission_word_t := (others => '0');
@@ -88,14 +89,8 @@ package body slice_buffer is
                 outgoing_result_transmission := "000" & results(1)(24 downto 12)
                                              &  "000" & results(0)(24 downto 12);
             end if;
-            if iterator = 17 then -- so that the results of this last computation arrives in iteration 18
-                computeEdgeCase := '1';
-            else
-                computeEdgeCase := '0';
-            end if;
         else
             outgoing_result_transmission := zero;
-            computeEdgeCase := '0';
         end if;
 
         --finalize own results
@@ -111,15 +106,13 @@ package body slice_buffer is
             if atom_index = 1 then
                 set_slice_tile(state, results(1)(24 downto 12), 33);
                 set_slice_tile(state, results(0)(24 downto 12), 32);
-                assert isValid(state) severity FAILURE;
             else
                 set_slice_tile(state, results(1)(12 downto 0), 1);
                 set_slice_tile(state, results(0)(12 downto 0), 0);
-                assert isValid(state) severity FAILURE;
             end if;
         end if;
 
-        -- merge received slices with own block
+        -- provide computation data
         if iterator >= 1 and iterator <= 16 then
             if atom_index = 1 then
                 data(1) := get_slice_tile(state, iterator * 2 + 31) & incoming_state_transmission(27 downto 16);
@@ -130,28 +123,20 @@ package body slice_buffer is
                 data(0) := incoming_state_transmission(11 downto  0) & get_slice_tile(state, iterator * 2 - 2);
                 current_slice := iterator * 2 - 2;
             end if;
-            if iterator = 1 then
-                isFirst := '1';
-            else
-                isFirst := '0';
-            end if;
-            ready := '1';
         else
-            data(0) := (others => '0');
+            data(0) := (others => '1');
             data(1) := (others => '1');
-            isFirst := '0';
-            ready := '0';
             current_slice := 0;
         end if;
 
         -- finalize incoming result transmission
         if iterator >= 4 and iterator <= 18 then
             if atom_index = 1 then
-                set_slice_tile(state, incoming_result_transmission(28 downto 16), iterator * 2 + 27);
-                set_slice_tile(state, incoming_result_transmission(12 downto  0), iterator * 2 + 26);
-            else
                 set_slice_tile(state, incoming_result_transmission(28 downto 16), iterator * 2 - 5);
                 set_slice_tile(state, incoming_result_transmission(12 downto  0), iterator * 2 - 6);
+            else
+                set_slice_tile(state, incoming_result_transmission(28 downto 16), iterator * 2 + 27);
+                set_slice_tile(state, incoming_result_transmission(12 downto  0), iterator * 2 + 26);
             end if;
         elsif iterator = 19 then
             if atom_index = 1 then
@@ -163,12 +148,10 @@ package body slice_buffer is
             end if;
         end if;
 
-        if iterator >= 19 then
-            finished := '1';
-        else
-            finished := '0';
-        end if;
-
+        computeFirst := asBit(iterator = 1);
+        computeLoop := asBit(iterator >= 2 and iterator <= 16);
+        computeEdgeCase := asBit(iterator = 17); -- so that the results of this last computation can be transmitted in iteration 18 and arrives in 19
+        finished := asBit(iterator >= 19);
         output := outgoing_result_transmission & outgoing_state_transmission;
         iterator := iterator + 1;
     end procedure;

@@ -4,6 +4,7 @@ test_dir=$(pwd)/test
 sources=( \
 "state" \
 "util" \
+"visualizer" \
 "round_constants" \
 "functions" \
 "modules/reader" \
