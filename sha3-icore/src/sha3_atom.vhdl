@@ -6,6 +6,7 @@ use work.reader.all;
 use work.util.all;
 use work.slice_buffer.all;
 use work.slice_functions.all;
+use work.block_visualizer;
 
 entity sha3_atom is
     port(
@@ -24,10 +25,14 @@ entity sha3_atom is
 end entity;
 
 architecture arch of sha3_atom is
+
+    component block_visualizer is
+        port(state : in block_t);
+    end component;
+
     type mode_t is (read, theta, rho, gamma, valid, write);
     -- Debug Signals
     signal dbg_state : block_t;
-    signal lane0, lane1, lane2, lane3, lane4, lane5, lane6, lane7, lane8, lane9, lane10, lane11, lane12 : lane_t;
     signal dbg_reading, dbg_theta, dbg_rho, dbg_gamma, dbg_edge_case, dbg_buf_ready : std_logic;
     signal dbg_round : std_logic_vector(4 downto 0);
     signal dbg_slice : std_logic_vector(6 downto 0);
@@ -36,19 +41,7 @@ architecture arch of sha3_atom is
 
 begin
 
-    lane0 <= dbg_state(0);
-    lane1 <= dbg_state(1);
-    lane2 <= dbg_state(2);
-    lane3 <= dbg_state(3);
-    lane4 <= dbg_state(4);
-    lane5 <= dbg_state(5);
-    lane6 <= dbg_state(6);
-    lane7 <= dbg_state(7);
-    lane8 <= dbg_state(8);
-    lane9 <= dbg_state(9);
-    lane10 <= dbg_state(10);
-    lane11 <= dbg_state(11);
-    lane12 <= dbg_state(12);
+    state_visual : block_visualizer port map(dbg_state);
 
     process(clk, rst, update) is
         constant zero : lane_t := (others => '0');
@@ -121,7 +114,6 @@ begin
             round := 0;
             data_out <= zero;
             ready <= '0';
-            lane0 <= state(0);
         elsif rising_edge(clk) then
             if enable = '1' then
                 if mode = read then
