@@ -57,10 +57,15 @@ package body slice_functions is
 	    constant offsets : offset_t := (0, 1, 62, 28, 27, 36, 44, 6, 55, 20, 3, 10, 43, 25, 39, 41, 45, 15, 21, 8, 18, 2, 61, 56, 14);
         variable lane : full_lane_index_t;
     begin
-        for i in 0 to 12 loop
-            lane := i + 12 * atom_index;
-            data(i) := data(i)(63 - offsets(lane) downto 0) & data(i)(63 downto 63 - offsets(lane) + 1);
-        end loop;
+        if atom_index = 0 then
+            for i in 0 to 12 loop
+                data(i) := data(i)(63 - offsets(lane) downto 0) & data(i)(63 downto 63 - offsets(i) + 1);
+            end loop;
+        else
+            for i in 0 to 12 loop
+                data(i) := data(i)(63 - offsets(lane) downto 0) & data(i)(63 downto 63 - offsets(12 + i) + 1);
+            end loop;
+        end if;
     end procedure;
 
     function theta_sums(slice : slice_t) return std_logic_vector is
