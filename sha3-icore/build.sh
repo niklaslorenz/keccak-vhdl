@@ -9,12 +9,14 @@ sources=( \
 "functions" \
 "modules/reader" \
 "modules/buffer" \
+"modules/calculator" \
 "sha3_atom" \
 )
 
 test_instances=( \
 "state_test" \
 "theta_test" \
+"calculator_test" \
 "atom_read_test" \
 "buffer_data_transmit_test" \
 "atom_full_test" \
