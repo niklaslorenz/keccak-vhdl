@@ -71,8 +71,18 @@ begin
         wait for 2ns;
         rst <= '0';
         global_data_in <= (others => '0');
+        global_data_in(1) <= '1';
+        global_data_in(2) <= '1';
         wait until rising_edge(clk);
         enable <= '1';
+        wait until rising_edge(clk);
+        global_data_in <= (others => '0');
+        for i in 1 to 15 loop
+            wait until rising_edge(clk);
+        end loop;
+        global_data_in(63) <= '1';
+        wait until rising_edge(clk);
+        global_data_in <= (others => '0');
         while atom0_ready = '0' loop
             wait until rising_edge(clk);
         end loop;

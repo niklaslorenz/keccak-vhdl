@@ -16,12 +16,12 @@ architecture arch of sha3_helloworld_test is
     generic(t : sha3_type);
     port(
         input : in std_logic_vector(1599 - 2 * getHashSize(t) downto 0);
-        rst : in boolean;
+        rst : in std_logic;
         clk : in std_logic;
-        start : in boolean;
+        start : in std_logic;
         mode : in sha3_mode;
         output : out std_logic_vector(getHashSize(t) - 1 downto 0);
-        ready : out boolean
+        ready : out std_logic
     );
     end component sha3;
 
@@ -31,11 +31,11 @@ architecture arch of sha3_helloworld_test is
     constant raw_hash : std_logic_vector(255 downto 0) := x"d0e47486bbf4c16acac26f8b653592973c1362909f90262877089f9c8a4536af";
     constant hash : std_logic_vector(255 downto 0) := reverseByteOrder(raw_hash);
 
-    signal rst : boolean := true;
+    signal rst : std_logic := '1';
     signal clk : std_logic := '0';
-    signal start : boolean := false;
+    signal start : std_logic := '0';
     signal output : std_logic_vector(getHashSize(t) - 1 downto 0);
-    signal ready : boolean;
+    signal ready : std_logic;
     signal finished : boolean := false;
     signal debug_padded : std_logic_vector(511 downto 0) := input_block(511 downto 0);
     signal hash_debug : std_logic_vector(255 downto 0) := hash;
@@ -55,13 +55,13 @@ begin
     verify : process
     begin
         wait until falling_edge(clk);
-        rst <= false;
-        start <= true;
+        rst <= '0';
+        start <= '1';
         wait until rising_edge(clk);
-        start <= false;
+        start <= '0';
         wait until rising_edge(clk);
         wait until rising_edge(clk);
-        while not ready loop
+        while ready = '0' loop
             wait until rising_edge(clk);
         end loop;
         assert hash = output report "Failed test sha3_helloworld:" severity ERROR;

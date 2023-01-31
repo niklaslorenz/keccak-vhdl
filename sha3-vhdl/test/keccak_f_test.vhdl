@@ -16,11 +16,11 @@ architecture arch of keccak_f_test is
 	component keccak_f is
 		port(
 			input : in StateArray;
-            rst : in boolean;
+            rst : in std_logic;
             clk : in std_logic;
-            start : in boolean;
+            start : in std_logic;
             output : out StateArray;
-            ready : out boolean
+            ready : out std_logic
 		);
 	end component keccak_f;
 
@@ -28,11 +28,11 @@ architecture arch of keccak_f_test is
 	file result_buf : text;
 	
 	signal input : StateArray;
-	signal reset : boolean;
+	signal reset : std_logic;
 	signal clock : std_logic := '0';
-	signal start : boolean;
+	signal start : std_logic;
 	signal output : StateArray;
-	signal ready : boolean;
+	signal ready : std_logic;
 	
 	signal finished : boolean := false;
 	signal debug_input_vector : std_logic_vector(1599 downto 0);
@@ -64,21 +64,21 @@ begin
 				convertInput(challenge, input_state);
 				convertInput(result, result_state);
                 debug_input_vector <= to_std_logic_vector(input_state);
-				start <= false;
-				reset <= true;
+				start <= '0';
+				reset <= '1';
 				wait until falling_edge(clock);
-				reset <= false;
+				reset <= '0';
 				input <= input_state;
 				wait until rising_edge(clock);
-				start <= true;
+				start <= '1';
 				wait until rising_edge(clock);
-				start <= false;
+				start <= '0';
 				wait until rising_edge(clock);
 				for i in 0 to 23 loop
-                    assert not ready report "Expected the calculation to be running but it signaled 'ready' in clock cycle " & integer'image(i) severity ERROR;
+                    assert ready = '0' report "Expected the calculation to be running but it signaled 'ready' in clock cycle " & integer'image(i) severity ERROR;
                     wait until rising_edge(clock);
 				end loop;
-				assert ready report "Expected the calculation to be done but it was not yet" severity ERROR;
+				assert ready = '1' report "Expected the calculation to be done but it was not yet" severity ERROR;
 				assert output = result_state report "Failed keccak_f Test: Expected: " & convertOutput(result_state) & " But got: " & convertOutput(output) severity ERROR;
 			end loop;
 			assert endfile(result_buf) report "Expected end of result file" severity FAILURE;
