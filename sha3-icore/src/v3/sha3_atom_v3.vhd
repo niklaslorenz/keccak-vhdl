@@ -5,7 +5,7 @@ use work.sha3_atom;
 use work.state_array_wrapper;
 
 architecture arch_v3 of sha3_atom is
-    
+
     component state_array_wrapper is
     port (
         BRAM_PORTA_0_addr : in STD_LOGIC_VECTOR ( 4 downto 0 );
