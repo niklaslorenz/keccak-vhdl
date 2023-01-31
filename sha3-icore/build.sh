@@ -10,6 +10,7 @@ sources=( \
 "modules/reader" \
 "modules/buffer" \
 "modules/calculator" \
+"modules/result_writer" \
 "sha3_atom" \
 )
 
@@ -17,6 +18,7 @@ test_instances=( \
 "state_test" \
 "theta_test" \
 "calculator_test" \
+"result_writer_test" \
 "atom_read_test" \
 "buffer_data_transmit_test" \
 "atom_full_test" \
