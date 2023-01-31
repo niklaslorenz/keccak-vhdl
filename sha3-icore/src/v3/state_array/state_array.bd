@@ -1,0 +1,110 @@
+{
+  "design": {
+    "design_info": {
+      "boundary_crc": "0x34BDED1C144C43DA",
+      "device": "xc7vx485tffg1761-2",
+      "name": "state_array",
+      "synth_flow_mode": "Hierarchical",
+      "tool_version": "2019.1",
+      "validated": "true"
+    },
+    "design_tree": {
+      "blk_mem_gen_0": ""
+    },
+    "interface_ports": {
+      "BRAM_PORTA_0": {
+        "mode": "Slave",
+        "vlnv": "xilinx.com:interface:bram_rtl:1.0",
+        "parameters": {
+          "MASTER_TYPE": {
+            "value": "BRAM_CTRL"
+          },
+          "MEM_ECC": {
+            "value": "NONE",
+            "value_src": "default"
+          },
+          "MEM_SIZE": {
+            "value": "8192",
+            "value_src": "default"
+          },
+          "MEM_WIDTH": {
+            "value": "32",
+            "value_src": "default"
+          },
+          "READ_LATENCY": {
+            "value": "1",
+            "value_src": "default"
+          }
+        }
+      },
+      "BRAM_PORTB_0": {
+        "mode": "Slave",
+        "vlnv": "xilinx.com:interface:bram_rtl:1.0",
+        "parameters": {
+          "MASTER_TYPE": {
+            "value": "BRAM_CTRL"
+          },
+          "MEM_ECC": {
+            "value": "NONE",
+            "value_src": "default"
+          },
+          "MEM_SIZE": {
+            "value": "8192",
+            "value_src": "default"
+          },
+          "MEM_WIDTH": {
+            "value": "32",
+            "value_src": "default"
+          },
+          "READ_LATENCY": {
+            "value": "1",
+            "value_src": "default"
+          }
+        }
+      }
+    },
+    "components": {
+      "blk_mem_gen_0": {
+        "vlnv": "xilinx.com:ip:blk_mem_gen:8.4",
+        "xci_name": "state_array_blk_mem_gen_0_0",
+        "parameters": {
+          "Assume_Synchronous_Clk": {
+            "value": "true"
+          },
+          "Enable_B": {
+            "value": "Use_ENB_Pin"
+          },
+          "Memory_Type": {
+            "value": "True_Dual_Port_RAM"
+          },
+          "Port_B_Clock": {
+            "value": "100"
+          },
+          "Port_B_Enable_Rate": {
+            "value": "100"
+          },
+          "Port_B_Write_Rate": {
+            "value": "50"
+          },
+          "Use_RSTB_Pin": {
+            "value": "true"
+          }
+        }
+      }
+    },
+    "interface_nets": {
+      "BRAM_PORTB_0_1": {
+        "interface_ports": [
+          "BRAM_PORTB_0",
+          "blk_mem_gen_0/BRAM_PORTB"
+        ]
+      },
+      "BRAM_PORTA_0_1": {
+        "interface_ports": [
+          "BRAM_PORTA_0",
+          "blk_mem_gen_0/BRAM_PORTA"
+        ]
+      }
+    }
+  }
+}
