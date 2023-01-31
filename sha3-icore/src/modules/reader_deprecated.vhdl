@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use work.state.all;
 
-package reader is
+package reader_deprecated is
 
     subtype reader_t is natural range 0 to 16;
 
@@ -14,7 +14,7 @@ package reader is
 
 end package;
 
-package body reader is
+package body reader_deprecated is
 
     procedure init_reader(iterator : inout reader_t) is
     begin
