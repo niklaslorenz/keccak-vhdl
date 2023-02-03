@@ -26,11 +26,68 @@ end entity;
 
 architecture arch of sha3_atom is
 
+    component reader is
+        port(
+            clk : in std_logic;
+            rst : in std_logic;
+            init : in std_logic;
+            enable : in std_logic;
+            atom_index : in atom_index_t;
+            index : out lane_index_t;
+            valid : out std_logic;
+            finished : out std_logic
+        );
+    end component;
+
+    component calculator is
+        port(
+            slice : in slice_t;
+            prev_sums : in std_logic_vector(4 downto 0);
+            theta_only : in std_logic;
+            no_theta : in std_logic;
+            round_constant_bit : in std_logic;
+            result : out slice_t;
+            slice_sums : out std_logic_vector(4 downto 0)
+        );
+    end component;
+
     component block_visualizer is
         port(state : in block_t);
     end component;
 
-    type mode_t is (read, theta, rho, gamma, valid, write);
+    constant zero : lane_t := (others => '0');
+
+    -- Reader
+    -- Input
+    signal reader_init : std_logic;
+    signal reader_enable : std_logic;
+    -- Output
+    signal reader_index : lane_index_t;
+    signal reader_valid : std_logic;
+    signal reader_finished : std_logic;
+
+    
+
+    -- calculator
+    -- inputs
+    signal calc_input_slice : slice_t;
+    signal calc_prev_sums : std_logic_vector(4 downto 0);
+    signal calc_theta_only : std_logic;
+    signal calc_no_theta : std_logic;
+    signal calc_round_constant_bit : std_logic;
+    -- outputs
+    signal calc_result : slice_t;
+    signal calc_slice_sums : std_logic_vector(4 downto 0);
+
+
+
+
+
+    type mode_t is (read_init, read, theta, rho, gamma, valid, write);
+    signal mode : mode_t := read_init;
+    signal state : block_t;
+    signal round : round_index_t;
+
     -- Debug Signals
     signal dbg_state : block_t;
     signal dbg_reader_iterator : std_logic_vector(5 downto 0);
@@ -42,18 +99,15 @@ architecture arch of sha3_atom is
 
 begin
 
+    read : reader port map(clk, rst, reader_init, reader_enable, atom_index, reader_index, reader_valid, reader_finished);
+
+    calc : calculator port map(calc_input_slice, calc_prev_sums, calc_theta_only, calc_no_theta, calc_round_constant_bit, calc_result, calc_slice_sums);
+
     state_visual : block_visualizer port map(dbg_state);
 
     process(clk, rst, update) is
-        constant zero : lane_t := (others => '0');
 
-        variable state : block_t;
-        variable mode : mode_t;
         variable round : round_index_t;
-
-        variable reader : reader_t;
-        variable reader_ready : std_logic;
-        variable reader_out : lane_t;
 
         variable buf : buffer_t;
         -- sync inputs
@@ -72,60 +126,46 @@ begin
         variable theta_sums0 : std_logic_vector(4 downto 0);
         variable theta_sums1 : std_logic_vector(4 downto 0);
 
-        procedure enter_read(mode : inout mode_t) is
-        begin
-            init_reader(reader);
-            mode := read;
-            round := 0;
-        end procedure;
-
-        procedure enter_theta(mode : inout mode_t) is
-        begin
-            init_buffer(buf);
-            buf_results := ((others => '0'), (others => '0'));
-            mode := theta;
-        end procedure;
-
-        procedure enter_rho(mode : inout mode_t) is
-        begin
-            mode := rho;
-        end procedure;
-
-        procedure enter_gamma(mode : inout mode_t) is
-        begin
-            init_buffer(buf);
-            buf_results := ((others => '0'), (others => '0'));
-            mode := gamma;
-        end procedure;
-
-        procedure enter_write(mode : inout mode_t) is
-        begin
-            init_reader(reader);
-            mode := write;
-        end procedure;
-
-        procedure enter_valid(mode : inout mode_t) is
-        begin
-            mode := valid;
-        end procedure;
-
     begin
         if rst = '1' then
-            reset(state);
-            enter_read(mode);
+            for i in 0 to 12 loop
+                state(i) <= (others => '0');
+            end loop;
+            mode <= read_init;
             round := 0;
             data_out <= zero;
             ready <= '0';
         elsif rising_edge(clk) then
             if enable = '1' then
-                if mode = read then
-                    read(reader, state, data_in, atom_index, reader_ready);
-                    if reader_ready = '1' then
-                        enter_theta(mode);
+                -- Reader
+                if mode = read_init then
+                    reader_enable <= '0';
+                    reader_init <= '1';
+                    mode <= read;
+                elsif mode = read then
+                    reader_enable <= '1';
+                    reader_init <= '0';
+                    if reader_valid = '1' then
+                        state(reader_index) <= data_in;
                     end if;
-                    data_out <= zero;
-                    ready <= '0';
-                elsif mode = theta then
+                    if reader_finished = '1' then
+                        mode <= theta;
+                    end if;
+                else
+                    reader_enable <= '0';
+                    reader_init <= '0';
+                end if;
+
+                -- Slice Manager
+                if mode = theta or mode = gamma then
+
+                else
+
+                end if;
+
+                -- Theta / Gamma
+
+                if mode = theta then
                     sync(buf, state, atom_index, data_in, buf_results, buf_out, buf_data, buf_computeFirst, buf_computeLoop, buf_computeEdgeCase, buf_index, buf_finished);
                     if buf_computeFirst = '1' then
                         buf_lowEdgeData := buf_data(0);

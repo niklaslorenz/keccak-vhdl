@@ -1,0 +1,61 @@
+-- finalize own results
+    if iterator >= 3 and iterator <= 17 then
+        if atom_index = 1 then
+            set_slice_tile(state, results(1)(24 downto 12), iterator * 2 + 29);
+            set_slice_tile(state, results(0)(24 downto 12), iterator * 2 + 28);
+        else
+            set_slice_tile(state, results(1)(12 downto 0), iterator * 2 - 3);
+            set_slice_tile(state, results(0)(12 downto 0), iterator * 2 - 4);
+        end if;
+    elsif iterator = 18 then
+        if atom_index = 1 then
+            set_slice_tile(state, results(1)(24 downto 12), 33);
+            set_slice_tile(state, results(0)(24 downto 12), 32);
+        else
+            set_slice_tile(state, results(1)(12 downto 0), 1);
+            set_slice_tile(state, results(0)(12 downto 0), 0);
+        end if;
+    end if;
+
+    -- provide computation data
+    if iterator >= 1 and iterator <= 16 then
+        if atom_index = 1 then
+            data(1) := get_slice_tile(state, iterator * 2 + 31) & incoming_state_transmission(27 downto 16);
+            data(0) := get_slice_tile(state, iterator * 2 + 30) & incoming_state_transmission(11 downto  0);
+            current_slice := iterator * 2 + 30;
+        else
+            data(1) := incoming_state_transmission(27 downto 16) & get_slice_tile(state, iterator * 2 - 1);
+            data(0) := incoming_state_transmission(11 downto  0) & get_slice_tile(state, iterator * 2 - 2);
+            current_slice := iterator * 2 - 2;
+        end if;
+    else
+        data(0) := (others => '1');
+        data(1) := (others => '1');
+        current_slice := 0;
+    end if;
+
+    -- finalize incoming result transmission
+    if iterator >= 4 and iterator <= 18 then
+        if atom_index = 1 then
+            set_slice_tile(state, incoming_result_transmission(28 downto 16), iterator * 2 - 5);
+            set_slice_tile(state, incoming_result_transmission(12 downto  0), iterator * 2 - 6);
+        else
+            set_slice_tile(state, incoming_result_transmission(28 downto 16), iterator * 2 + 27);
+            set_slice_tile(state, incoming_result_transmission(12 downto  0), iterator * 2 + 26);
+        end if;
+    elsif iterator = 19 then
+        if atom_index = 1 then
+            set_slice_tile(state, incoming_result_transmission(28 downto 16), 1);
+            set_slice_tile(state, incoming_result_transmission(12 downto  0), 0);
+        else
+            set_slice_tile(state, incoming_result_transmission(28 downto 16), 33);
+            set_slice_tile(state, incoming_result_transmission(12 downto  0), 32);
+        end if;
+    end if;
+
+    computeFirst := asBit(iterator = 1);
+    computeLoop := asBit(iterator >= 2 and iterator <= 16);
+    computeEdgeCase := asBit(iterator = 17); -- so that the results of this last computation can be transmitted in iteration 18 and arrives in 19
+    finished := asBit(iterator >= 19);
+    output := outgoing_result_transmission & outgoing_state_transmission;
+    iterator := iterator + 1;

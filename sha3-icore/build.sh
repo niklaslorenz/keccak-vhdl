@@ -8,10 +8,11 @@ sources=( \
 "round_constants" \
 "functions" \
 "modules/reader" \
-"modules/buffer" \
+#"modules/buffer" \
 "modules/calculator" \
 "modules/result_writer" \
-"sha3_atom" \
+"modules/slice_manager" \
+#"sha3_atom" \
 )
 
 test_instances=( \
@@ -19,9 +20,10 @@ test_instances=( \
 "theta_test" \
 "calculator_test" \
 "result_writer_test" \
-"atom_read_test" \
-"buffer_data_transmit_test" \
-"atom_full_test" \
+"slice_manager_test" \
+#"atom_read_test" \
+#"buffer_data_transmit_test" \
+#"atom_full_test" \
 )
 
 test_sources=("")

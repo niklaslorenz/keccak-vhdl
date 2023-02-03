@@ -6,29 +6,9 @@ use work.util.all;
 
 package slice_buffer is
 
-    type buffer_data_t is array(natural range 0 to 1) of slice_t;
-
-    subtype buffer_t is natural range 0 to 22;
+    type buffer_t is array(natural range 0 to 1) of slice_t;
 
     subtype transmission_word_t is std_logic_vector(31 downto 0);
-
-    procedure init_buffer(iterator : inout buffer_t);
-
-    procedure sync(
-        iterator : inout buffer_t;
-        state : inout block_t;
-        atom_index : in atom_index_t;
-        input : in lane_t;
-        results : in buffer_data_t;
-        output : out lane_t;
-        data : out buffer_data_t;
-        -- control signals
-        computeFirst : out std_logic;
-        computeLoop : out std_logic;
-        computeEdgeCase : out std_logic;
-        current_slice : out slice_index_t;
-        finished : out std_logic
-    );
 
 end package;
 
