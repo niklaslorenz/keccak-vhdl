@@ -77,6 +77,7 @@ package body state is
             data(0)(i) := state(i)(2 * index);
             data(1)(i) := state(i)(2 * index + 1);
         end loop;
+        return data;
     end function;
 
     procedure reset(state : inout block_t) is

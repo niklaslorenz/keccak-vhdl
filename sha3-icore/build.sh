@@ -22,9 +22,9 @@ test_instances=( \
 "calculator_test" \
 "result_writer_test" \
 "slice_manager_test" \
-#"atom_read_test" \
+"atom_read_test" \
 #"buffer_data_transmit_test" \
-#"atom_full_test" \
+"atom_full_test" \
 )
 
 test_sources=("")

@@ -26,9 +26,9 @@ architecture arch of reader is
 begin
 
     is_valid <= '1' when (iterator <= 12 and atom_index = 0) or (iterator >= 12 and atom_index = 1) else '0';
-    index <= 0          when is_valid = '0'   else
-             iterator   when atom_index = 0   else
-             iterator - 12;
+    index <= iterator when iterator <= 12 and atom_index = 0 else
+             iterator - 12 when iterator >= 12 and atom_index = 1 else
+             0;
     finished <= '1' when iterator = 16 else '0';
     valid <= is_valid;
 
