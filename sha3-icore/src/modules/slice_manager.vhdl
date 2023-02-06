@@ -143,14 +143,14 @@ begin
 
     own_data_request_index <= 0 when not request_phase else
                               iterator - request_offset when atom_index = 0 else
-                              iterator + 16 - request_offset;
+                              iterator + 16 - request_offset when iterator <= request_offset + 15 else 0;
 
     full_round_constant <= round_constants.get(round);
     round_constant_part_index <= 0 when not calculation_phase else
                                  0 when calculate_edge and atom_index = 0 else
                                  16 when calculate_edge else
                                  iterator - calculate_offset when atom_index = 0 else
-                                 iterator + 16 - calculate_offset;
+                                 iterator + 16 - calculate_offset when iterator <= calculate_offset + 15 else 0;
 
     calc_round_constant <= full_round_constant(round_constant_part_index * 2 + 1 downto round_constant_part_index * 2);
     

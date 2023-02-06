@@ -11,7 +11,6 @@ use work.slice_manager;
 entity sha3_atom is
     port(
         clk : in std_logic;
-        update : in std_logic;
         rst : in std_logic;
         enable : in std_logic;
         write_data : in std_logic;
@@ -143,8 +142,10 @@ begin
     reader_init <= '1' when mode = read_init else '0';
     sm_enable <= '1' when enable = '1' and (mode = calc_init or mode = calc) else '0';
     sm_init <= '1' when mode = calc_init else '0';
-    sm_own_data <= get_computation_data(state, sm_own_data_request_index) when sm_enable_own_data_request = '1' else
-                   (others => (others => '0'));
+    own_data : for i in 0 to 12 generate
+        sm_own_data(0)(i) <= state(i)(sm_own_data_request_index * 2) when sm_enable_own_data_request = '1' else '0';
+        sm_own_data(1)(i) <= state(i)(sm_own_data_request_index * 2 + 1) when sm_enable_own_data_request = '0' else '0';
+    end generate;
 
     writer_init <= '1' when mode = write_init else '0';
     writer_enable <= '1' when mode = write_init or mode = write else '0';
@@ -152,7 +153,9 @@ begin
 
     data_out <= sm_outgoing_transmission or writer_data;
 
-    process(clk, rst, update) is
+    ready <= '1' when mode = valid else '0';
+
+    process(clk, rst) is
     begin
         if rst = '1' then
             for i in 0 to 12 loop
@@ -161,7 +164,6 @@ begin
             mode <= read_init;
             sm_gamma <= '0';
             round <= 0;
-            ready <= '0';
         elsif rising_edge(clk) then
             if enable = '1' then
                 if mode = read_init then -- Reader
@@ -198,6 +200,7 @@ begin
                     state <= rho_function(state, atom_index);
                     sm_gamma <= '1';
                     round <= round + 1;
+                    mode <= calc_init;
                 elsif mode = valid then
                     if read_data = '1' then
                         mode <= read_init;

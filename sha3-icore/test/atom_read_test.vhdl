@@ -17,7 +17,6 @@ architecture arch of atom_read_test is
     component sha3_atom is
         port(
             clk : in std_logic;
-            update : in std_logic;
             rst : in std_logic;
             enable : in std_logic;
             atom_index : in atom_index_t;
@@ -46,8 +45,8 @@ begin
         wait;
     end process;
 
-    atom_0 : sha3_atom port map(clk, '0', rst, enable, 0, data_in, data_out_0);
-    atom_1 : sha3_atom port map(clk, '0', rst, enable, 1, data_in, data_out_1);
+    atom_0 : sha3_atom port map(clk, rst, enable, 0, data_in, data_out_0);
+    atom_1 : sha3_atom port map(clk, rst, enable, 1, data_in, data_out_1);
 
     test_process : process is
         variable state : block_t;
