@@ -26,12 +26,14 @@ begin
     begin
         if rst = '1' then
             iterator <= 0;
-        elsif rising_edge(clk) and enable = '1' then
-            if init = '1' then
-                iterator <= 0;
-            else
-                if finished_temp = '0' then
-                    iterator <= iterator + 1;
+        elsif rising_edge(clk) then
+            if enable = '1' then
+                if init = '1' then
+                    iterator <= 0;
+                else
+                    if finished_temp = '0' then
+                        iterator <= iterator + 1;
+                    end if;
                 end if;
             end if;
         end if;

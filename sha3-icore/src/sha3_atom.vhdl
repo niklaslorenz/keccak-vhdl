@@ -117,7 +117,7 @@ architecture arch of sha3_atom is
     -- Input
     signal writer_init : std_logic;
     signal writer_enable : std_logic;
-    signal writer_index : natural range 0 to 4;
+    signal writer_index : natural range 0 to 3;
     signal writer_data : lane_t;
     signal writer_finished : std_logic;
 
@@ -148,7 +148,7 @@ begin
     end generate;
 
     writer_init <= '1' when mode = write_init else '0';
-    writer_enable <= '1' when mode = write_init or mode = write else '0';
+    writer_enable <= '1' when atom_index = 0 and (mode = write_init or mode = write) else '0';
     writer_data <= state(writer_index) when mode = write_init or mode = write else (others => '0');
 
     data_out <= sm_outgoing_transmission or writer_data;
