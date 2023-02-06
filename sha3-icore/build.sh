@@ -13,7 +13,7 @@ sources=( \
 "modules/chunk_calculator" \
 "modules/result_writer" \
 "modules/slice_manager" \
-#"sha3_atom" \
+"sha3_atom" \
 )
 
 test_instances=( \

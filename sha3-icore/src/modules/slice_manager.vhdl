@@ -122,6 +122,8 @@ begin
         (incoming_state_transmission(11 downto 0) & own_data_buffer(0), incoming_state_transmission(27 downto 16) & own_data_buffer(1)) when atom_index = 0 else
         (own_data_buffer(0) & incoming_state_transmission(11 downto 0), own_data_buffer(1) & incoming_state_transmission(27 downto 16));
 
+    calc_no_theta <= '1' when round = 23 else '0';
+
     own_result_wb <= (calc_result(1)(12 downto  0), calc_result(0)(12 downto  0)) when atom_index = 0 else 
                      (calc_result(1)(24 downto 12), calc_result(0)(24 downto 12));
 

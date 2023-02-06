@@ -11,6 +11,7 @@ package slice_functions is
     function pi(slice : slice_t) return slice_t;
     function chi(slice : slice_t) return slice_t;
     procedure rho(data : inout block_t; atom_index : atom_index_t);
+    function rho_function(data : block_t; atom_index : atom_index_t) return block_t;
 
     function theta_sums(slice : slice_t) return std_logic_vector;
     function theta(lower_sums : std_logic_vector(4 downto 0); higher_sums : std_logic_vector(4 downto 0); slice : slice_t) return slice_t;
@@ -67,6 +68,13 @@ package body slice_functions is
             end loop;
         end if;
     end procedure;
+
+    function rho_function(data : block_t; atom_index : atom_index_t) return block_t is
+        variable result : block_t := data;
+    begin
+        rho(result, atom_index);
+        return result;
+    end function;
 
     function theta_sums(slice : slice_t) return std_logic_vector is
         variable column_sums : std_logic_vector(4 downto 0) := (others => '0');
