@@ -161,7 +161,6 @@ begin
             mode <= read_init;
             sm_gamma <= '0';
             round <= 0;
-            data_out <= zero;
             ready <= '0';
         elsif rising_edge(clk) then
             if enable = '1' then
