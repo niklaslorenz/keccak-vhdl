@@ -3,52 +3,55 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.state.all;
 use work.slice_manager;
+use work.util.all;
 
 entity slice_manager_test is
 end entity;
 
 architecture arch of slice_manager_test is
     component slice_manager
-    port(
-        -- control
-        clk : in std_logic;
-        rst : in std_logic;
-        init : in std_logic;
-        enable : in std_logic;
-        atom_index : in atom_index_t;
-        
-        -- data
-        own_data : in tile_computation_data_t;
-        incoming_transmission : in lane_t;
-        calculation_results : in computation_data_t;
-
-        -- data signals
-        outgoing_transmission : out lane_t;
-        own_result_wb : out tile_computation_data_t;
-        own_result_wb_index : out computation_data_index_t;
-        remote_result_wb : out tile_computation_data_t;
-        remote_result_wb_index : out computation_data_index_t;
-        own_data_request_index : out computation_data_index_t;
-        calculation_data : out computation_data_t;
-        calculation_data_index : out computation_data_index_t;
-        
-        -- control signals
-        enable_own_wb : out std_logic;
-        enable_remote_wb : out std_logic;
-        enable_own_data_request : out std_logic;
-        calculate_first : out std_logic;
-        calculate_loop : out std_logic;
-        calculate_edge : out std_logic;
-        finished : out std_logic
-        
-    );
+        port(
+            -- control
+            clk : in std_logic;
+            rst : in std_logic;
+            atom_index : in atom_index_t;
+            init : in std_logic;
+            enable : in std_logic;
+            round : in round_index_t;
+            gamma : in std_logic;
+    
+            -- data
+            own_data : in tile_computation_data_t;
+            incoming_transmission : in lane_t;
+    
+            -- data signals
+            outgoing_transmission : out lane_t;
+            own_result_wb : out tile_computation_data_t;
+            own_result_wb_index : out computation_data_index_t;
+            remote_result_wb : out tile_computation_data_t;
+            remote_result_wb_index : out computation_data_index_t;
+            own_data_request_index : out computation_data_index_t;
+            
+            -- control signals
+            enable_own_wb : out std_logic;
+            enable_remote_wb : out std_logic;
+            enable_own_data_request : out std_logic;
+            finished : out std_logic
+        );
     end component;
+
+    component block_visualizer is
+        port(state : in block_t);
+    end component;
+
     -- control
     signal clk : std_logic := '0';
     signal rst : std_logic;
     signal init : std_logic;
     signal enable : std_logic;
     signal atom_index : atom_index_t;
+    signal round : round_index_t := 0;
+    signal gamma : std_logic := '1';
     
     -- data
     signal own_data : tile_computation_data_t;
@@ -62,34 +65,29 @@ architecture arch of slice_manager_test is
     signal remote_result_wb : tile_computation_data_t;
     signal remote_result_wb_index : computation_data_index_t;
     signal own_data_request_index : computation_data_index_t;
-    signal calculation_data : computation_data_t;
-    signal calculation_data_index : computation_data_index_t;
     
     -- control signals
     signal enable_own_wb : std_logic;
     signal enable_remote_wb : std_logic;
     signal enable_own_data_request : std_logic;
-    signal calculate_first : std_logic;
-    signal calculate_loop : std_logic;
-    signal calculate_edge : std_logic;
     signal manager_finished : std_logic;
 
     signal finished : boolean := false;
 
-    signal calculation_data0, calculation_data1 : slice_t;
     signal incoming_transmission_buffer : lane_t;
+
+    signal own_wb0, own_wb1, remote_wb0, remote_wb1 : tile_slice_t;
+    signal result_state : block_t;
 begin
 
     own_data <= ((others => 'X'), (others => 'X')) when enable_own_data_request = '0' else
         (std_logic_vector(to_unsigned(own_data_request_index * 2, tile_slice_t'length)), std_logic_vector(to_unsigned(own_data_request_index * 2 + 1, tile_slice_t'length)));
 
-    calculation_data0 <= calculation_data(0);
-    calculation_data1 <= calculation_data(1);
-
-    manager : slice_manager port map(clk, rst, init, enable, atom_index, own_data, incoming_transmission, calculation_results,
+    manager : slice_manager port map(clk, rst, atom_index, init, enable, round, gamma, own_data, incoming_transmission,
         outgoing_transmission, own_result_wb, own_result_wb_index, remote_result_wb, remote_result_wb_index, own_data_request_index,
-        calculation_data, calculation_data_index, enable_own_wb, enable_remote_wb, enable_own_data_request, calculate_first,
-        calculate_loop, calculate_edge, manager_finished);
+        enable_own_wb, enable_remote_wb, enable_own_data_request, manager_finished);
+
+    result_visual : block_visualizer port map(result_state);
 
     clock : process is
     begin
@@ -101,11 +99,18 @@ begin
     end process;
 
     process(clk) is
+        variable temp_state : block_t;
     begin
         if rising_edge(clk) then
-            incoming_transmission <= incoming_transmission_buffer;
-            incoming_transmission_buffer <= outgoing_transmission;
-            calculation_results <= calculation_data;
+            temp_state := result_state;
+            incoming_transmission <= outgoing_transmission;
+            if enable = '1' and enable_own_wb = '1' then
+                set_computation_data(temp_state, own_result_wb, own_result_wb_index);
+            end if;
+            if enable = '1' and enable_remote_wb = '1' then
+                set_computation_data(temp_state, remote_result_wb, remote_result_wb_index);
+            end if;
+            result_state <= temp_state;
         end if;
     end process;
 
@@ -132,5 +137,9 @@ begin
         wait;
     end process;
     
+    own_wb0 <= own_result_wb(0);
+    own_wb1 <= own_result_wb(1);
+    remote_wb0 <= remote_result_wb(0);
+    remote_wb1 <= remote_result_wb(1);
 
 end architecture;

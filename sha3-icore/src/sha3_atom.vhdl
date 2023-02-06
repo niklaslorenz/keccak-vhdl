@@ -39,15 +39,34 @@ architecture arch of sha3_atom is
         );
     end component;
 
-    component calculator is
+    component slice_manager is
         port(
-            slice : in slice_t;
-            prev_sums : in std_logic_vector(4 downto 0);
-            theta_only : in std_logic;
-            no_theta : in std_logic;
-            round_constant_bit : in std_logic;
-            result : out slice_t;
-            slice_sums : out std_logic_vector(4 downto 0)
+            -- control
+            clk : in std_logic;
+            rst : in std_logic;
+            atom_index : in atom_index_t;
+            init : in std_logic;
+            enable : in std_logic;
+            round : in round_index_t;
+            theta : in std_logic;
+    
+            -- data
+            own_data : in tile_computation_data_t;
+            incoming_transmission : in lane_t;
+    
+            -- data signals
+            outgoing_transmission : out lane_t;
+            own_result_wb : out tile_computation_data_t;
+            own_result_wb_index : out computation_data_index_t;
+            remote_result_wb : out tile_computation_data_t;
+            remote_result_wb_index : out computation_data_index_t;
+            own_data_request_index : out computation_data_index_t;
+            
+            -- control signals
+            enable_own_wb : out std_logic;
+            enable_remote_wb : out std_logic;
+            enable_own_data_request : out std_logic;
+            finished : out std_logic
         );
     end component;
 
@@ -66,22 +85,36 @@ architecture arch of sha3_atom is
     signal reader_valid : std_logic;
     signal reader_finished : std_logic;
 
-    
+    -- Slice Manager
+    -- Input
+    signal sm_init : std_logic;
+    signal sm_enable : std_logic;
+    signal sm_theta : std_logic;
+    signal sm_own_data : tile_computation_data_t;
+
+    -- Output
+    signal sm_outgoing_transmission : lane_t;
+    signal sm_own_result_wb : tile_computation_data_t;
+    signal sm_own_result_wb_index : computation_data_index_t;
+    signal sm_remote_result_wb : tile_computation_data_t;
+    signal sm_remote_result_wb_index : computation_data_index_t;
+    signal sm_own_data_request_index : computation_data_index_t;
+    signal sm_calculation_data : computation_data_t;
+    signal sm_enable_own_wb : std_logic;
+    signal sm_enable_remote_wb : std_logic;
+    signal sm_enable_own_data_request : std_logic;
+    signal sm_finished : std_logic;
 
     -- calculator
     -- inputs
-    signal calc_input_slice : slice_t;
+    signal calc_input : computation_data_t;
     signal calc_prev_sums : std_logic_vector(4 downto 0);
     signal calc_theta_only : std_logic;
     signal calc_no_theta : std_logic;
-    signal calc_round_constant_bit : std_logic;
+    signal calc_round_constant : std_logic_vector(0 to 1);
     -- outputs
-    signal calc_result : slice_t;
+    signal calc_result : computation_data_t;
     signal calc_slice_sums : std_logic_vector(4 downto 0);
-
-
-
-
 
     type mode_t is (read_init, read, theta, rho, gamma, valid, write);
     signal mode : mode_t := read_init;
@@ -101,9 +134,15 @@ begin
 
     read : reader port map(clk, rst, reader_init, reader_enable, atom_index, reader_index, reader_valid, reader_finished);
 
-    calc : calculator port map(calc_input_slice, calc_prev_sums, calc_theta_only, calc_no_theta, calc_round_constant_bit, calc_result, calc_slice_sums);
+    manager : slice_manager port map(clk, rst, atom_index, sm_init, sm_enable, round, sm_theta, sm_own_data, calc_results, sm_outgoing_transmission,
+        sm_own_result_wb, sm_own_result_wb_index, sm_remote_result_wb, sm_remote_result_wb_index, sm_own_data_request_index,
+        calc_input, calc_round_constant, sm_enable_own_wb, sm_enable_remote_wb, sm_enable_own_data_request, sm_finished);
+
+    calc : chunk_calculator port map(calc_input, calc_prev_sums, calc_theta_only, calc_no_theta, calc_round_constant, calc_result, calc_slice_sums);
 
     state_visual : block_visualizer port map(dbg_state);
+
+    data_out <= sm_outgoing_transmission;
 
     process(clk, rst, update) is
 
@@ -157,10 +196,27 @@ begin
                 end if;
 
                 -- Slice Manager
-                if mode = theta or mode = gamma then
+                if mode = theta or mode = gamma or mode = theta_init or mode = gamma_init then
+                    sm_init <= '1' when mode = theta_init or mode = gamma_init;
+                    sm_enable <= enable;
+                    sm_theta <= '1' when mode = theta_init or mode = theta else '0';
+                    if sm_enable_own_data_request = '1' then
+                        sm_own_data <= get_computation_data(state, sm_own_data_request_index);
+                    else
+                        sm_own_data <= (others => (others => '0'));
+                    end if;
+                    if sm_enable_own_wb = '1' then
+                        set_computation_data(state, sm_own_result_wb, sm_own_result_wb_index);
+                    end if;
+                    if sm_enable_remote_wb = '1' then
+                        set_computation_data(state, sm_remote_result_wb, sm_remote_result_wb_index); -- Duplicate!
+                    end if;
 
                 else
-
+                    sm_init <= '0';
+                    sm_enable <= '0';
+                    sm_theta <= '0';
+                    sm_own_data <= (others => (others => '0'));
                 end if;
 
                 -- Theta / Gamma
