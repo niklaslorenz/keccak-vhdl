@@ -70,6 +70,17 @@ architecture arch of sha3_atom is
         );
     end component;
 
+    component writer is
+        port(
+            clk : in std_logic;
+            rst : in std_logic;
+            init : in std_logic;
+            enable : in std_logic;
+            index : out natural range 0 to 3;
+            finished : out std_logic
+        );
+    end component;
+
     component block_visualizer is
         port(state : in block_t);
     end component;
@@ -91,7 +102,6 @@ architecture arch of sha3_atom is
     signal sm_enable : std_logic;
     signal sm_gamma : std_logic;
     signal sm_own_data : tile_computation_data_t;
-
     -- Output
     signal sm_outgoing_transmission : lane_t;
     signal sm_own_result_wb : tile_computation_data_t;
@@ -103,6 +113,14 @@ architecture arch of sha3_atom is
     signal sm_enable_remote_wb : std_logic;
     signal sm_enable_own_data_request : std_logic;
     signal sm_finished : std_logic;
+
+    -- Writer
+    -- Input
+    signal writer_init : std_logic;
+    signal writer_enable : std_logic;
+    signal writer_index : natural range 0 to 4;
+    signal writer_data : lane_t;
+    signal writer_finished : std_logic;
 
     type mode_t is (read_init, read, calc_init, calc, rho, valid, write_init, write);
     signal mode : mode_t := read_init;
@@ -119,13 +137,20 @@ begin
 
     state_visual : block_visualizer port map(state);
 
+    hash_writer : writer port map(clk, rst, writer_init, writer_enable, writer_index, writer_finished);
+
     reader_enable <= '1' when enable = '1' and (mode = read_init or mode = read) else '0';
     reader_init <= '1' when mode = read_init else '0';
     sm_enable <= '1' when enable = '1' and (mode = calc_init or mode = calc) else '0';
     sm_init <= '1' when mode = calc_init else '0';
     sm_own_data <= get_computation_data(state, sm_own_data_request_index) when sm_enable_own_data_request = '1' else
                    (others => (others => '0'));
-    data_out <= sm_outgoing_transmission;
+
+    writer_init <= '1' when mode = write_init else '0';
+    writer_enable <= '1' when mode = write_init or mode = write else '0';
+    writer_data <= state(writer_index) when mode = write_init or mode = write else (others => '0');
+
+    data_out <= sm_outgoing_transmission or writer_data;
 
     process(clk, rst, update) is
     begin
@@ -183,7 +208,9 @@ begin
                 elsif mode = write_init then -- Writer
                     mode <= write;
                 elsif mode = write then
-
+                    if writer_finished = '1' then
+                        mode <= valid;
+                    end if;
                 end if;
             end if;
         end if;

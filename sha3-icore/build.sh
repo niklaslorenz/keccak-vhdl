@@ -8,7 +8,7 @@ sources=( \
 "round_constants" \
 "functions" \
 "modules/reader" \
-#"modules/buffer" \
+"modules/writer" \
 "modules/calculator" \
 "modules/chunk_calculator" \
 "modules/result_writer" \
