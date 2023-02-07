@@ -2,28 +2,20 @@
 Goal of this project is to provide vhdl and c++ implementations for the SHA-3 hash functions
 
 ## Project Status
-Currently we have the sha3-c library, a calculator application written in c++ as well as some rudimentary
-implementations of the keccak functions in vhdl.
-See [How to use](#How-To-Use) for an introduction into the applications.
+|Component|Status|
+|-|-|
+|sha3-c|working|
+|sha3-vhdl|working|
+|sha3-icore|development|
+
 ### The Calculator
-The calculator application can generate hashes for every SHA-3 function either in an iteractive mode
-or by providing it with an input file. It then will generate the hash of every line in that file and
-write it to the output desination.
-### VHDL Functions
-SHA-3 uses a round function (keccak-f) that repeats a so called permutation function (keccak-p) 24 times.
-keccak-p is a concatenation of five different functions: theta, rho, pi, chi and iota.
-|Function|Description|Status|
-|-|-|-|
-|theta|Adds the sum of 10 other bits onto every bit of the state array|working|
-|rho|Shifts every lane in the state array by a different amount|working|
-|pi|Permutes the lanes of the state array|working|
-|chi|Non linear function|working|
-|iota|Adds the round constant onto the first lane|not working|
-|keccak-p|Concatenation of the previous functions|not yet implemented|
-|keccak-f|Repeats keccak-p 24 times with different round constants|not implemented yet|
+The calculator application in the sha3-c module can generate hashes for every SHA-3 function either in an
+iteractive mode or by providing it with an input file. It then will generate the hash of every line in
+that file and write it to the output file.
 
 ## Build Requirements
-This project uses the nvc vhdl simulator. You can get it [here](https://github.com/nickg/nvc).
+In addition to all the neccessary tools for c development, this project
+uses the nvc vhdl simulator. You can get it [here](https://github.com/nickg/nvc).
 
 ## How To Build
 Make sure you meet all the [build requirements](#Build-Requirements).
