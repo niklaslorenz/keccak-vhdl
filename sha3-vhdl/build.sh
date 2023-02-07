@@ -22,7 +22,8 @@ test_instances=("keccak_theta_test" \
 "keccak_p_test" \
 "keccak_f_test" \
 "sha_pad_test" \
-"sha3_helloworld_test")
+"sha3_helloworld_test" \
+"hash_zero_test")
 
 test_sources=("testutil")
 test_sources+=(${test_instances[@]})

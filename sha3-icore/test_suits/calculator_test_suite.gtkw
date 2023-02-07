@@ -1,0 +1,48 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Tue Jan 31 11:26:41 2023
+[*]
+[dumpfile] "/home/niklas/Documents/sha3-vhdl/build/sha3-icore/calculator_test.fst"
+[dumpfile_mtime] "Tue Jan 31 11:26:18 2023"
+[dumpfile_size] 625
+[savefile] "/home/niklas/Documents/sha3-vhdl/build/sha3-icore/calculator_test_suite.gtkw"
+[timestart] 0
+[size] 1617 850
+[pos] -1 -1
+*-19.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] calculator_test.
+[treeopen] calculator_test.calc.
+[sst_width] 326
+[signals_width] 310
+[sst_expanded] 1
+[sst_vpaned_height] 219
+@200
+-Input
+@28
+calculator_test.prev_sums[4:0]
+@22
+calculator_test.slice[24:0]
+@200
+-Control
+@28
+calculator_test.no_theta
+calculator_test.theta_only
+@200
+-Result
+@28
+calculator_test.slice_sums[4:0]
+@22
+calculator_test.result[24:0]
+@200
+-Expectations
+@22
+calculator_test.expected_theta[24:0]
+@28
+calculator_test.expected_theta_only_slice_sums[4:0]
+@22
+calculator_test.expected_no_theta[24:0]
+calculator_test.expected_gamma[24:0]
+@29
+calculator_test.expected_gamma_sums[4:0]
+[pattern_trace] 1
+[pattern_trace] 0

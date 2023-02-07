@@ -44,7 +44,7 @@ cd ./build/sha3-vhdl
 for f in ${test_instances[@]}; do
 ((total_tests++))
 echo -n [${f}]
-nvc -r ${f}
+nvc -r -w ${f}
 failed=$?
 if [ $failed -ne 0 ]; then
 ((failed_tests++))

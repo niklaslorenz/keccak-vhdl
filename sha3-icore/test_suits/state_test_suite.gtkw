@@ -1,0 +1,36 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Mon Jan 30 11:13:07 2023
+[*]
+[dumpfile] "/home/niklas/Documents/sha3-vhdl/build/sha3-icore/state_test.fst"
+[dumpfile_mtime] "Mon Jan 30 11:12:05 2023"
+[dumpfile_size] 479
+[savefile] "/home/niklas/Documents/sha3-vhdl/build/sha3-icore/state_test_suite.gtkw"
+[timestart] 0
+[size] 1617 850
+[pos] -1 -1
+*-23.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] state_test.
+[sst_width] 211
+[signals_width] 126
+[sst_expanded] 1
+[sst_vpaned_height] 219
+@28
+state_test.clk
+state_test.finished
+@22
+state_test.state_visual.lane0[63:0]
+state_test.state_visual.lane1[63:0]
+state_test.state_visual.lane2[63:0]
+state_test.state_visual.lane3[63:0]
+state_test.state_visual.lane4[63:0]
+state_test.state_visual.lane5[63:0]
+state_test.state_visual.lane6[63:0]
+state_test.state_visual.lane7[63:0]
+state_test.state_visual.lane8[63:0]
+state_test.state_visual.lane9[63:0]
+state_test.state_visual.lane10[63:0]
+state_test.state_visual.lane11[63:0]
+state_test.state_visual.lane12[63:0]
+[pattern_trace] 1
+[pattern_trace] 0
