@@ -11,7 +11,6 @@ sources=( \
 "modules/writer" \
 "modules/calculator" \
 "modules/chunk_calculator" \
-"modules/result_writer" \
 "modules/slice_manager" \
 "sha3_atom" \
 )

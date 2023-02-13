@@ -25,19 +25,6 @@ end entity;
 
 architecture arch of sha3_atom is
 
-    component reader is
-        port(
-            clk : in std_logic;
-            rst : in std_logic;
-            init : in std_logic;
-            enable : in std_logic;
-            atom_index : in atom_index_t;
-            index : out lane_index_t;
-            valid : out std_logic;
-            finished : out std_logic
-        );
-    end component;
-
     component slice_manager is
         port(
             -- control
@@ -86,14 +73,8 @@ architecture arch of sha3_atom is
 
     constant zero : lane_t := (others => '0');
 
-    -- Reader
-    -- Input
-    signal reader_init : std_logic;
-    signal reader_enable : std_logic;
-    -- Output
-    signal reader_index : lane_index_t;
-    signal reader_valid : std_logic;
-    signal reader_finished : std_logic;
+    signal reader_index : slice_index_t;
+    signal reader_offset : natural range 0 to 31;
 
     -- Slice Manager
     -- Input
@@ -128,8 +109,6 @@ architecture arch of sha3_atom is
 
 begin
 
-    block_reader : reader port map(clk, rst, reader_init, reader_enable, atom_index, reader_index, reader_valid, reader_finished);
-
     manager : slice_manager port map(clk, rst, atom_index, sm_init, sm_enable, round, sm_gamma, sm_own_data, data_in, sm_outgoing_transmission,
         sm_own_result_wb, sm_own_result_wb_index, sm_remote_result_wb, sm_remote_result_wb_index, sm_own_data_request_index,
         sm_enable_own_wb, sm_enable_remote_wb, sm_enable_own_data_request, sm_finished);
@@ -138,18 +117,15 @@ begin
 
     hash_writer : writer port map(clk, rst, writer_init, writer_enable, writer_index, writer_finished);
 
-    reader_enable <= '1' when enable = '1' and (mode = read_init or mode = read) else '0';
-    reader_init <= '1' when mode = read_init else '0';
+    reader_offset <= 12 when atom_index = 1 else 0;
+
     sm_enable <= '1' when enable = '1' and (mode = calc_init or mode = calc) else '0';
     sm_init <= '1' when mode = calc_init else '0';
-    own_data : for i in 0 to 12 generate
-        sm_own_data(0)(i) <= state(i)(sm_own_data_request_index * 2) when sm_enable_own_data_request = '1' else '0';
-        sm_own_data(1)(i) <= state(i)(sm_own_data_request_index * 2 + 1) when sm_enable_own_data_request = '0' else '0';
-    end generate;
+    sm_own_data <= state(sm_own_data_request_index * 2 + 1) & state(sm_own_data_request_index * 2);
 
     writer_init <= '1' when mode = write_init else '0';
     writer_enable <= '1' when atom_index = 0 and (mode = write_init or mode = write) else '0';
-    writer_data <= state(writer_index) when mode = write_init or mode = write else (others => '0');
+    writer_data <= get_lane(state, writer_index) when mode = write_init or mode = write else (others => '0');
 
     data_out <= sm_outgoing_transmission or writer_data;
 
@@ -158,7 +134,7 @@ begin
     process(clk, rst) is
     begin
         if rst = '1' then
-            for i in 0 to 12 loop
+            for i in 0 to 63 loop
                 state(i) <= (others => '0');
             end loop;
             mode <= read_init;
@@ -167,27 +143,24 @@ begin
         elsif rising_edge(clk) then
             if enable = '1' then
                 if mode = read_init then -- Reader
+                    reader_index <= 0;
                     mode <= read;
                 elsif mode = read then
-                    if reader_valid = '1' then
-                        state(reader_index) <= data_in;
-                    end if;
-                    if reader_finished = '1' then
+                    state(reader_index * 2 + 1 downto reader_index * 2) <= (data_in(25 + reader_offset downto 12 + reader_offset), data_in(12 + reader_offset downto reader_offset));
+                    if reader_index = 31 then
                         mode <= calc_init;
                         sm_gamma <= '0';
+                    else
+                        reader_index <= reader_index + 1;
                     end if;
                 elsif mode = calc_init then -- Slice Manager
                     mode <= calc;
                 elsif mode = calc then
                     if sm_enable_own_wb = '1' then
-                        for i in 0 to 12 loop
-                            state(i)(sm_own_result_wb_index * 2 + 1 downto sm_own_result_wb_index * 2) <= sm_own_result_wb(1)(i) & sm_own_result_wb(0)(i);
-                        end loop;
+                        state(sm_own_result_wb_index * 2 + 1 downto sm_own_result_wb_index * 2) <= sm_own_result_wb(1) & sm_own_result_wb(0);
                     end if;
                     if sm_enable_remote_wb = '1' then
-                        for i in 0 to 12 loop
-                            state(i)(sm_remote_result_wb_index * 2 + 1 downto sm_remote_result_wb_index * 2) <= sm_remote_result_wb(1)(i) & sm_remote_result_wb(0)(i);
-                        end loop;
+                        state(sm_remote_result_wb_index * 2 + 1 downto sm_remote_result_wb_index * 2) <= sm_remote_result_wb(1) & sm_remote_result_wb(0);
                     end if;
                     if sm_finished = '1' then
                         if round = 23 then
@@ -197,7 +170,7 @@ begin
                         end if;
                     end if;
                 elsif mode = rho then
-                    state <= rho_function(state, atom_index);
+                    -- state <= rho_function(state, atom_index);
                     sm_gamma <= '1';
                     round <= round + 1;
                     mode <= calc_init;
