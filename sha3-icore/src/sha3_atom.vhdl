@@ -95,12 +95,8 @@ architecture arch of sha3_atom is
     signal sm_finished : std_logic;
 
     -- Writer
-    -- Input
-    signal writer_init : std_logic;
-    signal writer_enable : std_logic;
     signal writer_index : natural range 0 to 3;
     signal writer_data : lane_t;
-    signal writer_finished : std_logic;
 
     type mode_t is (read_init, read, calc_init, calc, rho, valid, write_init, write);
     signal mode : mode_t := read_init;
@@ -115,17 +111,11 @@ begin
 
     state_visual : block_visualizer port map(state);
 
-    hash_writer : writer port map(clk, rst, writer_init, writer_enable, writer_index, writer_finished);
-
     reader_offset <= 12 when atom_index = 1 else 0;
 
     sm_enable <= '1' when enable = '1' and (mode = calc_init or mode = calc) else '0';
     sm_init <= '1' when mode = calc_init else '0';
     sm_own_data <= state(sm_own_data_request_index * 2 + 1) & state(sm_own_data_request_index * 2);
-
-    writer_init <= '1' when mode = write_init else '0';
-    writer_enable <= '1' when atom_index = 0 and (mode = write_init or mode = write) else '0';
-    writer_data <= get_lane(state, writer_index) when mode = write_init or mode = write else (others => '0');
 
     data_out <= sm_outgoing_transmission or writer_data;
 
@@ -137,6 +127,9 @@ begin
             for i in 0 to 63 loop
                 state(i) <= (others => '0');
             end loop;
+            reader_index <= 0;
+            writer_data <= (others => '0');
+            writer_index <= 0;
             mode <= read_init;
             sm_gamma <= '0';
             round <= 0;
@@ -184,10 +177,16 @@ begin
                         mode <= write_init;
                     end if;
                 elsif mode = write_init then -- Writer
+                    writer_index <= 0;
                     mode <= write;
                 elsif mode = write then
-                    if writer_finished = '1' then
+                    if atom_index = 0 then
+                        writer_data <= get_lane(state, writer_index);
+                    end if;
+                    if writer_index = 3 then
                         mode <= valid;
+                    else
+                        writer_index <= writer_index + 1;
                     end if;
                 end if;
             end if;
