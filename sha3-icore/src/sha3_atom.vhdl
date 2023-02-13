@@ -146,7 +146,8 @@ begin
                     reader_index <= 0;
                     mode <= read;
                 elsif mode = read then
-                    state(reader_index * 2 + 1 downto reader_index * 2) <= (data_in(25 + reader_offset downto 12 + reader_offset), data_in(12 + reader_offset downto reader_offset));
+                    state(reader_index * 2 + 1) <= data_in(25 + reader_offset downto 12 + reader_offset);
+                    state(reader_index * 2) <= data_in(12 + reader_offset downto reader_offset);
                     if reader_index = 31 then
                         mode <= calc_init;
                         sm_gamma <= '0';
@@ -157,10 +158,12 @@ begin
                     mode <= calc;
                 elsif mode = calc then
                     if sm_enable_own_wb = '1' then
-                        state(sm_own_result_wb_index * 2 + 1 downto sm_own_result_wb_index * 2) <= sm_own_result_wb(1) & sm_own_result_wb(0);
+                        state(sm_own_result_wb_index * 2 + 1) <= sm_own_result_wb(1);
+                        state(sm_own_result_wb_index * 2) <= sm_own_result_wb(0);
                     end if;
                     if sm_enable_remote_wb = '1' then
-                        state(sm_remote_result_wb_index * 2 + 1 downto sm_remote_result_wb_index * 2) <= sm_remote_result_wb(1) & sm_remote_result_wb(0);
+                        state(sm_remote_result_wb_index * 2 + 1) <= sm_remote_result_wb(1);
+                        state(sm_remote_result_wb_index * 2) <= sm_remote_result_wb(0);
                     end if;
                     if sm_finished = '1' then
                         if round = 23 then
