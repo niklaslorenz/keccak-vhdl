@@ -19,19 +19,19 @@ architecture arch of block_visualizer is
         slice60, slice61, slice62, slice63 : tile_slice_t;
     
 begin
-    lane0 <= state(0);
-    lane1 <= state(1);
-    lane2 <= state(2);
-    lane3 <= state(3);
-    lane4 <= state(4);
-    lane5 <= state(5);
-    lane6 <= state(6);
-    lane7 <= state(7);
-    lane8 <= state(8);
-    lane9 <= state(9);
-    lane10 <= state(10);
-    lane11 <= state(11);
-    lane12 <= state(12);
+    lane0 <= get_lane(state, 0);
+    lane1 <= get_lane(state, 1);
+    lane2 <= get_lane(state, 2);
+    lane3 <= get_lane(state, 3);
+    lane4 <= get_lane(state, 4);
+    lane5 <= get_lane(state, 5);
+    lane6 <= get_lane(state, 6);
+    lane7 <= get_lane(state, 7);
+    lane8 <= get_lane(state, 8);
+    lane9 <= get_lane(state, 9);
+    lane10 <= get_lane(state, 10);
+    lane11 <= get_lane(state, 11);
+    lane12 <= get_lane(state, 12);
 
     slice0 <= get_slice_tile(state, 0);
     slice1 <= get_slice_tile(state, 1);

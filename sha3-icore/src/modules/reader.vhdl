@@ -11,26 +11,23 @@ entity reader is
         enable : in std_logic;
         atom_index : in atom_index_t;
         index : out lane_index_t;
-        valid : out std_logic;
         finished : out std_logic
     );
 end entity;
 
 architecture arch of reader is
 
-    subtype iterator_t is natural range 0 to 16;
+    subtype iterator_t is natural range 0 to 31;
 
     signal iterator : iterator_t := 0;
     signal is_valid : std_logic;
 
 begin
 
-    is_valid <= '1' when (iterator <= 12 and atom_index = 0) or (iterator >= 12 and atom_index = 1) else '0';
     index <= iterator when iterator <= 12 and atom_index = 0 else
-             iterator - 12 when iterator >= 12 and atom_index = 1 else
+             iterator - 13 when iterator >= 13 and atom_index = 1 else
              0;
-    finished <= '1' when iterator = 16 else '0';
-    valid <= is_valid;
+    finished <= '1' when iterator = 26 else '0';
 
     process(clk, rst) is
     begin
@@ -39,7 +36,7 @@ begin
         elsif rising_edge(clk) then
             if init = '1' then
                 iterator <= 0;
-            elsif enable = '1' and iterator < 16 then
+            elsif enable = '1' and iterator < 31 then
                 iterator <= iterator + 1;
             end if;
         end if;
