@@ -10,6 +10,7 @@ package slice_functions is
 
     function pi(slice : slice_t) return slice_t;
     function chi(slice : slice_t) return slice_t;
+    function rho_lane(data : lane_t; index : full_lane_index_t) return lane_t;
     procedure rho(data : inout block_t; atom_index : atom_index_t);
     function rho_function(data : block_t; atom_index : atom_index_t) return block_t;
 
@@ -53,10 +54,16 @@ package body slice_functions is
         return result;
     end function;
 
+    function rho_lane(data : lane_t; index : full_lane_index_t) return lane_t is
+        type offset_t is array(0 to 24) of natural;
+	    constant offsets : offset_t := (0, 1, 62, 28, 27, 36, 44, 6, 55, 20, 3, 10, 43, 25, 39, 41, 45, 15, 21, 8, 18, 2, 61, 56, 14);
+    begin
+        return std_logic_vector(unsigned(data) sll offsets(index));
+    end function;
+
     procedure rho(data : inout block_t; atom_index : atom_index_t) is
         type offset_t is array(0 to 24) of natural;
 	    constant offsets : offset_t := (0, 1, 62, 28, 27, 36, 44, 6, 55, 20, 3, 10, 43, 25, 39, 41, 45, 15, 21, 8, 18, 2, 61, 56, 14);
-        variable lane : full_lane_index_t;
     begin
         if atom_index = 0 then
             for i in 0 to 12 loop

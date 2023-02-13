@@ -94,11 +94,15 @@ architecture arch of sha3_atom is
     signal sm_enable_own_data_request : std_logic;
     signal sm_finished : std_logic;
 
+    signal rho_result : lane_t;
+    signal rho_lane_index : lane_index_t;
+    signal rho_lane_offset : full_lane_index_t;
+
     -- Writer
     signal writer_index : natural range 0 to 3;
     signal writer_data : lane_t;
 
-    type mode_t is (read_init, read, calc_init, calc, rho, valid, write_init, write);
+    type mode_t is (read_init, read, calc_init, calc, rho_init, rho, valid, write_init, write);
     signal mode : mode_t := read_init;
     signal state : block_t;
     signal round : round_index_t;
@@ -117,6 +121,9 @@ begin
     sm_init <= '1' when mode = calc_init else '0';
     sm_own_data <= state(sm_own_data_request_index * 2 + 1) & state(sm_own_data_request_index * 2);
 
+    rho_result <= rho_lane(get_lane(state, rho_lane_index), rho_lane_index + rho_lane_offset);
+    rho_lane_offset <= 12 when atom_index = 1 else 0;
+
     data_out <= sm_outgoing_transmission or writer_data;
 
     ready <= '1' when mode = valid else '0';
@@ -130,6 +137,7 @@ begin
             reader_index <= 0;
             writer_data <= (others => '0');
             writer_index <= 0;
+            rho_lane_index <= 0;
             mode <= read_init;
             sm_gamma <= '0';
             round <= 0;
@@ -162,14 +170,23 @@ begin
                         if round = 23 then
                             mode <= valid;
                         else
-                            mode <= rho;
+                            mode <= rho_init;
                         end if;
                     end if;
+                elsif mode = rho_init then
+                    rho_lane_index <= 0;
+                    mode <= rho;
                 elsif mode = rho then
-                    -- state <= rho_function(state, atom_index);
-                    sm_gamma <= '1';
-                    round <= round + 1;
-                    mode <= calc_init;
+                    for i in 0 to 63 loop
+                        state(i)(rho_lane_index) <= rho_result(i);
+                    end loop;
+                    if rho_lane_index = 12 then
+                        sm_gamma <= '1';
+                        round <= round + 1;
+                        mode <= calc_init;
+                    else
+                        rho_lane_index <= rho_lane_index + 1;
+                    end if;
                 elsif mode = valid then
                     if read_data = '1' then
                         mode <= read_init;
