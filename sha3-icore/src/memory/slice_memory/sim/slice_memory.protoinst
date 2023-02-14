@@ -1,0 +1,9 @@
+{
+	"version": "1.0",
+	"modules": {
+		"slice_memory": {
+			"proto_instances": {
+			}
+		}
+	}
+}

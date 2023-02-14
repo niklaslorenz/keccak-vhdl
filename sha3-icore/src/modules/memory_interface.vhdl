@@ -11,7 +11,7 @@ entity memory_interface is
         write_address : in lane_index_t;
         write : in std_logic;
         write_data : in lane_t;
-        read_data : out lane_t;
+        read_data : out lane_t
     );
 end entity;
 

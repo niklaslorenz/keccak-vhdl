@@ -13,6 +13,7 @@ package state is
 
     type tile_computation_data_t is array(natural range 1 downto 0) of tile_slice_t;
     type computation_data_t is array(natural range 1 downto 0) of slice_t;
+    type rho_calc_t is array(natural range 3 downto 0) of tile_slice_t;
 
     subtype atom_index_t is natural range 0 to 1;
     subtype lane_index_t is natural range 0 to 12;
