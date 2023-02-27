@@ -10,7 +10,7 @@ entity rho_shift_buffer is
         data_in : in rho_calc_t;
         data_out : out rho_calc_t
     );
-end rho_shift_buffer;
+end entity;
 
 architecture arch of rho_shift_buffer is
     
@@ -153,4 +153,4 @@ begin
         end if;
     end process;
 
-end arch;
+end architecture;
