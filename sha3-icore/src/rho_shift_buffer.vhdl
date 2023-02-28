@@ -13,10 +13,15 @@ entity rho_shift_buffer is
 end entity;
 
 architecture arch of rho_shift_buffer is
-    
-    type buffer_chunk_t is array(natural range 3 downto 0) of std_logic_vector(6 downto 0);
-    type buffer_t is array(natural range 7 downto 0) of buffer_chunk_t;
-    signal extracted_data : buffer_chunk_t;
+
+    component buffer_visualizer is
+        port(
+            buf : in buffer_t
+        );
+    end component;
+
+    type extracted_data_t is array(natural range 3 downto 0) of std_logic_vector(6 downto 0);
+    signal extracted_data : extracted_data_t;
     signal inserted_data : rho_calc_t;
     signal buf : buffer_t;
     
@@ -34,12 +39,9 @@ architecture arch of rho_shift_buffer is
 
     signal extracted0, extracted1, extracted2, extracted3 : std_logic_vector(6 downto 0);
 
-    function reverse(data : buffer_chunk_t) return buffer_chunk_t is
-    begin
-        return (data(0), data(1), data(2), data(3));
-    end function;
-
 begin
+
+    buffer_visual : buffer_visualizer port map(buf);
 
     data_out <= inserted_data;
     extracted0 <= extracted_data(0);
@@ -47,15 +49,13 @@ begin
     extracted2 <= extracted_data(2);
     extracted3 <= extracted_data(3);
 
-    insert : process(atom_index, left_shift, data_in, buf) is
+    insert : process(atom_index, left_shift, data_in, buf, extracted_data, inserted_data) is
 
         variable buffer_queues : buffer_queues_t;
         variable buffer_offsets : offsets_t;
 
-        variable buffer_index : natural range 0 to 31;
+        variable buffer_index : natural range 0 to 35;
         variable buffer_queue_index : natural range 0 to 6;
-        variable buffer_slice_index : natural range 0 to 3;
-        variable buffer_chunk_index : natural range 0 to 7;
 
     begin
         if atom_index = 0 then
@@ -79,14 +79,12 @@ begin
             for lane in 0 to 12 loop
                 if buffer_queues(lane) /= 7 then
                     buffer_queue_index := buffer_queues(lane);
-                    buffer_index := (slice + buffer_offsets(buffer_queue_index)) mod 32;
-                    buffer_chunk_index := buffer_index / 4;
-                    buffer_slice_index := (buffer_index mod 4);
                     if left_shift = '1' then
-                        inserted_data(slice)(lane) <= reverse(buf(buffer_chunk_index))(buffer_slice_index)(buffer_queue_index);
+                        buffer_index := (36 - slice + buffer_offsets(buffer_queue_index)) mod 36;
                     else
-                        inserted_data(slice)(lane) <= buf(buffer_chunk_index)(buffer_slice_index)(buffer_queue_index);
+                        buffer_index := (36 + slice - buffer_offsets(buffer_queue_index)) mod 36;
                     end if;
+                    inserted_data(slice)(lane) <= buf(buffer_index)(buffer_queue_index);
                 else
                     inserted_data(slice)(lane) <= data_in(slice)(lane);
                 end if;
@@ -94,9 +92,8 @@ begin
         end loop;
     end process;
 
-    extract : process(atom_index, left_shift, data_in) is
+    extract : process(atom_index, left_shift, data_in, buf, extracted_data, inserted_data) is
     begin
-
         if atom_index = 0 then
             if left_shift = '1' then
                 for slice in 3 downto 0 loop
@@ -140,20 +137,17 @@ begin
     end process;
 
     process(clk) is
-
     begin
         if rising_edge(clk) then
-            if left_shift = '1' then
-                for i in 0 to 6 loop
-                    buf(i + 1) <= buf(i);
-                end loop;
-                buf(0) <= reverse(extracted_data);
-            else
-                for i in 0 to 6 loop
-                    buf(i + 1) <= buf(i);
-                end loop;
-                buf(0) <= extracted_data;
-            end if;
+            for i in 0 to 7 loop
+                buf((i + 1) * 4) <= buf(i * 4);
+                buf((i + 1) * 4 + 1) <= buf(i * 4 + 1);
+                buf((i + 1) * 4 + 2) <= buf(i * 4 + 2);
+                buf((i + 1) * 4 + 3) <= buf(i * 4 + 3);
+            end loop;
+            for i in 0 to 3 loop
+                buf(i) <= extracted_data(i);
+            end loop;
         end if;
     end process;
 

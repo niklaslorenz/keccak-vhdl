@@ -21,6 +21,8 @@ package state is
     subtype slice_index_t is natural range 0 to 63;
     subtype computation_data_index_t is natural range 0 to 31;
 
+    type buffer_t is array(natural range 35 downto 0) of std_logic_vector(6 downto 0);
+
     function get_lane(state : block_t; index : lane_index_t) return lane_t;
 
     function get_slice_tile(state: block_t; index : slice_index_t) return tile_slice_t;

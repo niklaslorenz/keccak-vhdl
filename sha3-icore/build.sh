@@ -5,6 +5,8 @@ sources=( \
 "state" \
 "util" \
 "visualizer" \
+#"buffer_chunk_visualizer" \
+"buffer_visualizer" \
 "round_constants" \
 "functions" \
 "modules/reader" \
