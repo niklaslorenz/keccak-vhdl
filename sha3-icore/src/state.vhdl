@@ -25,6 +25,8 @@ package state is
 
     function get_slice_tile(state: block_t; index : slice_index_t) return tile_slice_t;
 
+    function get_rho_data(state : block_t; index : natural range 0 to 15) return rho_calc_t;
+
     function isValid(state : block_t) return boolean;
 
 end package;
@@ -43,6 +45,11 @@ package body state is
     function get_slice_tile(state : block_t; index : slice_index_t) return tile_slice_t is
     begin
         return state(index);
+    end function;
+
+    function get_rho_data(state : block_t; index : natural range 0 to 15) return rho_calc_t is
+    begin
+        return (state(index * 4 + 3), state(index * 4 + 2), state(index * 4 + 1), state(index * 4));
     end function;
 
     function isValid(state : block_t) return boolean is
