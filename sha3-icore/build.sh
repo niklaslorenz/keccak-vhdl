@@ -14,6 +14,7 @@ sources=( \
 "modules/calculator" \
 "modules/chunk_calculator" \
 "modules/slice_manager" \
+"simulation/slice_memory_wrapper" \
 "rho_shift_buffer" \
 #"sha3_atom" \
 )
