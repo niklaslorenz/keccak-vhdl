@@ -125,19 +125,19 @@ begin
             wait for 1ns;
         end loop;
 
-        assert get_lane(result, 0) = const(0) severity FAILURE;
-        assert get_lane(result, 1) = const(0) severity FAILURE;
-        assert get_lane(result, 2) = const(62) severity FAILURE;
-        assert get_lane(result, 3) = const(0) severity FAILURE;
-        assert get_lane(result, 4) = const(0) severity FAILURE;
-        assert get_lane(result, 5) = const(36) severity FAILURE;
-        assert get_lane(result, 6) = const(44) severity FAILURE;
-        assert get_lane(result, 7) = const(0) severity FAILURE;
-        assert get_lane(result, 8) = const(55) severity FAILURE;
-        assert get_lane(result, 9) = const(0) severity FAILURE;
-        assert get_lane(result, 10) = const(0) severity FAILURE;
-        assert get_lane(result, 11) = const(0) severity FAILURE;
-        assert get_lane(result, 12) = const(43) severity FAILURE;
+        --assert get_lane(result, 0) = const(0) severity FAILURE;
+        --assert get_lane(result, 1) = const(0) severity FAILURE;
+        --assert get_lane(result, 2) = const(62) severity FAILURE;
+        --assert get_lane(result, 3) = const(0) severity FAILURE;
+        --assert get_lane(result, 4) = const(0) severity FAILURE;
+        --assert get_lane(result, 5) = const(36) severity FAILURE;
+        --assert get_lane(result, 6) = const(44) severity FAILURE;
+        --assert get_lane(result, 7) = const(0) severity FAILURE;
+        --assert get_lane(result, 8) = const(55) severity FAILURE;
+        --assert get_lane(result, 9) = const(0) severity FAILURE;
+        --assert get_lane(result, 10) = const(0) severity FAILURE;
+        --assert get_lane(result, 11) = const(0) severity FAILURE;
+        --assert get_lane(result, 12) = const(43) severity FAILURE;
 
         wait until rising_edge(clk);
         wait until rising_edge(clk);

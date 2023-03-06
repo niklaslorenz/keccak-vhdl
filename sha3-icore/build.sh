@@ -5,7 +5,6 @@ sources=( \
 "state" \
 "util" \
 "visualizer" \
-#"buffer_chunk_visualizer" \
 "buffer_visualizer" \
 "round_constants" \
 "functions" \
@@ -27,6 +26,7 @@ test_instances=( \
 #"slice_manager_test" \
 #"atom_read_test" \
 #"buffer_data_transmit_test" \
+"slice_memory_test" \
 "rho_shift_buffer_test" \
 #"atom_full_test" \
 )

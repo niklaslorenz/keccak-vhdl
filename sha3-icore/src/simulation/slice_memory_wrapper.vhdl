@@ -20,7 +20,7 @@ end slice_memory_wrapper;
 
 architecture arch of slice_memory_wrapper is
 
-	type mem_t is array(natural range 0 to 63) of std_logic_vector(25 downto 0);
+	type mem_t is array(natural range 0 to 127) of std_logic_vector(25 downto 0);
 	signal mem : mem_t;
 
 begin
