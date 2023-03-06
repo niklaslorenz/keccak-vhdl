@@ -10,24 +10,43 @@ entity reader is
         init : in std_logic;
         enable : in std_logic;
         atom_index : in atom_index_t;
-        index : out lane_index_t;
+        data_in : in lane_t;
+        index : out natural range 0 to 31;
+        data_out : out std_logic_vector(25 downto 0);
+        write_enable : out std_logic;
         finished : out std_logic
     );
 end entity;
 
 architecture arch of reader is
 
-    subtype iterator_t is natural range 0 to 31;
+    subtype iterator_t is natural range 0 to 32;
 
     signal iterator : iterator_t := 0;
-    signal is_valid : std_logic;
 
 begin
 
-    index <= iterator when iterator <= 12 and atom_index = 0 else
-             iterator - 13 when iterator >= 13 and atom_index = 1 else
-             0;
-    finished <= '1' when iterator = 26 else '0';
+    process(iterator, atom_index, data_in) is
+    begin
+        if iterator /= 32 then
+            write_enable <= '1';
+            index <= iterator;
+            if atom_index = 0 then
+                data_out <= data_in(44 downto 32) & data_in(12 downto 0);
+            else
+                data_out <= data_in(56 downto 44) & data_in(24 downto 12);
+            end if;
+        else
+            data_out <= (others => '0');
+            write_enable <= '0';
+            index <= 0;
+        end if;
+        if iterator >= 31 then
+            finished <= '1';
+        else
+            finished <= '0';
+        end if;
+    end process;
 
     process(clk, rst) is
     begin
@@ -36,7 +55,7 @@ begin
         elsif rising_edge(clk) then
             if init = '1' then
                 iterator <= 0;
-            elsif enable = '1' and iterator < 31 then
+            elsif enable = '1' and iterator < 32 then
                 iterator <= iterator + 1;
             end if;
         end if;
