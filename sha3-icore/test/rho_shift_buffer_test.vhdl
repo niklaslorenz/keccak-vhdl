@@ -78,15 +78,15 @@ begin
         end loop;
         for i in 0 to 15 loop
             iteration <= i;
-            wait for 1ns;
             data_in <= get_rho_data(state, i);
             wait until rising_edge(clk);
             wait for 1ns;
             for j in 0 to 3 loop
                 result(i * 4 + j) <= data_out(j);
             end loop;
-            wait for 1ns;
         end loop;
+
+        wait until rising_edge(clk);
 
         assert get_lane(result, 0) = const(0) severity FAILURE;
         assert get_lane(result, 1) = const(1) severity FAILURE;
@@ -115,14 +115,12 @@ begin
         end loop;
         for i in 15 downto 0 loop
             iteration <= i;
-            wait for 1ns;
             data_in <= get_rho_data(state, i);
             wait until rising_edge(clk);
-            wait for 1ns;
+            -- wait for 1ns;
             for j in 0 to 3 loop
                 result(i * 4 + j) <= data_out(j);
             end loop;
-            wait for 1ns;
         end loop;
 
         --assert get_lane(result, 0) = const(0) severity FAILURE;
