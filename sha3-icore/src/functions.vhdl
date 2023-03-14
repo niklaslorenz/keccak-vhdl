@@ -60,11 +60,11 @@ package body slice_functions is
     begin
         if atom_index = 0 then
             for i in 0 to 12 loop
-                data(i) := data(i)(63 - offsets(i) downto 0) & data(i)(63 downto 63 - offsets(i) + 1);
+                set_lane(data, i, get_lane(data, i)(63 - offsets(i) downto 0) & get_lane(data, i)(63 downto 63 - offsets(i) + 1));
             end loop;
         else
             for i in 0 to 12 loop
-                data(i) := data(i)(63 - offsets(12 + i) downto 0) & data(i)(63 downto 63 - offsets(12 + i) + 1);
+                set_lane(data, i, get_lane(data, i)(63 - offsets(12 + i) downto 0) & get_lane(data, i)(63 downto 63 - offsets(12 + i) + 1));
             end loop;
         end if;
     end procedure;

@@ -24,6 +24,7 @@ architecture arch of rho_shift_buffer is
     signal extracted_data : extracted_data_t;
     signal inserted_data : rho_calc_t;
     signal buf : buffer_t;
+    signal raw_input_data : rho_calc_t;
     
     type buffer_queues_t is array(natural range 0 to 12) of natural range 0 to 7;
     constant atom0_left_shift_queues : buffer_queues_t := (7, 0, 7, 1, 2, 7, 7, 3, 7, 4, 5, 6, 7);
@@ -86,13 +87,13 @@ begin
                     end if;
                     inserted_data(slice)(lane) <= buf(buffer_index)(buffer_queue_index);
                 else
-                    inserted_data(slice)(lane) <= data_in(slice)(lane);
+                    inserted_data(slice)(lane) <= raw_input_data(slice)(lane);
                 end if;
             end loop;
         end loop;
     end process;
 
-    extract : process(atom_index, left_shift, data_in, buf, extracted_data, inserted_data) is
+    extract : process(atom_index, left_shift, data_in, buf, extracted_data, inserted_data, raw_input_data) is
     begin
         if atom_index = 0 then
             if left_shift = '1' then
@@ -148,6 +149,7 @@ begin
             for i in 0 to 3 loop
                 buf(i) <= extracted_data(i);
             end loop;
+            raw_input_data <= data_in;
         end if;
     end process;
 

@@ -13,8 +13,10 @@ package state is
 
     type tile_computation_data_t is array(natural range 1 downto 0) of tile_slice_t;
     type computation_data_t is array(natural range 1 downto 0) of slice_t;
+    subtype rho_manager_iterator_t is natural;
     type rho_calc_t is array(natural range 3 downto 0) of tile_slice_t;
 
+    subtype mem_addr_t is natural range 0 to 127;
     subtype atom_index_t is natural range 0 to 1;
     subtype lane_index_t is natural range 0 to 12;
     subtype full_lane_index_t is natural range 0 to 24;
@@ -23,13 +25,24 @@ package state is
 
     type buffer_t is array(natural range 35 downto 0) of std_logic_vector(6 downto 0);
 
+    type mem_port_input is record
+		addr : mem_addr_t;
+		data : tile_computation_data_t;
+        en : std_logic;
+        we : std_logic;
+	end record;
+
     function get_lane(state : block_t; index : lane_index_t) return lane_t;
+
+    procedure set_lane(state : inout block_t; index : in lane_index_t; data : in lane_t);
 
     function get_slice_tile(state: block_t; index : slice_index_t) return tile_slice_t;
 
     function get_rho_data(state : block_t; index : natural range 0 to 15) return rho_calc_t;
 
     function isValid(state : block_t) return boolean;
+
+    function "or"(left, right : rho_calc_t) return rho_calc_t;
 
 end package;
 
@@ -43,6 +56,13 @@ package body state is
         end loop;
         return result;
     end function;
+
+    procedure set_lane(state : inout block_t; index : in lane_index_t; data : in lane_t) is
+    begin
+        for i in 0 to 63 loop
+            state(i)(index) := data(i);
+        end loop;
+    end procedure;
 
     function get_slice_tile(state : block_t; index : slice_index_t) return tile_slice_t is
     begin
@@ -64,6 +84,15 @@ package body state is
             end loop;
         end loop;
         return true;
+    end function;
+
+    function "or"(left, right : rho_calc_t) return rho_calc_t is
+        variable res : rho_calc_t;
+    begin
+        for i in 0 to 3 loop
+            res(i) := left(i) or right(i);
+        end loop;
+        return res;
     end function;
 
 end package body;

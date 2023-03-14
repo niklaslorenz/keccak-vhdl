@@ -76,14 +76,17 @@ begin
             data_in <= get_rho_data(state, i);
             wait until rising_edge(clk);
         end loop;
-        for i in 0 to 15 loop
-            iteration <= i;
-            data_in <= get_rho_data(state, i);
+        for i in 0 to 16 loop
+            if i < 16 then
+                iteration <= i;
+                data_in <= get_rho_data(state, i);
+            end if;
             wait until rising_edge(clk);
-            wait for 1ns;
-            for j in 0 to 3 loop
-                result(i * 4 + j) <= data_out(j);
-            end loop;
+            if i > 0 then
+                for j in 0 to 3 loop
+                    result((i - 1) * 4 + j) <= data_out(j);
+                end loop;
+            end if;
         end loop;
 
         wait until rising_edge(clk);
