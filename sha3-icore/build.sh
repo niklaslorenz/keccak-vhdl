@@ -8,6 +8,14 @@ sources=( \
 "buffer_visualizer" \
 "round_constants" \
 "functions" \
+"simulation/slice_memory_wrapper" \
+"modules/memory_block" \
+"modules/manual_port_memory_block" \
+"modules/rho_buffer/single_lane_buffer" \
+"modules/rho_buffer/multi_lane_buffer" \
+"modules/rho_buffer/rho_buffer_filter" \
+"modules/rho_buffer/rho_controller" \
+"modules/rho_buffer/rho_buffer" \
 "modules/reader" \
 "modules/writer" \
 "modules/calculator" \
@@ -19,6 +27,8 @@ sources=( \
 )
 
 test_instances=( \
+"single_lane_buffer_test" \
+"rho_buffer_test" \
 #"state_test" \
 "theta_test" \
 "calculator_test" \

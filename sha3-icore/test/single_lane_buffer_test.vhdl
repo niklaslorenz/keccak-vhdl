@@ -93,16 +93,19 @@ begin
         end procedure;
 
     begin
-        --calculate(x"5759c8d7542fb452", 8, right);
-        --calculate(x"5759c8d7542fb452", 9, right);
-        --calculate(x"5759c8d7542fb452", 1, right);
-        --calculate(x"5759c8d7542fb452", 12, right);
-        --calculate(x"5759c8d7542fb452", 30, right);
-        --calculate(x"5759c8d7542fb452", 31, right);
+        calculate(x"5759c8d7542fb452", 8, right);
+        calculate(x"5759c8d7542fb452", 9, right);
+        calculate(x"5759c8d7542fb452", 1, right);
+        calculate(x"5759c8d7542fb452", 12, right);
+        calculate(x"5759c8d7542fb452", 30, right);
+        calculate(x"5759c8d7542fb452", 31, right);
 
         calculate(x"5759c8d7542fb452", 8, left);
-
-
+        calculate(x"5759c8d7542fb452", 9, left);
+        calculate(x"5759c8d7542fb452", 1, left);
+        calculate(x"5759c8d7542fb452", 12, left);
+        calculate(x"5759c8d7542fb452", 30, left);
+        calculate(x"5759c8d7542fb452", 31, left);
 
         finished <= true;
         wait;

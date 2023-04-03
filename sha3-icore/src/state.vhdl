@@ -16,6 +16,8 @@ package state is
     subtype rho_manager_iterator_t is natural;
     type rho_calc_t is array(natural range 3 downto 0) of tile_slice_t;
 
+    type multi_buffer_data_t is array(natural range 6 downto 0) of std_logic_vector(3 downto 0);
+
     subtype mem_addr_t is natural range 0 to 127;
     subtype atom_index_t is natural range 0 to 1;
     subtype lane_index_t is natural range 0 to 12;
