@@ -4,21 +4,41 @@ use IEEE.std_logic_1164.all;
 
 package state is
 
+    -- Data and Slices
     subtype lane_t is std_logic_vector(63 downto 0);
     subtype tile_slice_t is std_logic_vector(12 downto 0);
+    type tile_computation_data_t is array(natural range 1 downto 0) of tile_slice_t;
+
+    -- Memory Block
+    subtype mem_addr_t is natural range 0 to 127;
+    type mem_port_input is record
+		addr : mem_addr_t;
+		data : tile_computation_data_t;
+        en : std_logic;
+        we : std_logic;
+	end record;
+    type mem_port_output is record
+        data : tile_computation_data_t;
+    end record;
+    type mem_port is record
+        input : mem_port_input;
+        output : mem_port_output;
+    end record;
+    constant mem_port_init : mem_port := (input => (addr => 0, data => (others => (others => '0')), en => '0', we => '0'),
+                                          output => (data => (others => (others => '0'))));
+
+    -- Random unsorted stuff
     subtype remote_slice_t is std_logic_vector(11 downto 0);
     subtype slice_t is std_logic_vector(24 downto 0);
     subtype transmission_word_t is std_logic_vector(31 downto 0);
     type block_t is array(natural range 63 downto 0) of tile_slice_t;
 
-    type tile_computation_data_t is array(natural range 1 downto 0) of tile_slice_t;
     type computation_data_t is array(natural range 1 downto 0) of slice_t;
     subtype rho_manager_iterator_t is natural;
     type rho_calc_t is array(natural range 3 downto 0) of tile_slice_t;
 
     type multi_buffer_data_t is array(natural range 6 downto 0) of std_logic_vector(3 downto 0);
 
-    subtype mem_addr_t is natural range 0 to 127;
     subtype atom_index_t is natural range 0 to 1;
     subtype lane_index_t is natural range 0 to 12;
     subtype full_lane_index_t is natural range 0 to 24;
@@ -26,13 +46,6 @@ package state is
     subtype computation_data_index_t is natural range 0 to 31;
 
     type buffer_t is array(natural range 35 downto 0) of std_logic_vector(6 downto 0);
-
-    type mem_port_input is record
-		addr : mem_addr_t;
-		data : tile_computation_data_t;
-        en : std_logic;
-        we : std_logic;
-	end record;
 
     function get_lane(state : block_t; index : lane_index_t) return lane_t;
 

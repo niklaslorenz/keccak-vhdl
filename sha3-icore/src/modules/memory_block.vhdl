@@ -8,9 +8,9 @@ entity memory_block is
     port(
         clk : in std_logic;
         port_a_in : in mem_port_input;
-        port_a_out : out tile_computation_data_t;
+        port_a_out : out mem_port_output;
         port_b_in : in mem_port_input;
-        port_b_out : out tile_computation_data_t
+        port_b_out : out mem_port_output
     );
 end entity;
 
@@ -51,14 +51,14 @@ begin
     a_din <= port_a_in.data(1) & port_a_in.data(0);
     a_en <= port_a_in.en;
     a_we(0) <= port_a_in.we;
-    port_a_out(0) <= a_dout(12 downto 0);
-    port_a_out(1) <= a_dout(25 downto 13);
+    port_a_out.data(0) <= a_dout(12 downto 0);
+    port_a_out.data(1) <= a_dout(25 downto 13);
 
     b_addr <= std_logic_vector(to_unsigned(port_b_in.addr, 7));
     b_din <= port_b_in.data(1) & port_b_in.data(0);
     b_en <= port_b_in.en;
     b_we(0) <= port_b_in.we;
-    port_b_out(0) <= b_dout(12 downto 0);
-    port_b_out(1) <= b_dout(25 downto 13);
+    port_b_out.data(0) <= b_dout(12 downto 0);
+    port_b_out.data(1) <= b_dout(25 downto 13);
 
 end architecture arch;

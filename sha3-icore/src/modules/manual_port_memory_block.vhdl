@@ -8,9 +8,9 @@ entity manual_port_memory_block is
         manual : in std_logic;
         manual_in : in mem_port_input;
         port_a_in : in mem_port_input;
-        port_a_out : out tile_computation_data_t;
+        port_a_out : out mem_port_output;
         port_b_in : in mem_port_input;
-        port_b_out : out tile_computation_data_t
+        port_b_out : out mem_port_output
     );
 end entity;
 
@@ -20,9 +20,9 @@ architecture arch of manual_port_memory_block is
         port(
             clk : in std_logic;
             port_a_in : in mem_port_input;
-            port_a_out : out tile_computation_data_t;
+            port_a_out : out mem_port_output;
             port_b_in : in mem_port_input;
-            port_b_out : out tile_computation_data_t
+            port_b_out : out mem_port_output
         );
     end component;
 

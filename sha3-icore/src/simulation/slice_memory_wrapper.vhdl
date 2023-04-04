@@ -36,9 +36,6 @@ architecture arch of slice_memory_wrapper is
 	signal port_b_out_slice_1 : tile_slice_t;
 
 begin
-	
-	BRAM_PORTA_0_dout <= port_a_out_temp;
-	BRAM_PORTB_0_dout <= port_b_out_temp;
 
 	port_a_in_slice_0 <= BRAM_PORTA_0_din(12 downto 0);
 	port_a_in_slice_1 <= BRAM_PORTA_0_din(25 downto 13);
@@ -50,6 +47,7 @@ begin
 	port_b_out_slice_1 <= port_b_out_temp(25 downto 13);
 
 	process(clk) is
+		variable addr_a : natural range 0 to 127;
 	begin
 		if rising_edge(clk) then
 			if BRAM_PORTA_0_en = '1' then
@@ -64,6 +62,9 @@ begin
 			if BRAM_PORTB_0_we(0) = '1' then
 				mem(to_integer(unsigned(BRAM_PORTB_0_addr))) <= BRAM_PORTB_0_din;
 			end if;
+			
+			BRAM_PORTA_0_dout <= port_a_out_temp;
+			BRAM_PORTB_0_dout <= port_b_out_temp;
 		end if;
 	end process;
 
