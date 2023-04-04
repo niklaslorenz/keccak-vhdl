@@ -4,12 +4,13 @@ use work.state.all;
 
 entity rho_buffer_filter is
     port(
+        clk : in std_logic;
         atom_index : in atom_index_t;
         right_shift : in std_logic;
         data_in : in rho_calc_t;
-        buffer_out : in multi_buffer_data_t;
         data_out : out rho_calc_t;
-        buffer_in : out multi_buffer_data_t
+        filtered_in : in multi_buffer_data_t;
+        filtered_out : out multi_buffer_data_t
     );
 end entity;
 
@@ -30,19 +31,35 @@ architecture arch of rho_buffer_filter is
     signal current_queue : buffer_queues_t;
     signal current_lanes : buffer_lanes_t;
 
+    signal din_buf : rho_calc_t;
+
+    signal data_in_0, data_in_1, data_in_2, data_in_3 : tile_slice_t;
+
 begin
+
+    data_in_0 <= data_in(0);
+    data_in_1 <= data_in(1);
+    data_in_2 <= data_in(2);
+    data_in_3 <= data_in(3);
 
     buffer_lane_for : for lane in 0 to 6 generate
         buffer_slice_for : for i in 0 to 3 generate
-            buffer_in(current_lanes(lane))(i) <= data_in(i)(lane);
+            filtered_out(lane)(i) <= data_in(i)(current_lanes(lane));
         end generate;
     end generate;
 
     data_slice_for : for i in 0 to 3 generate
         data_lane_for : for lane in 0 to 12 generate
-            data_out(i)(lane) <= buffer_out(current_queue(lane))(i) when current_queue(lane) /= 7 else data_in(i)(lane);
+            data_out(i)(lane) <= filtered_in(current_queue(lane))(i) when current_queue(lane) /= 7 else din_buf(i)(lane);
         end generate;
     end generate;
+
+    process(clk) is
+    begin
+        if rising_edge(clk) then
+            din_buf <= data_in;
+        end if;
+    end process;
 
     process(atom_index, right_shift) is
     begin

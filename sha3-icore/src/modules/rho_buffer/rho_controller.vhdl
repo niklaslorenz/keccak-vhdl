@@ -19,17 +19,18 @@ end entity;
 
 architecture arch of rho_controller is
 
-    signal iterator : natural range 0 to 27;
+    signal iterator : natural range 0 to 28;
 
 begin
 
-    right_shift <= asBit(iterator > 26);
+    right_shift <= asBit(iterator > 28);
 
     -- addr
     process(iterator) is
     begin
         -- left shift from gam_mem into gam_mem
         if iterator = 0 then
+            addr <= 0;
         elsif iterator >= 1 and iterator <= 8 then
             addr <= iterator - 1; -- read slices 0 to 7 into buffer
         elsif iterator <= 26 then
@@ -46,7 +47,7 @@ begin
         else
             gam_en <= '0';
         end if;
-        if iterator >= 3 and iterator <= 26 then
+        if iterator >= 12 and iterator <= 27 then
             gam_we <= '1';
         else
             gam_we <= '0';
@@ -58,7 +59,7 @@ begin
         if rising_edge(clk) and enable = '1' then
             if init = '1' then
                 iterator <= 0;
-            else
+            elsif iterator < 28 then
                 iterator <= iterator + 1;
             end if;
         end if;

@@ -51,14 +51,14 @@ begin
     a_din <= port_a_in.data(1) & port_a_in.data(0);
     a_en <= port_a_in.en;
     a_we(0) <= port_a_in.we;
-    port_a_out.data(0) <= a_dout(12 downto 0);
-    port_a_out.data(1) <= a_dout(25 downto 13);
+    port_a_out.data(0) <= a_dout(12 downto 0) when port_a_in.en = '1' else (others => '0');
+    port_a_out.data(1) <= a_dout(25 downto 13) when port_a_in.en = '1' else (others => '0');
 
     b_addr <= std_logic_vector(to_unsigned(port_b_in.addr, 7));
     b_din <= port_b_in.data(1) & port_b_in.data(0);
     b_en <= port_b_in.en;
     b_we(0) <= port_b_in.we;
-    port_b_out.data(0) <= b_dout(12 downto 0);
-    port_b_out.data(1) <= b_dout(25 downto 13);
+    port_b_out.data(0) <= b_dout(12 downto 0) when port_b_in.en = '1' else (others => '0');
+    port_b_out.data(1) <= b_dout(25 downto 13) when port_b_in.en = '1' else (others => '0');
 
 end architecture arch;

@@ -12,13 +12,13 @@ entity rho_buffer is
         enable : in std_logic;
         atom_index : in atom_index_t;
         gam_port_a_in : out mem_port_input;
-        gam_port_a_out : in tile_computation_data_t;
+        gam_port_a_out : in mem_port_output;
         gam_port_b_in : out mem_port_input;
-        gam_port_b_out : in tile_computation_data_t;
+        gam_port_b_out : in mem_port_output;
         res_port_a_in : out mem_port_input;
-        res_port_a_out : in tile_computation_data_t;
+        res_port_a_out : in mem_port_output;
         res_port_b_in : out mem_port_input;
-        res_port_b_out : in tile_computation_data_t
+        res_port_b_out : in mem_port_output
     );
 end entity;
 
@@ -39,9 +39,9 @@ architecture arch of rho_buffer is
             atom_index : in atom_index_t;
             right_shift : in std_logic;
             data_in : in rho_calc_t;
-            buffer_out : in multi_buffer_data_t;
             data_out : out rho_calc_t;
-            buffer_in : out multi_buffer_data_t
+            filtered_in : in multi_buffer_data_t;
+            filtered_out : out multi_buffer_data_t
         );
     end component;
 
@@ -59,8 +59,6 @@ architecture arch of rho_buffer is
         );
     end component;
 
-    signal filtered_data_in : multi_buffer_data_t;
-    signal filtered_data_out : multi_buffer_data_t;
 
     signal ctl_right_shift : std_logic;
     signal ctl_addr : mem_addr_t;
@@ -69,40 +67,75 @@ architecture arch of rho_buffer is
     signal ctl_res_en : std_logic;
     signal ctl_res_we : std_logic;
 
-    signal mem_data_out : rho_calc_t;
-    signal mem_data_in : rho_calc_t;
+    signal gam_a, gam_b, res_a, res_b : mem_port := mem_port_init;
+
+    signal data_from_mem : rho_calc_t;
+    signal data_to_mem : rho_calc_t;
+    signal filtered_from_mem : multi_buffer_data_t;
+    signal filtered_to_mem : multi_buffer_data_t;
+
+    signal addr_high, addr_low : mem_addr_t;
+    signal gam_en, gam_we, res_en, res_we : std_logic;
+
 
 begin
 
-    mem_data_out <= (gam_port_b_out(1) or res_port_b_out(1),
-                            gam_port_b_out(0) or res_port_b_out(0),
-                            gam_port_a_out(1) or res_port_a_out(1),
-                            gam_port_a_out(0) or res_port_a_out(0));
+    -- linking ports with interface
+    gam_port_a_in <= gam_a.input;
+    gam_port_b_in <= gam_b.input;
+    res_port_a_in <= res_a.input;
+    res_port_b_in <= res_b.input;
+    gam_a.output <= gam_port_a_out;
+    gam_b.output <= gam_port_b_out;
+    res_a.output <= res_port_a_out;
+    res_b.output <= res_port_b_out;
 
-    gam_port_a_in.addr <= ctl_addr when enable = '1' else 0;
-    gam_port_b_in.addr <= ctl_addr + 1 when enable = '1' else 0;
-    res_port_a_in.addr <= ctl_addr when enable = '1' else 0;
-    res_port_b_in.addr <= ctl_addr + 1 when enable = '1' else 0;
+    -- combine data from both memory blocks since only one is reading at a time
+    data_from_mem <= (gam_b.output.data(1) or res_b.output.data(1),
+                      gam_b.output.data(0) or res_b.output.data(0),
+                      gam_a.output.data(1) or res_a.output.data(1),
+                      gam_a.output.data(0) or res_a.output.data(0));
 
-    gam_port_a_in.en <= ctl_gam_en and enable;
-    gam_port_b_in.en <= ctl_gam_en and enable;
-    res_port_a_in.en <= ctl_res_en and enable;
-    res_port_b_in.en <= ctl_res_en and enable;
+    -- calculating addresses for the different ports from the controller address
+    addr_high <= 2 * ctl_addr + 1 when enable = '1' else 0;
+    addr_low <=  2 * ctl_addr     when enable = '1' else 0;
 
-    gam_port_a_in.we <= ctl_gam_we and enable;
-    gam_port_b_in.we <= ctl_gam_we and enable;
-    res_port_a_in.we <= ctl_res_we and enable;
-    res_port_b_in.we <= ctl_res_we and enable;
+    -- calculate enable and write signals from the controller signals
+    gam_en <= ctl_gam_en and enable;
+    gam_we <= ctl_gam_we and enable;
+    res_en <= ctl_res_en and enable;
+    res_we <= ctl_res_we and enable;
 
-    gam_port_a_in.data <= (mem_data_in(1), mem_data_in(0));
-    gam_port_b_in.data <= (mem_data_in(3), mem_data_in(2));
-    res_port_a_in.data <= (mem_data_in(1), mem_data_in(0));
-    res_port_b_in.data <= (mem_data_in(3), mem_data_in(2));
+    -- link addresses, control signals and data to the port inputs
+    gam_a.input <= (addr => addr_low,  data => (data_to_mem(1), data_to_mem(0)), en => gam_en, we => gam_we);
+    gam_b.input <= (addr => addr_high, data => (data_to_mem(3), data_to_mem(2)), en => gam_en, we => gam_we);
+    res_a.input <= (addr => addr_low,  data => (data_to_mem(1), data_to_mem(0)), en => res_en, we => res_we);
+    res_b.input <= (addr => addr_high, data => (data_to_mem(3), data_to_mem(2)), en => res_en, we => res_we);
 
-    filter : rho_buffer_filter port map(atom_index, ctl_right_shift, mem_data_out, filtered_data_out, mem_data_in, filtered_data_in);
+    filter : rho_buffer_filter port map(
+        atom_index => atom_index,
+        right_shift => ctl_right_shift,
+        data_in => data_from_mem,
+        data_out => data_to_mem,
+        filtered_in => filtered_to_mem,
+        filtered_out => filtered_from_mem);
 
-    buf : multi_lane_buffer port map(clk, atom_index, ctl_right_shift, filtered_data_in, filtered_data_out);
+    buf : multi_lane_buffer port map(
+        clk => clk,
+        atom_index => atom_index,
+        right_shift => ctl_right_shift,
+        input => filtered_from_mem,
+        output => filtered_to_mem);
     
-    control : rho_controller port map(clk, init, enable, ctl_right_shift, ctl_addr, ctl_gam_en, ctl_gam_we, ctl_res_en, ctl_res_we);
+    control : rho_controller port map(
+        clk => clk,
+        init => init,
+        enable => enable,
+        right_shift => ctl_right_shift,
+        addr => ctl_addr,
+        gam_en => ctl_gam_en,
+        gam_we => ctl_gam_we,
+        res_en => ctl_res_en,
+        res_we => ctl_res_we);
 
-end architecture arch;
+end architecture;

@@ -16,13 +16,13 @@ architecture arch of rho_buffer_test is
             enable : in std_logic;
             atom_index : in atom_index_t;
             gam_port_a_in : out mem_port_input;
-            gam_port_a_out : in tile_computation_data_t;
+            gam_port_a_out : in mem_port_output;
             gam_port_b_in : out mem_port_input;
-            gam_port_b_out : in tile_computation_data_t;
+            gam_port_b_out : in mem_port_output;
             res_port_a_in : out mem_port_input;
-            res_port_a_out : in tile_computation_data_t;
+            res_port_a_out : in mem_port_output;
             res_port_b_in : out mem_port_input;
-            res_port_b_out : in tile_computation_data_t
+            res_port_b_out : in mem_port_output
         );
     end component;
 
@@ -32,9 +32,9 @@ architecture arch of rho_buffer_test is
             manual : in std_logic;
             manual_in : in mem_port_input;
             port_a_in : in mem_port_input;
-            port_a_out : out tile_computation_data_t;
+            port_a_out : out mem_port_output;
             port_b_in : in mem_port_input;
-            port_b_out : out tile_computation_data_t
+            port_b_out : out mem_port_output
         );
     end component;
 
@@ -42,38 +42,40 @@ architecture arch of rho_buffer_test is
         port(state : in block_t);
     end component;
 
+    type stage_t is (initialize, left_shift, read_left_shift_result);
+    signal stage : stage_t := initialize;
+
     signal clk : std_logic := '0';
     signal finished : boolean := false;
 
-    signal gam_a_in, gam_b_in, res_a_in, res_b_in : mem_port_input;
-    signal gam_a_out, gam_b_out, res_a_out, res_b_out : tile_computation_data_t;
+    signal gam_a, gam_b, res_a, res_b : mem_port := mem_port_init;
 
     signal init : std_logic := '0';
     signal enable : std_logic := '0';
     signal atom_index : atom_index_t := 0;
     signal gam_manual : std_logic := '0';
     signal res_manual : std_logic := '0';
-    signal manual_in : mem_port_input := (addr => 0, data => (others => (others => '0')), en => '0', we => '0');
+    signal manual_in : mem_port_input := mem_port_init.input;
 
-    signal initial_state : block_t;
+    signal initial_state, ls_result : block_t;
 
     signal gam_a_out_0, gam_a_out_1 : tile_slice_t;
-    signal manual_in_0, manual_in_1 : tile_slice_t;
 
 begin
 
     initial_visual : block_visualizer port map(initial_state);
+    ls_result_visual : block_visualizer port map(ls_result);
 
-    gam_mem : manual_port_memory_block port map(clk, gam_manual, manual_in, gam_a_in, gam_a_out, gam_b_in, gam_b_out);
-    res_mem : manual_port_memory_block port map(clk, res_manual, manual_in, res_a_in, res_a_out, res_b_in, res_b_out);
+    gam_mem : manual_port_memory_block port map(clk, gam_manual, manual_in, gam_a.input, gam_a.output, gam_b.input, gam_b.output);
+    res_mem : manual_port_memory_block port map(clk, res_manual, manual_in, res_a.input, res_a.output, res_b.input, res_b.output);
 
-    buf : rho_buffer port map(clk, init, enable, atom_index, gam_a_in, gam_a_out, gam_b_in, gam_b_out, res_a_in, res_a_out, res_b_in, res_b_out);
+    buf : rho_buffer port map(clk, init, enable, atom_index,
+        gam_a.input, gam_a.output, gam_b.input, gam_b.output,
+        res_a.input, res_a.output, res_b.input, res_b.output);
 
-    gam_a_out_0 <= gam_a_out(0);
-    gam_a_out_1 <= gam_a_out(1);
-    manual_in_0 <= manual_in.data(0);
-    manual_in_1 <= manual_in.data(1);
-
+    gam_a_out_0 <= gam_a.output.data(0);
+    gam_a_out_1 <= gam_a.output.data(1);
+    
     clock : process is
     begin
         while not finished loop
@@ -102,6 +104,7 @@ begin
         set_lane(temp_state, 12, x"c19981b38c60aaa2");
         initial_state <= temp_state;
         wait until rising_edge(clk);
+        -- Write initial data into gam_mem
         gam_manual <= '1';
         manual_in.en <= '1';
         manual_in.we <= '1';
@@ -111,11 +114,33 @@ begin
             wait until rising_edge(clk);
         end loop;
         manual_in.we <= '0';
-        for i in 0 to 31 loop
-            manual_in.addr <= i;
+        gam_manual <= '0';
+        -- Calculate left shift, result should be in gam_mem
+        stage <= left_shift;
+        enable <= '1';
+        init <= '1';
+        wait until rising_edge(clk);
+        init <= '0';
+        for i in 0 to 27 loop
             wait until rising_edge(clk);
-            assert gam_a_out = (get_slice_tile(initial_state, i * 2 + 1), get_slice_tile(initial_state, i * 2));
         end loop;
+        -- read gam_mem into ls_res
+        stage <= read_left_shift_result;
+        gam_manual <= '1';
+        manual_in <= mem_port_init.input;
+        wait until rising_edge(clk);
+        for i in 0 to 33 loop
+            if i <= 31 then
+                manual_in.addr <= i + 2;
+            end if;
+            wait until rising_edge(clk);
+            if i >= 2 then
+                ls_result(2 * (i - 2)) <= gam_a.input.data(0);
+                ls_result(2 * (i - 2) + 1) <= gam_a.input.data(1);
+            end if;
+        end loop;
+        gam_manual <= '0';
+        wait until rising_edge(clk);
 
         finished <= true;
         wait;
