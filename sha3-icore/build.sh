@@ -29,6 +29,7 @@ sources=( \
 test_instances=( \
 "memory_block_test" \
 "single_lane_buffer_test" \
+"multi_lane_buffer_test" \
 "rho_buffer_test" \
 #"state_test" \
 "theta_test" \

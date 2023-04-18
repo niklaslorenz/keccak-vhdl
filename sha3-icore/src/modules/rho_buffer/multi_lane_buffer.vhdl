@@ -15,7 +15,7 @@ end entity;
 
 architecture arch of multi_lane_buffer is
 
-    type shifts_array_t is array(natural range 6 downto 0) of natural range 0 to 31;
+    type shifts_array_t is array(natural range 0 to 6) of natural range 0 to 31;
     constant atom0_left_shifts: shifts_array_t := (1, 28, 27, 6, 20, 3, 10);
     constant atom0_right_shifts : shifts_array_t := (2, 28, 20, 9, 21, 0, 0);
     constant atom1_left_shifts : shifts_array_t := (25, 15, 21, 8, 18, 2, 14);
