@@ -18,7 +18,8 @@ entity rho_buffer is
         res_port_a_in : out mem_port_input;
         res_port_a_out : in mem_port_output;
         res_port_b_in : out mem_port_input;
-        res_port_b_out : in mem_port_output
+        res_port_b_out : in mem_port_output;
+        ready : out std_logic
     );
 end entity;
 
@@ -56,7 +57,8 @@ architecture arch of rho_buffer is
             gam_en : out std_logic;
             gam_we : out std_logic;
             res_en : out std_logic;
-            res_we : out std_logic
+            res_we : out std_logic;
+            ready : out std_logic
         );
     end component;
 
@@ -144,6 +146,7 @@ begin
         gam_en => ctl_gam_en,
         gam_we => ctl_gam_we,
         res_en => ctl_res_en,
-        res_we => ctl_res_we);
+        res_we => ctl_res_we,
+        ready => ready);
 
 end architecture;

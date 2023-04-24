@@ -13,13 +13,14 @@ entity rho_controller is
         gam_en : out std_logic;
         gam_we : out std_logic;
         res_en : out std_logic;
-        res_we : out std_logic
+        res_we : out std_logic;
+        ready : out std_logic
     );
 end entity;
 
 architecture arch of rho_controller is
 
-    signal iterator : natural range 0 to 28;
+    signal iterator : natural range 0 to 55;
 
 begin
 
@@ -31,42 +32,33 @@ begin
         -- left shift from gam_mem into gam_mem
         if iterator = 0 then
             addr <= 0;
-        elsif iterator >= 1 and iterator <= 8 then
-            addr <= iterator + 7; -- read slices 8 to 15 into buffer (iteration 1 to 8)
+        elsif iterator <= 8 then
+            addr <= iterator + 7;  -- left shift: read slices 8 to 15 into buffer (iteration 1 to 8)
         elsif iterator <= 27 then
-            addr <= iterator - 9; -- read slices 0 to 15 into buffer (iteration 9 to 24)
-        end if;
-
-        -- right shift from gam_mem into res_mem
-        --elsif iterator >= 1 and iterator <= 8 then
-        --    addr <= iterator - 1; -- read slices 0 to 7 into buffer
-        --elsif iterator <= 27 then
-        --    addr <= iterator - 9; -- read slices 0 to 15 into buffer 
-        --end if;
-    end process;
-
-    -- gam_en, gam_we
-    process(iterator) is
-    begin
-        -- left shift
-        if iterator >= 1 and iterator <= 26 then
-            gam_en <= '1';
-        else
-            gam_en <= '0';
-        end if;
-        if iterator >= 12 and iterator <= 27 then
-            gam_we <= '1';
-        else
-            gam_we <= '0';
+            addr <= iterator - 9;  -- left shift: read slices 0 to 15 into buffer (iteration 9 to 24)
+                                   --             write back results into memory (iteration 12 to 27)
+        elsif iterator <= 35 then
+            addr <= 35 - iterator; -- right shift: read slices 7 down to 0 into buffer (iteration 28 to 35)
+        elsif iterator <= 54 then
+            addr <= 54 - iterator; -- right shift: read slices 15 down to 0 into buffer (iteration 36 to 51)
+                                   --              write back results into memory (iteration 39 to 54)
         end if;
     end process;
+
+    gam_en <= asBit((iterator >= 1 and iterator <= 26) or (iterator >= 28 and iterator <= 53));
+    gam_we <= asBit(iterator >= 12 and iterator <= 27);
+
+    res_en <= '0';
+    res_we <= asBit(iterator >= 39 and iterator <= 54);
+
+    ready <= asBit(iterator = 55);
 
     process(clk) is
     begin
         if rising_edge(clk) and enable = '1' then
             if init = '1' then
                 iterator <= 0;
-            elsif iterator < 28 then
+            elsif iterator < 55 then
                 iterator <= iterator + 1;
             end if;
         end if;
