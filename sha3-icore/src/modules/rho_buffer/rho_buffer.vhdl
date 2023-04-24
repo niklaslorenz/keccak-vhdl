@@ -36,6 +36,7 @@ architecture arch of rho_buffer is
 
     component rho_buffer_filter is
         port(
+            clk : in std_logic;
             atom_index : in atom_index_t;
             right_shift : in std_logic;
             data_in : in rho_calc_t;
@@ -77,8 +78,14 @@ architecture arch of rho_buffer is
     signal addr_high, addr_low : mem_addr_t;
     signal gam_en, gam_we, res_en, res_we : std_logic;
 
+    signal data_to_mem0, data_to_mem1, data_to_mem2, data_to_mem3 : tile_slice_t;
 
 begin
+
+    data_to_mem0 <= data_to_mem(0);
+    data_to_mem1 <= data_to_mem(1);
+    data_to_mem2 <= data_to_mem(2);
+    data_to_mem3 <= data_to_mem(3);
 
     -- linking ports with interface
     gam_port_a_in <= gam_a.input;
@@ -113,6 +120,7 @@ begin
     res_b.input <= (addr => addr_high, data => (data_to_mem(3), data_to_mem(2)), en => res_en, we => res_we);
 
     filter : rho_buffer_filter port map(
+        clk => clk,
         atom_index => atom_index,
         right_shift => ctl_right_shift,
         data_in => data_from_mem,

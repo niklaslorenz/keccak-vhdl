@@ -32,10 +32,17 @@ begin
         if iterator = 0 then
             addr <= 0;
         elsif iterator >= 1 and iterator <= 8 then
-            addr <= iterator - 1; -- read slices 0 to 7 into buffer
-        elsif iterator <= 26 then
-            addr <= iterator - 9; -- read slices 0 to 15 as into buffer + 2 extra slices for saving the result
+            addr <= iterator + 7; -- read slices 8 to 15 into buffer (iteration 1 to 8)
+        elsif iterator <= 27 then
+            addr <= iterator - 9; -- read slices 0 to 15 into buffer (iteration 9 to 24)
         end if;
+
+        -- right shift from gam_mem into res_mem
+        --elsif iterator >= 1 and iterator <= 8 then
+        --    addr <= iterator - 1; -- read slices 0 to 7 into buffer
+        --elsif iterator <= 27 then
+        --    addr <= iterator - 9; -- read slices 0 to 15 into buffer 
+        --end if;
     end process;
 
     -- gam_en, gam_we

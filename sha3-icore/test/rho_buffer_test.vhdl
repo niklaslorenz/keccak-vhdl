@@ -57,7 +57,7 @@ architecture arch of rho_buffer_test is
     signal res_manual : std_logic := '0';
     signal manual_in : mem_port_input := mem_port_init.input;
 
-    signal initial_state, ls_result : block_t;
+    signal initial_state, ls_result, ls_expectation : block_t;
 
     signal gam_a_out_0, gam_a_out_1 : tile_slice_t;
 
@@ -87,6 +87,7 @@ begin
 
     test : process is
         variable temp_state : block_t;
+        variable temp_ls_expectation : block_t;
     begin
         wait until rising_edge(clk);
         set_lane(temp_state,  0, x"fc09dc55ea64707e");
@@ -103,6 +104,21 @@ begin
         set_lane(temp_state, 11, x"5d34c3d65d3b71eb");
         set_lane(temp_state, 12, x"c19981b38c60aaa2");
         initial_state <= temp_state;
+
+        set_lane(temp_ls_expectation,  0, x"FC09DC55EA64707E");
+        set_lane(temp_ls_expectation,  1, x"62E4F8C599926182");
+        set_lane(temp_ls_expectation,  2, x"0A7346AF6CFA6A2C");
+        set_lane(temp_ls_expectation,  3, x"B9A49BB0545ECB35");
+        set_lane(temp_ls_expectation,  4, x"E0F2546278C51FCD");
+        set_lane(temp_ls_expectation,  5, x"D97C8D02EC0D7547");
+        set_lane(temp_ls_expectation,  6, x"24A535C923DD9DC6");
+        set_lane(temp_ls_expectation,  7, x"662FAA5CD872C706");
+        set_lane(temp_ls_expectation,  8, x"B6E88D08DA3369D8");
+        set_lane(temp_ls_expectation,  9, x"08EB2F776F419ADA");
+        set_lane(temp_ls_expectation, 10, x"1B4BBD64515D2D41");
+        set_lane(temp_ls_expectation, 11, x"D30F5974EDC7AD74");
+        set_lane(temp_ls_expectation, 12, x"C19981B38C60AAA2");
+        ls_expectation <= temp_ls_expectation;
         wait until rising_edge(clk);
         -- Write initial data into gam_mem
         gam_manual <= '1';
@@ -128,20 +144,23 @@ begin
         stage <= read_left_shift_result;
         gam_manual <= '1';
         manual_in <= mem_port_init.input;
+        manual_in.en <= '1';
         wait until rising_edge(clk);
         for i in 0 to 33 loop
             if i <= 31 then
-                manual_in.addr <= i + 2;
+                manual_in.addr <= i + 6;
             end if;
             wait until rising_edge(clk);
             if i >= 2 then
-                ls_result(2 * (i - 2)) <= gam_a.input.data(0);
-                ls_result(2 * (i - 2) + 1) <= gam_a.input.data(1);
+                ls_result(2 * (i - 2)) <= gam_a.output.data(0);
+                ls_result(2 * (i - 2) + 1) <= gam_a.output.data(1);
             end if;
         end loop;
         gam_manual <= '0';
         wait until rising_edge(clk);
-
+        for i in 0 to 63 loop
+            assert ls_expectation(i) = ls_result(i) report "Wrong left shift result" severity FAILURE;
+        end loop;
         finished <= true;
         wait;
     end process;

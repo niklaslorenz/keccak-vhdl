@@ -33,15 +33,36 @@ architecture arch of rho_buffer_filter is
 
     signal din_buf : rho_calc_t;
 
+    signal data_out_temp : rho_calc_t;
+
     signal data_in_0, data_in_1, data_in_2, data_in_3 : tile_slice_t;
 
+    signal data_out_0, data_out_1, data_out_2, data_out_3 : tile_slice_t;
+
+    signal filtered_in_0, filtered_in_1, filtered_in_2, filtered_in_3, filtered_in_4, filtered_in_5, filtered_in_6 : std_logic_vector(3 downto 0);
+
 begin
+
+    data_out <= data_out_temp;
 
     data_in_0 <= data_in(0);
     data_in_1 <= data_in(1);
     data_in_2 <= data_in(2);
     data_in_3 <= data_in(3);
 
+    data_out_0 <= data_out_temp(0);
+    data_out_1 <= data_out_temp(1);
+    data_out_2 <= data_out_temp(2);
+    data_out_3 <= data_out_temp(3);
+
+    filtered_in_0 <= filtered_in(0);
+    filtered_in_1 <= filtered_in(1);
+    filtered_in_2 <= filtered_in(2);
+    filtered_in_3 <= filtered_in(3);
+    filtered_in_4 <= filtered_in(4);
+    filtered_in_5 <= filtered_in(5);
+    filtered_in_6 <= filtered_in(6);
+    
     buffer_lane_for : for lane in 0 to 6 generate
         buffer_slice_for : for i in 0 to 3 generate
             filtered_out(lane)(i) <= data_in(i)(current_lanes(lane));
@@ -50,7 +71,7 @@ begin
 
     data_slice_for : for i in 0 to 3 generate
         data_lane_for : for lane in 0 to 12 generate
-            data_out(i)(lane) <= filtered_in(current_queue(lane))(i) when current_queue(lane) /= 7 else din_buf(i)(lane);
+            data_out_temp(i)(lane) <= filtered_in(current_queue(lane))(i) when current_queue(lane) /= 7 else din_buf(i)(lane);
         end generate;
     end generate;
 
