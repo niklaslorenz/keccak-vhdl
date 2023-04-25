@@ -22,7 +22,8 @@ architecture arch of rho_buffer_test is
             res_port_a_in : out mem_port_input;
             res_port_a_out : in mem_port_output;
             res_port_b_in : out mem_port_input;
-            res_port_b_out : in mem_port_output
+            res_port_b_out : in mem_port_output;
+            ready : out std_logic
         );
     end component;
 
@@ -42,7 +43,7 @@ architecture arch of rho_buffer_test is
         port(state : in block_t);
     end component;
 
-    type stage_t is (initialize, left_shift, read_left_shift_result);
+    type stage_t is (initialize, shift, read_left_shift_result, read_right_shift_result);
     signal stage : stage_t := initialize;
 
     signal clk : std_logic := '0';
@@ -53,11 +54,12 @@ architecture arch of rho_buffer_test is
     signal init : std_logic := '0';
     signal enable : std_logic := '0';
     signal atom_index : atom_index_t := 0;
+    signal ready : std_logic;
     signal gam_manual : std_logic := '0';
     signal res_manual : std_logic := '0';
     signal manual_in : mem_port_input := mem_port_init.input;
 
-    signal initial_state, ls_result, ls_expectation : block_t;
+    signal initial_state, ls_result, lrs_result, ls_expectation, lrs_expectation : block_t;
 
     signal gam_a_out_0, gam_a_out_1 : tile_slice_t;
 
@@ -65,13 +67,15 @@ begin
 
     initial_visual : block_visualizer port map(initial_state);
     ls_result_visual : block_visualizer port map(ls_result);
+    lrs_result_visual : block_visualizer port map(lrs_result);
 
     gam_mem : manual_port_memory_block port map(clk, gam_manual, manual_in, gam_a.input, gam_a.output, gam_b.input, gam_b.output);
     res_mem : manual_port_memory_block port map(clk, res_manual, manual_in, res_a.input, res_a.output, res_b.input, res_b.output);
 
     buf : rho_buffer port map(clk, init, enable, atom_index,
         gam_a.input, gam_a.output, gam_b.input, gam_b.output,
-        res_a.input, res_a.output, res_b.input, res_b.output);
+        res_a.input, res_a.output, res_b.input, res_b.output,
+        ready);
 
     gam_a_out_0 <= gam_a.output.data(0);
     gam_a_out_1 <= gam_a.output.data(1);
@@ -87,7 +91,7 @@ begin
 
     test : process is
         variable temp_state : block_t;
-        variable temp_ls_expectation : block_t;
+        variable temp_ls_expectation, temp_lrs_expectation : block_t;
     begin
         wait until rising_edge(clk);
         set_lane(temp_state,  0, x"fc09dc55ea64707e");
@@ -119,6 +123,21 @@ begin
         set_lane(temp_ls_expectation, 11, x"D30F5974EDC7AD74");
         set_lane(temp_ls_expectation, 12, x"C19981B38C60AAA2");
         ls_expectation <= temp_ls_expectation;
+
+        set_lane(temp_lrs_expectation,  0, x"FC09DC55EA64707E");
+        set_lane(temp_lrs_expectation,  1, x"62E4F8C599926182");
+        set_lane(temp_lrs_expectation,  2, x"029CD1ABDB3E9A8B");
+        set_lane(temp_lrs_expectation,  3, x"B9A49BB0545ECB35");
+        set_lane(temp_lrs_expectation,  4, x"E0F2546278C51FCD");
+        set_lane(temp_lrs_expectation,  5, x"C0D7547D97C8D02E");
+        set_lane(temp_lrs_expectation,  6, x"D9DC624A535C923D");
+        set_lane(temp_lrs_expectation,  7, x"662FAA5CD872C706");
+        set_lane(temp_lrs_expectation,  8, x"EC5b7446846D19B4");
+        set_lane(temp_lrs_expectation,  9, x"08EB2F776F419ADA");
+        set_lane(temp_lrs_expectation, 10, x"1B4BBD64515D2D41");
+        set_lane(temp_lrs_expectation, 11, x"D30F5974EDC7AD74");
+        set_lane(temp_lrs_expectation, 12, x"0555160CCC0D9C63");
+        lrs_expectation <= temp_lrs_expectation;
         wait until rising_edge(clk);
         -- Write initial data into gam_mem
         gam_manual <= '1';
@@ -131,16 +150,16 @@ begin
         end loop;
         manual_in.we <= '0';
         gam_manual <= '0';
-        -- Calculate left shift, result should be in gam_mem
-        stage <= left_shift;
+        -- Calculate shifts, left shift result should be in gam_mem from address 6, right shift in res_mem from address 0
+        stage <= shift;
         enable <= '1';
         init <= '1';
         wait until rising_edge(clk);
         init <= '0';
-        for i in 0 to 27 loop
+        while ready /= '1' loop
             wait until rising_edge(clk);
         end loop;
-        -- read gam_mem into ls_res
+        -- read gam_mem into ls_result
         stage <= read_left_shift_result;
         gam_manual <= '1';
         manual_in <= mem_port_init.input;
@@ -158,8 +177,30 @@ begin
         end loop;
         gam_manual <= '0';
         wait until rising_edge(clk);
+        -- read res_mem into lrs_result
+        stage <= read_right_shift_result;
+        res_manual <= '1';
+        manual_in <= mem_port_init.input;
+        manual_in.en <= '1';
+        wait until rising_edge(clk);
+        for i in 0 to 33 loop
+            if i <= 31 then
+                manual_in.addr <= i;
+            end if;
+            wait until rising_edge(clk);
+            if i >= 2 then
+                lrs_result(2 * (i - 2)) <= res_a.output.data(0);
+                lrs_result(2 * (i - 2) + 1) <= res_a.output.data(1);
+            end if;
+        end loop;
+        res_manual <= '0';
+        wait until rising_edge(clk);
+        -- check results
         for i in 0 to 63 loop
             assert ls_expectation(i) = ls_result(i) report "Wrong left shift result" severity FAILURE;
+        end loop;
+        for i in 0 to 63 loop
+            assert lrs_expectation(i) = lrs_result(i) report "Wrong right shift result" severity FAILURE;
         end loop;
         finished <= true;
         wait;

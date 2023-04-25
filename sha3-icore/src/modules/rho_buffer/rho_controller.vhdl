@@ -24,7 +24,7 @@ architecture arch of rho_controller is
 
 begin
 
-    right_shift <= asBit(iterator > 28);
+    right_shift <= asBit(iterator > 27);
 
     -- addr
     process(iterator) is
@@ -38,7 +38,7 @@ begin
             addr <= iterator - 9;  -- left shift: read slices 0 to 15 into buffer (iteration 9 to 24)
                                    --             write back results into memory (iteration 12 to 27)
         elsif iterator <= 35 then
-            addr <= 35 - iterator; -- right shift: read slices 7 down to 0 into buffer (iteration 28 to 35)
+            addr <= 3 + 35 - iterator; -- right shift: read slices 7 down to 0 into buffer (iteration 28 to 35)
         elsif iterator <= 54 then
             addr <= 54 - iterator; -- right shift: read slices 15 down to 0 into buffer (iteration 36 to 51)
                                    --              write back results into memory (iteration 39 to 54)
