@@ -21,7 +21,6 @@ sources=( \
 "modules/calculator" \
 "modules/chunk_calculator" \
 "modules/slice_manager" \
-"rho_shift_buffer" \
 #"sha3_atom" \
 )
 
@@ -30,16 +29,9 @@ test_instances=( \
 "single_lane_buffer_test" \
 "multi_lane_buffer_test" \
 "rho_buffer_test" \
-#"state_test" \
 "theta_test" \
 "calculator_test" \
-#"result_writer_test" \
-#"slice_manager_test" \
-#"atom_read_test" \
-#"buffer_data_transmit_test" \
 "slice_memory_test" \
-"rho_shift_buffer_test" \
-#"atom_full_test" \
 )
 
 test_sources=("")
