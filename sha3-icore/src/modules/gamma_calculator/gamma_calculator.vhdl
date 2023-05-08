@@ -29,7 +29,6 @@ architecture arch of gamma_calculator is
 
     component calculator_transmission_converter is
         port(
-            atom_index : in atom_index_t;
             enable : in std_logic;
             transmission_in : in transmission_t;
             transmission_out : out transmission_t;
@@ -99,7 +98,6 @@ architecture arch of gamma_calculator is
 begin
 
     converter : calculator_transmission_converter port map(
-        atom_index => atom_index,
         enable => enable,
         transmission_in => transmission_in,
         transmission_out => transmission_out,

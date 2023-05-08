@@ -41,6 +41,7 @@ test_instances=( \
 "rho_buffer_test" \
 "theta_test" \
 "single_slice_calculator_test" \
+"gamma_calculator_test" \
 )
 
 #relative to the "test_src" directory
