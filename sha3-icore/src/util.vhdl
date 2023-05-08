@@ -5,13 +5,11 @@ use work.state.all;
 
 package util is
 
-    subtype round_index_t is natural range 0 to 23;
-
     function to_lane(vec : std_ulogic_vector) return lane_t;
 
     function full_lane_index(x : natural range 0 to 4; y : natural range 0 to 4) return full_lane_index_t;
 
-    function mergeSlice(f : tile_slice_t; r : remote_slice_t; atom_index : atom_index_t) return slice_t;
+    function mergeSlice(f : tile_slice_t; r : remote_tile_slice_t; atom_index : atom_index_t) return slice_t;
 
     function asBit(condition : boolean) return std_logic;
 
@@ -29,7 +27,7 @@ package body util is
         return y * 5 + x;
     end function;
 
-    function mergeSlice(f : tile_slice_t; r : remote_slice_t; atom_index : atom_index_t) return slice_t is
+    function mergeSlice(f : tile_slice_t; r : remote_tile_slice_t; atom_index : atom_index_t) return slice_t is
     begin
         if atom_index = 0 then
             return r & f;

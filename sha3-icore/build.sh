@@ -16,11 +16,16 @@ sources=( \
 "modules/rho_buffer/rho_buffer_filter" \
 "modules/rho_buffer/rho_controller" \
 "modules/rho_buffer/rho_buffer" \
-"modules/reader" \
-"modules/writer" \
-"modules/calculator" \
-"modules/chunk_calculator" \
-"modules/slice_manager" \
+"modules/gamma_calculator/single_slice_calculator" \
+"modules/gamma_calculator/double_slice_calculator" \
+"modules/gamma_calculator/clocked_double_slice_calculator" \
+"modules/gamma_calculator/calculator_transmission_converter" \
+"modules/gamma_calculator/calculator_data_combiner" \
+"modules/gamma_calculator/calculator_controller" \
+"modules/gamma_calculator/calculator" \
+#"modules/reader" \
+#"modules/writer" \
+#"modules/slice_manager" \
 #"sha3_atom" \
 )
 

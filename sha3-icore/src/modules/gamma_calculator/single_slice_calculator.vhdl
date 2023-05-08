@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use work.state.all;
 use work.slice_functions.all;
 
-entity calculator is
+entity single_slice_calculator is
     port(
         slice : in slice_t;
         prev_sums : in std_logic_vector(4 downto 0);
@@ -15,7 +15,7 @@ entity calculator is
     );
 end entity;
 
-architecture arch of calculator is
+architecture arch of single_slice_calculator is
 
     signal pi_chi_result : slice_t;
     signal beta_result : slice_t;

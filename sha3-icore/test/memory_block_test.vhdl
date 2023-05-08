@@ -25,9 +25,9 @@ architecture arch of memory_block_test is
     signal a_in_0, a_in_1 : tile_slice_t;
     signal a_out_0, a_out_1 : tile_slice_t;
 
-    constant slice0 : tile_computation_data_t := ("1101010010000", "1100100011100");
-    constant slice1 : tile_computation_data_t := ("1001001000110", "1010001000010");
-    constant slice2 : tile_computation_data_t := ("0000001010101", "0011000100000");
+    constant slice0 : double_tile_slice_t := ("1101010010000", "1100100011100");
+    constant slice1 : double_tile_slice_t := ("1001001000110", "1010001000010");
+    constant slice2 : double_tile_slice_t := ("0000001010101", "0011000100000");
 
 begin
 

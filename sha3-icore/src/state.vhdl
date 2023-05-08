@@ -11,9 +11,12 @@ package state is
     subtype tile_slice_t is std_logic_vector(12 downto 0);
     type double_tile_slice_t is array(natural range 1 downto 0) of tile_slice_t;
     subtype remote_tile_slice_t is std_logic_vector(11 downto 0);
+    type double_remote_tile_slice_t is array(natural range 1 downto 0) of remote_tile_slice_t;
+    subtype transmission_t is std_logic_vector(63 downto 0);
 
     --Indices
     subtype atom_index_t is natural range 0 to 1;
+    subtype round_index_t is natural range 0 to 23;
     subtype lane_index_t is natural range 0 to 12;
     subtype full_lane_index_t is natural range 0 to 24;
     subtype slice_index_t is natural range 0 to 63;
@@ -23,12 +26,12 @@ package state is
     subtype mem_addr_t is natural range 0 to 127;
     type mem_port_input is record
 		addr : mem_addr_t;
-		data : tile_computation_data_t;
+		data : double_tile_slice_t;
         en : std_logic;
         we : std_logic;
 	end record;
     type mem_port_output is record
-        data : tile_computation_data_t;
+        data : double_tile_slice_t;
     end record;
     type mem_port is record
         input : mem_port_input;
@@ -38,7 +41,6 @@ package state is
                                           output => (data => (others => (others => '0'))));
 
     -- Random unsorted stuff
-    subtype transmission_word_t is std_logic_vector(31 downto 0);
     type block_t is array(natural range 63 downto 0) of tile_slice_t;
     subtype rho_manager_iterator_t is natural;
     type rho_calc_t is array(natural range 3 downto 0) of tile_slice_t;
