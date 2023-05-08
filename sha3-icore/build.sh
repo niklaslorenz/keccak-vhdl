@@ -1,16 +1,14 @@
-src_dir=$(pwd)/src
-test_dir=$(pwd)/test
+#START OF CONFIGURATION BLOCK
+#EDIT PROJECT SOURCES HERE
 
+#relative to the "src" directory
 sources=( \
 "state" \
 "util" \
-"visualizer" \
-"buffer_visualizer" \
 "round_constants" \
 "functions" \
-"simulation/slice_memory_wrapper" \
-"modules/memory_block" \
-"modules/manual_port_memory_block" \
+"modules/memory/memory_block" \
+"modules/memory/manual_port_memory_block" \
 "modules/rho_buffer/single_lane_buffer" \
 "modules/rho_buffer/multi_lane_buffer" \
 "modules/rho_buffer/rho_buffer_filter" \
@@ -22,25 +20,42 @@ sources=( \
 "modules/gamma_calculator/calculator_transmission_converter" \
 "modules/gamma_calculator/calculator_data_combiner" \
 "modules/gamma_calculator/calculator_controller" \
-"modules/gamma_calculator/calculator" \
+"modules/gamma_calculator/gamma_calculator" \
 #"modules/reader" \
 #"modules/writer" \
-#"modules/slice_manager" \
 #"sha3_atom" \
 )
 
+#relative to the "simulation" directory
+simulation_sources=( \
+"slice_memory_wrapper" \
+)
+
+#relative to the "test" directory
+#TEST INSTANCES MUST NOT BE IN ANY SUBDIRECTORY 
 test_instances=( \
+"slice_memory_test" \
 "memory_block_test" \
 "single_lane_buffer_test" \
 "multi_lane_buffer_test" \
 "rho_buffer_test" \
 "theta_test" \
-"calculator_test" \
-"slice_memory_test" \
+"single_slice_calculator_test" \
 )
 
-test_sources=("")
-test_sources+=(${test_instances[@]})
+#relative to the "test_src" directory
+test_sources=( \
+"visualizer" \
+"buffer_visualizer" \
+)
+
+#END OF CONFIGURATION BLOCK
+#LEAVE THE REST AS IS
+
+src_dir=$(pwd)/src
+sim_dir=$(pwd)/simulation
+test_dir=$(pwd)/test
+test_src_dir=$(pwd)/test_src
 
 echo export test instances
 mkdir -p ../build/sha3-icore
@@ -51,11 +66,21 @@ cd ../build/sha3-icore
 echo clear icore work directory
 rm -r -f ./work
 
+echo build simulation sources
+for f in ${simulation_sources[@]}; do
+nvc -a "${sim_dir}/${f}.vhdl"
+if [ $? -ne 0 ]; then
+echo -e "\e[31mfailed to build simulation ${f}\e[0m"
+popd > /dev/null
+exit 1
+fi
+done
+
 echo build icore sources
 for f in ${sources[@]}; do
 nvc -a "${src_dir}/${f}.vhdl"
 if [ $? -ne 0 ]; then
-echo -e "\e[31mfailed to build source file ${f}\e[0m"
+echo -e "\e[31mfailed to build source ${f}\e[0m"
 popd > /dev/null
 exit 1
 fi
@@ -63,9 +88,19 @@ done
 
 echo build vhdl test sources
 for f in ${test_sources[@]}; do
+nvc -a "${test_src_dir}/${f}.vhdl"
+if [ $? -ne 0 ]; then
+echo -e "\e[31mfailed to build test source ${f}\e[0m"
+popd > /dev/null
+exit 1
+fi
+done
+
+echo build vhdl test instances
+for f in ${test_instances[@]}; do
 nvc -a "${test_dir}/${f}.vhdl"
 if [ $? -ne 0 ]; then
-echo -e "\e[31mfailed to build test file ${f}\e[0m"
+echo -e "\e[31mfailed to build test instance ${f}\e[0m"
 popd > /dev/null
 exit 1
 fi

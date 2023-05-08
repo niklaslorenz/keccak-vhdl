@@ -5,7 +5,7 @@ use work.state.all;
 use work.clocked_double_slice_calculator;
 use work.calculator_controller;
 
-entity calculator is
+entity gamma_calculator is
     port(
         clk : in std_logic;
         enable : in std_logic;
@@ -25,7 +25,7 @@ entity calculator is
     );
 end entity;
 
-architecture arch of calculator is
+architecture arch of gamma_calculator is
 
     component calculator_transmission_converter is
         port(

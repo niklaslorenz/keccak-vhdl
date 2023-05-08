@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
-use work.state.all;
 
 entity slice_memory_wrapper is
 	port (
@@ -26,25 +25,7 @@ architecture arch of slice_memory_wrapper is
 
 	signal port_a_out_temp, port_b_out_temp : std_logic_vector(25 downto 0);
 
-	signal port_a_in_slice_0 : tile_slice_t;
-	signal port_a_in_slice_1 : tile_slice_t;
-	signal port_a_out_slice_0 : tile_slice_t;
-	signal port_a_out_slice_1 : tile_slice_t;
-	signal port_b_in_slice_0 : tile_slice_t;
-	signal port_b_in_slice_1 : tile_slice_t;
-	signal port_b_out_slice_0 : tile_slice_t;
-	signal port_b_out_slice_1 : tile_slice_t;
-
 begin
-
-	port_a_in_slice_0 <= BRAM_PORTA_0_din(12 downto 0);
-	port_a_in_slice_1 <= BRAM_PORTA_0_din(25 downto 13);
-	port_a_out_slice_0 <= port_a_out_temp(12 downto 0);
-	port_a_out_slice_1 <= port_a_out_temp(25 downto 13);
-	port_b_in_slice_0 <= BRAM_PORTB_0_din(12 downto 0);
-	port_b_in_slice_1 <= BRAM_PORTB_0_din(25 downto 13);
-	port_b_out_slice_0 <= port_b_out_temp(12 downto 0);
-	port_b_out_slice_1 <= port_b_out_temp(25 downto 13);
 
 	process(clk) is
 		variable addr_a : natural range 0 to 127;

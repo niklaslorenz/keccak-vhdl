@@ -2,14 +2,14 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 use work.state.all;
-use work.calculator;
+use work.single_slice_calculator;
 use work.slice_functions.all;
 
-entity calculator_test is
-end entity calculator_test;
+entity single_slice_calculator_test is
+end entity;
 
-architecture arch of calculator_test is
-    component calculator is
+architecture arch of single_slice_calculator_test is
+    component single_slice_calculator is
         port(
             slice : in slice_t;
             prev_sums : in std_logic_vector(4 downto 0);
@@ -38,7 +38,7 @@ architecture arch of calculator_test is
     signal expected_gamma_sums : std_logic_vector(4 downto 0);
 begin
 
-    calc : calculator port map(slice, prev_sums, theta_only, no_theta, round_constant_bit, result, slice_sums);
+    calc : single_slice_calculator port map(slice, prev_sums, theta_only, no_theta, round_constant_bit, result, slice_sums);
 
     expected_theta_only_slice_sums <= theta_sums(slice);
     expected_theta <= theta(prev_sums, expected_theta_only_slice_sums, slice);
