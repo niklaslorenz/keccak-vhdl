@@ -1,9 +1,9 @@
 library IEEE;
 
 use IEEE.std_logic_1164.all;
-use work.state.all;
+use work.types.all;
+use work.util.all;
 use work.single_slice_calculator;
-use work.slice_functions.all;
 
 entity single_slice_calculator_test is
 end entity;

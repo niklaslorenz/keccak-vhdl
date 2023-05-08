@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use work.state.all;
+use work.types.all;
 use work.gamma_calculator;
 use work.manual_port_memory_block;
 
@@ -164,7 +164,7 @@ begin
     test : process is
     begin
         wait until rising_edge(clk);
-
+        
 
         finished <= true;
         wait;

@@ -4,9 +4,8 @@ use IEEE.std_logic_1164.all;
 use std.textio.all;
 use IEEE.numeric_std.all;
 
-use work.state.all;
+use work.types.all;
 use work.util.all;
-use work.slice_functions.all;
 
 entity theta_test is
 end entity;

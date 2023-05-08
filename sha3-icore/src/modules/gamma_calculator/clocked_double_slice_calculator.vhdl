@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 
-use work.state.all;
+use work.types.all;
 use work.double_slice_calculator;
 
 entity clocked_double_slice_calculator is

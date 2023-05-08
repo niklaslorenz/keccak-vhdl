@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use work.multi_lane_buffer;
-use work.state.all;
+use work.types.all;
 
 entity multi_lane_buffer_test is
 end entity;
@@ -13,8 +13,8 @@ architecture arch of multi_lane_buffer_test is
             clk : in std_logic;
             atom_index : atom_index_t;
             right_shift : in std_logic;
-            input : in multi_buffer_data_t;
-            output : out multi_buffer_data_t
+            input : in buffer_data_t;
+            output : out buffer_data_t
         );
     end component;
 
@@ -25,8 +25,8 @@ architecture arch of multi_lane_buffer_test is
 
     signal atom_index : atom_index_t;
     signal right_shift : std_logic;
-    signal input : multi_buffer_data_t;
-    signal output : multi_buffer_data_t;
+    signal input : buffer_data_t;
+    signal output : buffer_data_t;
 
     signal data : std_logic_vector(63 downto 0);
     signal data_in : data_array_t;

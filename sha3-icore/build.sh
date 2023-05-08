@@ -3,10 +3,8 @@
 
 #relative to the "src" directory
 sources=( \
-"state" \
+"types" \
 "util" \
-"round_constants" \
-"functions" \
 "modules/memory/memory_block" \
 "modules/memory/manual_port_memory_block" \
 "modules/rho_buffer/single_lane_buffer" \
@@ -46,8 +44,10 @@ test_instances=( \
 
 #relative to the "test_src" directory
 test_sources=( \
+"test_types" \
+"test_util" \
+"test_data" \
 "visualizer" \
-"buffer_visualizer" \
 )
 
 #END OF CONFIGURATION BLOCK

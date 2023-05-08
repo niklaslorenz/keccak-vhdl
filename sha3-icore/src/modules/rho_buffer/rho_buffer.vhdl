@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use work.state.all;
+use work.types.all;
 use work.multi_lane_buffer;
 use work.rho_buffer_filter;
 use work.rho_controller;
@@ -30,8 +30,8 @@ architecture arch of rho_buffer is
             clk : in std_logic;
             atom_index : atom_index_t;
             right_shift : in std_logic;
-            input : in multi_buffer_data_t;
-            output : out multi_buffer_data_t
+            input : in buffer_data_t;
+            output : out buffer_data_t
         );
     end component;
 
@@ -40,10 +40,10 @@ architecture arch of rho_buffer is
             clk : in std_logic;
             atom_index : in atom_index_t;
             right_shift : in std_logic;
-            data_in : in rho_calc_t;
-            data_out : out rho_calc_t;
-            filtered_in : in multi_buffer_data_t;
-            filtered_out : out multi_buffer_data_t
+            data_in : in quad_tile_slice_t;
+            data_out : out quad_tile_slice_t;
+            filtered_in : in buffer_data_t;
+            filtered_out : out buffer_data_t
         );
     end component;
 
@@ -72,10 +72,10 @@ architecture arch of rho_buffer is
 
     signal gam_a, gam_b, res_a, res_b : mem_port := mem_port_init;
 
-    signal data_from_mem : rho_calc_t;
-    signal data_to_mem : rho_calc_t;
-    signal filtered_from_mem : multi_buffer_data_t;
-    signal filtered_to_mem : multi_buffer_data_t;
+    signal data_from_mem : quad_tile_slice_t;
+    signal data_to_mem : quad_tile_slice_t;
+    signal filtered_from_mem : buffer_data_t;
+    signal filtered_to_mem : buffer_data_t;
 
     signal addr_high, addr_low : mem_addr_t;
     signal gam_en, gam_we, res_en, res_we : std_logic;

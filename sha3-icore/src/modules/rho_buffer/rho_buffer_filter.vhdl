@@ -1,16 +1,16 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use work.state.all;
+use work.types.all;
 
 entity rho_buffer_filter is
     port(
         clk : in std_logic;
         atom_index : in atom_index_t;
         right_shift : in std_logic;
-        data_in : in rho_calc_t;
-        data_out : out rho_calc_t;
-        filtered_in : in multi_buffer_data_t;
-        filtered_out : out multi_buffer_data_t
+        data_in : in quad_tile_slice_t;
+        data_out : out quad_tile_slice_t;
+        filtered_in : in buffer_data_t;
+        filtered_out : out buffer_data_t
     );
 end entity;
 
@@ -31,9 +31,9 @@ architecture arch of rho_buffer_filter is
     signal current_queue : buffer_queues_t;
     signal current_lanes : buffer_lanes_t;
 
-    signal din_buf : rho_calc_t;
+    signal din_buf : quad_tile_slice_t;
 
-    signal data_out_temp : rho_calc_t;
+    signal data_out_temp : quad_tile_slice_t;
 
     signal data_in_0, data_in_1, data_in_2, data_in_3 : tile_slice_t;
 

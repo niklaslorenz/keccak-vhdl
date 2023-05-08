@@ -1,15 +1,15 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use work.types.all;
 use work.single_lane_buffer;
-use work.state.all;
 
 entity multi_lane_buffer is
     port(
         clk : in std_logic;
         atom_index : atom_index_t;
         right_shift : in std_logic;
-        input : in multi_buffer_data_t;
-        output : out multi_buffer_data_t
+        input : in buffer_data_t;
+        output : out buffer_data_t
     );
 end entity;
 

@@ -1,6 +1,8 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use work.state.all;
+use work.types.all;
+use work.test_types.all;
+use work.test_util.all;
 use work.rho_buffer;
 use work.manual_port_memory_block;
 

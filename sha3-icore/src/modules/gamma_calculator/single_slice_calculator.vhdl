@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use work.state.all;
-use work.slice_functions.all;
+use work.types.all;
+use work.util.all;
 
 entity single_slice_calculator is
     port(

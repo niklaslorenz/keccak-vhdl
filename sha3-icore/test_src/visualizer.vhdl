@@ -1,8 +1,9 @@
-
 library IEEE;
 
 use IEEE.std_logic_1164.all;
-use work.state.all;
+use work.types.all;
+use work.test_types.all;
+use work.test_util.all;
 
 entity block_visualizer is
     port(state : in block_t);

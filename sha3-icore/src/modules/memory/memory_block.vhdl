@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
-use work.state.all;
+use work.types.all;
 use work.slice_memory_wrapper;
 
 entity memory_block is

@@ -1,8 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use work.state.all;
+use work.types.all;
 use work.util.all;
-use work.round_constants.all;
 
 entity calculator_controller is
     port(
@@ -49,7 +48,7 @@ begin
     process(iterator, atom_index) is
     begin
         if iterator >= 5 and iterator <= 20 then
-            round_constant <= round_constants.get(round)((iterator - 5) * 2 + 1 downto (iterator - 5) * 2);
+            round_constant <= util.round_constant(round)((iterator - 5) * 2 + 1 downto (iterator - 5) * 2);
         else
             round_constant <= "00";
         end if;

@@ -1,9 +1,9 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
-use work.state.all;
-use work.slice_manager;
+use work.types.all;
 use work.util.all;
+use work.slice_manager;
 
 entity slice_manager_test is
 end entity;
