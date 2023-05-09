@@ -21,7 +21,8 @@ entity gamma_calculator is
         gam_mem_port_a_in : out mem_port_input;
         gam_mem_port_b_in : out mem_port_input;
         transmission_in : in transmission_t;
-        transmission_out : out transmission_t
+        transmission_out : out transmission_t;
+        ready : out std_logic
     );
 end entity;
 
@@ -69,7 +70,8 @@ architecture arch of gamma_calculator is
             gam_a_addr : out mem_addr_t;
             gam_b_en : out std_logic;
             gam_b_we : out std_logic;
-            gam_b_addr : out mem_addr_t
+            gam_b_addr : out mem_addr_t;
+            ready : out std_logic
         );
     end component;
 
@@ -134,7 +136,8 @@ begin
         gam_a_addr => gam_mem_port_a_in.addr,
         gam_b_en => gam_mem_port_b_in.en,
         gam_b_we => gam_mem_port_b_in.we,
-        gam_b_addr => gam_mem_port_b_in.addr
+        gam_b_addr => gam_mem_port_b_in.addr,
+        ready => ready
     );
 
     calc : clocked_double_slice_calculator port map(

@@ -4,7 +4,6 @@ use IEEE.std_logic_1164.all;
 entity writer is
     port(
         clk : in std_logic;
-        rst : in std_logic;
         init : in std_logic;
         enable : in std_logic;
         atom_index : in atom_index_t;

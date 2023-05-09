@@ -20,13 +20,14 @@ entity calculator_controller is
         gam_a_addr : out mem_addr_t;
         gam_b_en : out std_logic;
         gam_b_we : out std_logic;
-        gam_b_addr : out mem_addr_t
+        gam_b_addr : out mem_addr_t;
+        ready : out std_logic
     );
 end entity;
 
 architecture arch of calculator_controller is
 
-    subtype iterator_t is natural range 0 to 50;
+    subtype iterator_t is natural range 0 to 23;
 
     signal iterator : iterator_t;
     signal local_offset, remote_offset : natural range 0 to 16;
@@ -44,6 +45,8 @@ begin
 
     gam_a_we <= asBit(iterator >= 6 and iterator <= 21);
     gam_b_we <= asBit(iterator >= 7 and iterator <= 22);
+
+    ready <= asBit(iterator = 23);
 
     process(iterator, atom_index) is
     begin
@@ -87,7 +90,7 @@ begin
         if rising_edge(clk) and enable = '1' then
             if init = '1' then
                 iterator <= 0;
-            elsif iterator <= 50 then
+            elsif iterator < 23 then
                 iterator <= iterator + 1;
             end if;
         end if;
