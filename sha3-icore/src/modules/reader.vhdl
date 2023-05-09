@@ -2,63 +2,73 @@ library IEEE;
 
 use IEEE.std_logic_1164.all;
 use work.types.all;
+use work.util.all;
 
 entity reader is
     port(
         clk : in std_logic;
-        rst : in std_logic;
         init : in std_logic;
         enable : in std_logic;
-        atom_index : in atom_index_t;
-        data_in : in lane_t;
-        index : out natural range 0 to 31;
-        data_out : out std_logic_vector(25 downto 0);
-        write_enable : out std_logic;
-        finished : out std_logic
+        atom_index : in std_logic;
+        transmission : in transmission_t;
+        mem_input : out mem_port_input;
+        ready : out std_logic
     );
 end entity;
 
 architecture arch of reader is
 
-    subtype iterator_t is natural range 0 to 32;
+    subtype iterator_t is natural range 0 to 33;
 
     signal iterator : iterator_t := 0;
 
+    signal transmission_low, transmission_hgh : std_logic_vector(31 downto 0);
+
+    signal slice_high, slice_low : slice_t;
+
+    signal tile_high, tile_low : tile_slice_t;
+
+    signal data : double_tile_slice_t;
+
 begin
 
-    process(iterator, atom_index, data_in) is
+    transmission_low <= transmission(31 downto 0);
+    transmission_high <= transmission(63 downto 32);
+
+    slice_high <= transmission_high(24 downto 0);
+    slice_low <= transmission_low(24 downto 0);
+
+    tile_high <= slice_high(12 downto 0) when atom_index = 0 else slice_high(24 downto 12);
+    tile_low <= slice_low(12 downto 0) when atom_index = 0 else slice_low(24 downto 12);
+    
+    data <= (tile_high, tile_low);
+
+    mem_input.en <= 0;
+    mem_input.we <= asBit(iterator >= 1 and iterator <= 32);
+    mem_input.data <= data when enable = '1' else ((others => '0'), (others => '0'))
+
+    ready <= asBit(iterator = 17);
+
+    process(iterator) is
     begin
-        if iterator /= 32 then
-            write_enable <= '1';
-            index <= iterator;
-            if atom_index = 0 then
-                data_out <= data_in(44 downto 32) & data_in(12 downto 0);
-            else
-                data_out <= data_in(56 downto 44) & data_in(24 downto 12);
-            end if;
+        if iterator = 0 then
+            mem_input.addr <= 0
+        elsif iterator <= 32 then
+            mem_input.addr <= iterator - 1;
         else
-            data_out <= (others => '0');
-            write_enable <= '0';
-            index <= 0;
-        end if;
-        if iterator >= 31 then
-            finished <= '1';
-        else
-            finished <= '0';
+            mem_input.addr <= 0;
         end if;
     end process;
 
-    process(clk, rst) is
+    process(clk) is
     begin
-        if rst = '1' then
-            iterator <= 0;
-        elsif rising_edge(clk) then
+        if rising_edge(clk) and enable = '1' then
             if init = '1' then
                 iterator <= 0;
-            elsif enable = '1' and iterator < 32 then
+            elsif iterator < 33 then
                 iterator <= iterator + 1;
             end if;
         end if;
     end process;
 
-end architecture;
+end architecture arch;
