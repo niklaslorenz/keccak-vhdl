@@ -9,7 +9,7 @@ entity reader is
         clk : in std_logic;
         init : in std_logic;
         enable : in std_logic;
-        atom_index : in std_logic;
+        atom_index : in atom_index_t;
         transmission : in transmission_t;
         mem_input : out mem_port_input;
         ready : out std_logic
@@ -22,7 +22,7 @@ architecture arch of reader is
 
     signal iterator : iterator_t := 0;
 
-    signal transmission_low, transmission_hgh : std_logic_vector(31 downto 0);
+    signal transmission_low, transmission_high : std_logic_vector(31 downto 0);
 
     signal slice_high, slice_low : slice_t;
 
@@ -43,16 +43,16 @@ begin
     
     data <= (tile_high, tile_low);
 
-    mem_input.en <= 0;
+    mem_input.en <= '0';
     mem_input.we <= asBit(iterator >= 1 and iterator <= 32);
-    mem_input.data <= data when enable = '1' else ((others => '0'), (others => '0'))
+    mem_input.data <= data when enable = '1' else ((others => '0'), (others => '0'));
 
     ready <= asBit(iterator = 17);
 
     process(iterator) is
     begin
         if iterator = 0 then
-            mem_input.addr <= 0
+            mem_input.addr <= 0;
         elsif iterator <= 32 then
             mem_input.addr <= iterator - 1;
         else

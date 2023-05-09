@@ -1,12 +1,13 @@
 library IEEE;
+use IEEE.std_logic_1164.all;
 use work.types.all;
-use work.block_memory;
+use work.memory_block;
 use work.reader;
 use work.gamma_calculator;
 use work.rho_buffer;
 use work.writer;
 
-entity sha3_atom
+entity sha3_atom is
     port(
         clk : in std_logic;
         atom_index : in atom_index_t;
@@ -22,7 +23,7 @@ architecture arch of sha3_atom is
             clk : in std_logic;
             init : in std_logic;
             enable : in std_logic;
-            atom_index : in std_logic;
+            atom_index : in atom_index_t;
             transmission : in transmission_t;
             mem_input : out mem_port_input;
             ready : out std_logic
