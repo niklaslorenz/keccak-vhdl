@@ -94,10 +94,16 @@ architecture arch of gamma_calculator is
 
     signal combined_data : double_slice_t;
 
+    signal combined_data_0 : slice_t;
+    signal combined_data_1 : slice_t;
+
     signal result : double_slice_t;
     signal result_remote_part : double_tile_slice_t;
 
 begin
+
+    combined_data_0 <= combined_data(0);
+    combined_data_1 <= combined_data(1);
 
     converter : calculator_transmission_converter port map(
         enable => enable,

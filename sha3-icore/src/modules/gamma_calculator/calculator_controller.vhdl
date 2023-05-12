@@ -57,7 +57,7 @@ begin
         end if;
 
         if iterator = 2 then
-            res_a_addr <= 15 + local_offset;
+            res_a_addr <= 15 + remote_offset;
         elsif iterator >= 3 and iterator <= 18 then
             res_a_addr <= iterator - 3 + local_offset;
         else
@@ -65,7 +65,7 @@ begin
         end if;
 
         if iterator = 1 then
-            res_b_addr <= 15 + remote_offset;
+            res_b_addr <= 15 + local_offset;
         elsif iterator >= 2 and iterator <= 17 then
             res_b_addr <= iterator - 2 + remote_offset;
         else

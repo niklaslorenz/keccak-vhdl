@@ -3,6 +3,9 @@ use IEEE.std_logic_1164.all;
 use work.types.all;
 use work.gamma_calculator;
 use work.manual_port_memory_block;
+use work.test_types.all;
+use work.test_data;
+use work.test_util.all;
 
 entity gamma_calculator_test is
 end entity;
@@ -37,8 +40,13 @@ architecture arch of gamma_calculator_test is
             gam_mem_port_a_in : out mem_port_input;
             gam_mem_port_b_in : out mem_port_input;
             transmission_in : in transmission_t;
-            transmission_out : out transmission_t
+            transmission_out : out transmission_t;
+            ready : out std_logic
         );
+    end component;
+
+    component block_visualizer is
+        port(state : in block_t);
     end component;
 
     signal clk : std_logic := '0';
@@ -69,13 +77,25 @@ architecture arch of gamma_calculator_test is
     signal round : round_index_t := 0;
     signal theta_only : std_logic := '0';
     signal no_theta : std_logic := '0';
+    signal atom_0_ready : std_logic := '0';
+    signal atom_1_ready : std_logic := '0';
 
     signal atom_0_transmission_in : transmission_t := (others => '0');
     signal atom_0_transmission_out : transmission_t := (others => '0');
     signal atom_1_transmission_in : transmission_t := (others => '0');
     signal atom_1_transmission_out : transmission_t := (others => '0');
 
+    signal theta_only_result_0, theta_only_result_1 : block_t;
+
 begin
+
+    input_visual_0_visual : block_visualizer port map(test_data.test_block_a);
+
+    input_visual_1_visual : block_visualizer port map(test_data.test_block_b);
+
+    theta_only_result_0_visual : block_visualizer port map(theta_only_result_0);
+
+    theta_only_result_1_visual : block_visualizer port map(theta_only_result_1);
 
     atom_0_gam_mem : manual_port_memory_block port map(
         clk => clk,
@@ -112,7 +132,8 @@ begin
         gam_mem_port_a_in => atom_0_gam_a.input,
         gam_mem_port_b_in => atom_0_gam_b.input,
         transmission_in => atom_0_transmission_in,
-        transmission_out => atom_0_transmission_out
+        transmission_out => atom_0_transmission_out,
+        ready => atom_0_ready
     );
 
     atom_1_gam_mem : manual_port_memory_block port map(
@@ -150,7 +171,8 @@ begin
         gam_mem_port_a_in => atom_1_gam_a.input,
         gam_mem_port_b_in => atom_1_gam_b.input,
         transmission_in => atom_1_transmission_in,
-        transmission_out => atom_1_transmission_out
+        transmission_out => atom_1_transmission_out,
+        ready => atom_1_ready
     );
 
     env : process(clk) is
@@ -164,8 +186,63 @@ begin
     test : process is
     begin
         wait until rising_edge(clk);
+        atom_0_res_manual <= '1';
+        atom_1_res_manual <= '1';
+        atom_0_res_manual_in.we <= '1';
+        atom_1_res_manual_in.we <= '1';
+        for i in 0 to 31 loop
+            atom_0_res_manual_in.addr <= i;
+            atom_1_res_manual_in.addr <= i;
+            atom_0_res_manual_in.data <= get_double_tile_slice(test_data.test_block_a, i);
+            atom_1_res_manual_in.data <= get_double_tile_slice(test_data.test_block_b, i);
+            wait until rising_edge(clk);
+        end loop;
+        atom_0_res_manual <= '0';
+        atom_1_res_manual <= '0';
+        atom_0_res_manual_in <= mem_port_init.input;
+        atom_1_res_manual_in <= mem_port_init.input;
+        wait until rising_edge(clk);
+        -- test theta only
+        enable <= '1';
+        init <= '1';
+        theta_only <= '1';
+        wait until rising_edge(clk);
+        init <= '0';
+        while atom_0_ready = '0' loop
+            wait until rising_edge(clk);
+        end loop;
+        assert atom_1_ready = '1' report "expected atom 1 to be ready" severity FAILURE;
+        enable <= '0';
+        theta_only <= '0';
+        atom_0_gam_manual <= '1';
+        atom_1_gam_manual <= '1';
+        atom_0_gam_manual_in.en <= '1';
+        atom_1_gam_manual_in.en <= '1';
+        for i in 0 to 33 loop
+            if i <= 31 then
+                atom_0_gam_manual_in.addr <= i;
+                atom_1_gam_manual_in.addr <= i;
+            end if;
+            wait until rising_edge(clk);
+            if i >= 2 then
+                theta_only_result_0(2 * (i - 2) + 1) <= atom_0_gam_a.output.data(1);
+                theta_only_result_0(2 * (i - 2))     <= atom_0_gam_a.output.data(0);
+                theta_only_result_1(2 * (i - 2) + 1) <= atom_1_gam_a.output.data(1);
+                theta_only_result_1(2 * (i - 2))     <= atom_1_gam_a.output.data(0);
+            end if;
+        end loop;
+        atom_0_gam_manual <= '0';
+        atom_1_gam_manual <= '0';
+        atom_0_gam_manual_in <= mem_port_init.input;
+        atom_1_gam_manual_in <= mem_port_init.input;
+        wait until rising_edge(clk);
         
+        for i in 0 to 63 loop
+            assert test_data.theta_block_a(i) = theta_only_result_0(i) report "Theta only failed for atom 0" severity FAILURE;
+            assert test_data.theta_block_b(i) = theta_only_result_1(i) report "Theta only failed for atom 1" severity FAILURE;
+        end loop;
 
+        wait until rising_edge(clk);
         finished <= true;
         wait;
     end process;

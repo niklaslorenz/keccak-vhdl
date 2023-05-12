@@ -15,9 +15,13 @@ package test_util is
 
     function get_slice_tile(state: block_t; index : slice_index_t) return tile_slice_t;
 
-    function get_rho_data(state : block_t; index : natural range 0 to 15) return quad_tile_slice_t;
+    function get_double_tile_slice(state : block_t; index : natural range 0 to 31) return double_tile_slice_t;
+
+    function get_quad_tile_slice(state : block_t; index : natural range 0 to 15) return quad_tile_slice_t;
 
     function isValid(state : block_t) return boolean;
+
+    function to_slice_aligned_block(state : lane_aligned_block_t) return block_t;
 
 end package;
 
@@ -67,7 +71,12 @@ package body test_util is
         return state(index);
     end function;
 
-    function get_rho_data(state : block_t; index : natural range 0 to 15) return quad_tile_slice_t is
+    function get_double_tile_slice(state : block_t; index : natural range 0 to 31) return double_tile_slice_t is
+    begin
+        return (state(index * 2 + 1), state(index * 2));
+    end function;
+
+    function get_quad_tile_slice(state : block_t; index : natural range 0 to 15) return quad_tile_slice_t is
     begin
         return (state(index * 4 + 3), state(index * 4 + 2), state(index * 4 + 1), state(index * 4));
     end function;
@@ -82,6 +91,17 @@ package body test_util is
             end loop;
         end loop;
         return true;
+    end function;
+
+    function to_slice_aligned_block(state : lane_aligned_block_t) return block_t is
+        variable result : block_t;
+    begin
+        for i in 0 to 12 loop
+            for j in 0 to 63 loop
+                result(j)(i) := state(i)(j);
+            end loop;
+        end loop;
+        return result;
     end function;
 
 end package body;
