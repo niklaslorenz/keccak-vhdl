@@ -33,7 +33,7 @@ architecture arch of gamma_calculator is
             enable : in std_logic;
             transmission_in : in transmission_t;
             transmission_out : out transmission_t;
-            data_slice_receive : out double_remote_tile_slice_t;
+            data_slice_receive : out double_tile_slice_t;
             result_slice_receive : out double_tile_slice_t;
             data_slice_send : in double_tile_slice_t;
             result_slice_send : in double_tile_slice_t
@@ -45,7 +45,7 @@ architecture arch of gamma_calculator is
             atom_index : in atom_index_t;
             enable : in std_logic;
             data : out double_slice_t;
-            remote_data : in double_remote_tile_slice_t;
+            remote_data : in double_tile_slice_t;
             local_data : in double_tile_slice_t;
             result : in double_slice_t;
             remote_result : out double_tile_slice_t;
@@ -89,7 +89,7 @@ architecture arch of gamma_calculator is
     signal round_constant : std_logic_vector(1 downto 0);
 
     -- data
-    signal received_data : double_remote_tile_slice_t;
+    signal received_data : double_tile_slice_t;
     signal received_result : double_tile_slice_t;
 
     signal combined_data : double_slice_t;

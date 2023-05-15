@@ -7,7 +7,7 @@ entity calculator_transmission_converter is
         enable : in std_logic;
         transmission_in : in transmission_t;
         transmission_out : out transmission_t;
-        data_slice_receive : out double_remote_tile_slice_t;
+        data_slice_receive : out double_tile_slice_t;
         result_slice_receive : out double_tile_slice_t;
         data_slice_send : in double_tile_slice_t;
         result_slice_send : in double_tile_slice_t
@@ -29,7 +29,7 @@ begin
     result_transmission_out <= "000" & result_slice_send(1) & "000" & result_slice_send(0);
 
     -- define incoming slices
-    data_slice_receive <= (data_transmission_in(27 downto 16), data_transmission_in(11 downto 0)) when enable = '1' else ((others => '0'), (others => '0'));
+    data_slice_receive <= (data_transmission_in(28 downto 16), data_transmission_in(12 downto 0)) when enable = '1' else ((others => '0'), (others => '0'));
     result_slice_receive <= (result_transmission_in(28 downto 16), result_transmission_in(12 downto 0)) when enable = '1' else ((others => '0'), (others => '0'));
 
 end architecture;

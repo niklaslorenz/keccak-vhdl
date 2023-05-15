@@ -10,7 +10,13 @@ use work.writer;
 entity sha3_atom is
     port(
         clk : in std_logic;
+        enable : in std_logic;
+        init : in std_logic;
         atom_index : in atom_index_t;
+        read : in std_logic;
+        write : in std_logic;
+        ready : out std_logic;
+        transmission_active : out std_logic;
         transmission_in : in transmission_t;
         transmission_out : out transmission_t
     );
@@ -95,15 +101,45 @@ architecture arch of sha3_atom is
         );
     end component;
 
-    signal res_mem_port_a, res_mem_port_b, gam_mem_port_a, gam_mem_port_b : mem_port;
+    signal res_mem_port_a : mem_port;
+    signal res_mem_port_b : mem_port;
+    signal gam_mem_port_a : mem_port;
+    signal gam_mem_port_b : mem_port;
 
-    signal reader_init : std_logic := '0';
-    signal reader_enable : std_logic := '0';
+    -- controller signals
+
+    signal reader_init : std_logic;
+    signal reader_enable : std_logic;
     signal reader_ready : std_logic;
 
-    signal round : round_index_t := 0;
+    signal gamma_enable : std_logic;
+    signal gamma_init : std_logic;
+    signal gamma_theta_only : std_logic;
+    signal gamma_no_theta : std_logic;
+    signal gamma_ready : std_logic;
+
+    signal rho_init : std_logic;
+    signal rho_enable : std_logic;
+    signal tho_ready : std_logic;
+
+    signal writer_init : std_logic;
+    signal writer_enable : std_logic;
+    signal writer_ready : std_logic;
+
+    signal round : round_index_t;
+
+    -- data signals
+
+    signal buffered_transmission_in : transmission_t;
 
 begin
+
+    process(clk) is
+    begin
+        if rising_edge(clk) then
+            buffered_transmission_in <= transmission_in;
+        end if;
+    end process;
 
     res_mem : memory_block port map(
         clk => clk,
@@ -145,7 +181,7 @@ begin
         res_mem_port_b_out => res_mem_port_b.output,
         gam_mem_port_a_in => gam_mem_port_a.input,
         gam_mem_port_b_in => gam_mem_port_b.input,
-        transmission_in => transmission_in,
+        transmission_in => buffered_transmission_in,
         transmission_out => transmission_out,
         ready => gamma_ready
     );
@@ -176,7 +212,7 @@ begin
         mem_input_b => res_mem_port_b.input,
         mem_output_b => res_mem_port_b.output,
         transmission => transmission_out,
-        transmission_active => writer_transmission_active,
+        transmission_active => transmission_active,
         ready => writer_ready
     );
 

@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use work.types.all;
+use work.util.all;
 use work.gamma_calculator;
 use work.manual_port_memory_block;
 use work.test_types.all;
@@ -87,6 +88,8 @@ architecture arch of gamma_calculator_test is
 
     signal theta_only_result_0, theta_only_result_1 : block_t;
 
+    signal theta_only_expectation_0, theta_only_expectation_1 : block_t;
+
 begin
 
     input_visual_0_visual : block_visualizer port map(test_data.test_block_a);
@@ -96,6 +99,11 @@ begin
     theta_only_result_0_visual : block_visualizer port map(theta_only_result_0);
 
     theta_only_result_1_visual : block_visualizer port map(theta_only_result_1);
+
+    theta_only_expectation_0_visual : block_visualizer port map(theta_only_expectation_0);
+
+    theta_only_expectation_1_visual : block_visualizer port map(theta_only_expectation_1);
+
 
     atom_0_gam_mem : manual_port_memory_block port map(
         clk => clk,
@@ -184,7 +192,18 @@ begin
     end process;
 
     test : process is
+        variable slice0, slice1 : slice_t;
+        variable theta_slice : slice_t;
     begin
+        slice1 := test_data.test_block_b(63)(12 downto 1) & test_data.test_block_a(63);
+        for i in 0 to 63 loop
+            slice0 := slice1;
+            slice1 := test_data.test_block_b(i)(12 downto 1) & test_data.test_block_a(i);
+            theta_slice := theta(slice0, slice1);
+            theta_only_expectation_0(i) <= theta_slice(12 downto 0);
+            theta_only_expectation_1(i) <= theta_slice(24 downto 12);
+        end loop;
+
         wait until rising_edge(clk);
         atom_0_res_manual <= '1';
         atom_1_res_manual <= '1';
@@ -238,8 +257,8 @@ begin
         wait until rising_edge(clk);
         
         for i in 0 to 63 loop
-            assert test_data.theta_block_a(i) = theta_only_result_0(i) report "Theta only failed for atom 0" severity FAILURE;
-            assert test_data.theta_block_b(i) = theta_only_result_1(i) report "Theta only failed for atom 1" severity FAILURE;
+            assert theta_only_expectation_0(i) = theta_only_result_0(i) report "Theta only failed for atom 0" severity FAILURE;
+            assert theta_only_expectation_1(i) = theta_only_result_1(i) report "Theta only failed for atom 1" severity FAILURE;
         end loop;
 
         wait until rising_edge(clk);

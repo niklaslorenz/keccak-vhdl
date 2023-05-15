@@ -38,35 +38,4 @@ package test_data is
         x"fc09dc55ea64707e"
     ));
 
-    constant theta_block_a : block_t := to_slice_aligned_block((
-        x"7e0e2657aa3b903f",
-        x"830c9333463e4e8c",
-        x"34565f36f562ce50",
-        x"a0dd9259dacd37a2",
-        x"f23152783d9fc518",
-        x"e2aeb03740b13e9b",
-        x"63b9bbc493aca524",
-        x"38d386ce957d1998",
-        x"1b96cc5b10b1176d",
-        x"2f6eef4d7105b598",
-        x"15a5d45135ee96c4",
-        x"d78edcba6bc32cba",
-        x"45550631cd819983"
-    ));
-    constant theta_block_b : block_t := to_slice_aligned_block((
-        x"e68ec8a761ef0f57",
-        x"1f6a48251192eb0e",
-        x"c77ec0aef50217aa",
-        x"5c74dc47a04dc1e6",
-        x"96b8817a139f4363",
-        x"fe0e2bf5da3ec785",
-        x"e7a626e53e770914",
-        x"bf119201092a6eaf",
-        x"dd272f7dd3a48c9a",
-        x"4eb197e1eaf4ac99",
-        x"8c97328960a8dc9c",
-        x"41a0e4b72bd53a80",
-        x"7e0e2657aa3b903f"
-    ));
-
 end package test_data;

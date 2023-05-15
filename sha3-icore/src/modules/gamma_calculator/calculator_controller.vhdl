@@ -27,7 +27,7 @@ end entity;
 
 architecture arch of calculator_controller is
 
-    subtype iterator_t is natural range 0 to 23;
+    subtype iterator_t is natural range 0 to 22;
 
     signal iterator : iterator_t;
     signal local_offset, remote_offset : natural range 0 to 16;
@@ -37,16 +37,16 @@ begin
     remote_offset <= 16 when atom_index = 0 else 0;
     local_offset <= 0 when atom_index = 0 else 16;
 
-    res_a_en <= asBit(iterator >= 2 and iterator <= 18);
-    res_b_en <= asBit(iterator >= 1 and iterator <= 17);
+    res_a_en <= asBit(iterator >= 2 and iterator <= 20);
+    res_b_en <= asBit(iterator >= 1 and iterator <= 19);
 
     gam_a_en <= '0';
     gam_b_en <= '0';
 
-    gam_a_we <= asBit(iterator >= 6 and iterator <= 21);
-    gam_b_we <= asBit(iterator >= 7 and iterator <= 22);
+    gam_a_we <= asBit(iterator >= 5 and iterator <= 20);
+    gam_b_we <= asBit(iterator >= 6 and iterator <= 21);
 
-    ready <= asBit(iterator = 23);
+    ready <= asBit(iterator = 22);
 
     process(iterator, atom_index) is
     begin
@@ -72,14 +72,14 @@ begin
             res_b_addr <= 0;
         end if;
 
-        if iterator >= 6 and iterator <= 21 then
-            gam_a_addr <= iterator - 6 + local_offset;
+        if iterator >= 5 and iterator <= 20 then
+            gam_a_addr <= iterator - 5 + local_offset;
         else
             gam_a_addr <= 0;
         end if;
 
-        if iterator >= 7 and iterator <= 22 then
-            gam_b_addr <= iterator - 7 + remote_offset;
+        if iterator >= 6 and iterator <= 21 then
+            gam_b_addr <= iterator - 6 + remote_offset;
         else
             gam_b_addr <= 0;
         end if;
@@ -90,7 +90,7 @@ begin
         if rising_edge(clk) and enable = '1' then
             if init = '1' then
                 iterator <= 0;
-            elsif iterator < 23 then
+            elsif iterator < 22 then
                 iterator <= iterator + 1;
             end if;
         end if;
