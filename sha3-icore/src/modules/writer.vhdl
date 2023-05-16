@@ -1,5 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use work.types.all;
+use work.util.all;
 
 entity writer is
     port(
@@ -29,8 +31,8 @@ architecture arch of writer is
 
 begin
 
-    mem_input_a <= active_mem_input_a when atom_index = 0 else mem_port_input_init;
-    mem_input_b <= active_mem_input_b when atom_index = 0 else mem_port_input_init;
+    mem_input_a <= active_mem_input_a when atom_index = 0 else mem_port_init.input;
+    mem_input_b <= active_mem_input_b when atom_index = 0 else mem_port_init.input;
 
     active_mem_input_a.en <= asBit(iterator > 0 and iterator <= 16);
     active_mem_input_b.en <= asBit(iterator > 0 and iterator <= 16);
@@ -45,7 +47,7 @@ begin
         if rising_edge(clk) and enable = '1' then
             if iterator >= 3 and iterator <= 18 then
                 for i in 0 to 3 loop
-                    hash(i)((iterator - 3) * 4 + 3 downto (iterator - 3) * 4) <= (mem_output_b(1)(i), mem_output_b(0)(i), mem_output_a(1)(i), mem_output(0)(i));
+                    hash(i)((iterator - 3) * 4 + 3 downto (iterator - 3) * 4) <= (mem_output_b.data(1)(i), mem_output_b.data(0)(i), mem_output_a.data(1)(i), mem_output_a.data(0)(i));
                 end loop;
             end if;
         end if;
@@ -69,7 +71,7 @@ begin
     begin
         if iterator >= 17 and iterator <= 20 then
             transmission <= hash(iterator - 17);
-            tramsmission_active <= '1';
+            transmission_active <= '1';
         else
             transmission <= (others => '0');
             transmission_active <= '0';

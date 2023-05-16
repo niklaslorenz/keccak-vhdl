@@ -19,9 +19,11 @@ sources=( \
 "modules/gamma_calculator/calculator_data_combiner" \
 "modules/gamma_calculator/calculator_controller" \
 "modules/gamma_calculator/gamma_calculator" \
-#"modules/reader" \
-#"modules/writer" \
-#"sha3_atom" \
+"modules/purger" \
+"modules/reader" \
+"modules/writer" \
+"modules/sha3_atom_controller" \
+"sha3_atom" \
 )
 
 #relative to the "simulation" directory

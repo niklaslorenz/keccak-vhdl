@@ -24,6 +24,54 @@ end entity;
 
 architecture arch of sha3_atom is
 
+    component memory_block is
+        port(
+            clk : in std_logic;
+            port_a_in : in mem_port_input;
+            port_a_out : out mem_port_output;
+            port_b_in : in mem_port_input;
+            port_b_out : out mem_port_output
+        );
+    end component;
+
+    component sha3_atom_controller is
+        port(
+            clk : in std_logic;
+            enable : in std_logic;
+            init : in std_logic;
+            start_read : in std_logic;
+            start_write : in std_logic;
+            ready : out std_logic;
+            purger_start : out std_logic;
+            purger_ready : in std_logic;
+            reader_init : out std_logic;
+            reader_enable : out std_logic;
+            reader_ready : in std_logic;
+            gamma_enable : out std_logic;
+            gamma_init : out std_logic;
+            gamma_theta_only : out std_logic;
+            gamma_no_theta : out std_logic;
+            gamma_ready : in std_logic;
+            rho_init : out std_logic;
+            rho_enable : out std_logic;
+            rho_ready : in std_logic;
+            writer_init : out std_logic;
+            writer_enable : out std_logic;
+            writer_ready : in std_logic;
+            round : out round_index_t
+        );
+    end component;
+
+    component purger is
+        port(
+            clk : in std_logic;
+            start : in std_logic;
+            port_a_in : out mem_port_input;
+            port_b_in : out mem_port_input;
+            ready : out std_logic
+        );
+    end component;
+
     component reader is
         port(
             clk : in std_logic;
@@ -33,16 +81,6 @@ architecture arch of sha3_atom is
             transmission : in transmission_t;
             mem_input : out mem_port_input;
             ready : out std_logic
-        );
-    end component;
-
-    component memory_block is
-        port(
-            clk : in std_logic;
-            port_a_in : in mem_port_input;
-            port_a_out : out mem_port_output;
-            port_b_in : in mem_port_input;
-            port_b_out : out mem_port_output
         );
     end component;
 
@@ -108,6 +146,9 @@ architecture arch of sha3_atom is
 
     -- controller signals
 
+    signal purger_start : std_logic;
+    signal purger_ready : std_logic;
+
     signal reader_init : std_logic;
     signal reader_enable : std_logic;
     signal reader_ready : std_logic;
@@ -120,7 +161,7 @@ architecture arch of sha3_atom is
 
     signal rho_init : std_logic;
     signal rho_enable : std_logic;
-    signal tho_ready : std_logic;
+    signal rho_ready : std_logic;
 
     signal writer_init : std_logic;
     signal writer_enable : std_logic;
@@ -157,6 +198,40 @@ begin
         port_b_out => gam_mem_port_b.output
     );
 
+    controller : sha3_atom_controller port map(
+        clk => clk,
+        enable => enable,
+        init => init,
+        start_read => read,
+        start_write => write,
+        ready => ready,
+        purger_start => purger_start,
+        purger_ready => purger_ready,
+        reader_init => reader_init,
+        reader_enable => reader_enable,
+        reader_ready => reader_ready,
+        gamma_enable => gamma_enable,
+        gamma_init => gamma_init,
+        gamma_theta_only => gamma_theta_only,
+        gamma_no_theta => gamma_no_theta,
+        gamma_ready => gamma_ready,
+        rho_init => rho_init,
+        rho_enable => rho_enable,
+        rho_ready => rho_ready,
+        writer_init => writer_init,
+        writer_enable => writer_enable,
+        writer_ready => writer_ready,
+        round => round
+    );
+
+    prgr : purger port map(
+        clk => clk,
+        start => purger_start,
+        port_a_in => res_mem_port_a.input,
+        port_b_in => res_mem_port_b.input,
+        ready => purger_ready
+    );
+
     rdr : reader port map(
         clk => clk,
         init => reader_init,
@@ -191,14 +266,14 @@ begin
         init => rho_init,
         enable => rho_enable,
         atom_index => atom_index,
-        gam_mem_port_a_in => gam_mem_port_a.input,
-        gam_mem_port_a_out => gam_mem_port_a.output,
-        gam_mem_port_b_in => gam_mem_port_b.input,
-        gam_mem_port_b_out => gam_mem_port_b.output,
-        res_mem_port_a_in => res_mem_port_a.input,
-        res_mem_port_a_out => res_mem_port_a.output,
-        res_mem_port_b_in => res_mem_port_b.input,
-        res_mem_port_b_out => res_mem_port_b.output,
+        gam_port_a_in => gam_mem_port_a.input,
+        gam_port_a_out => gam_mem_port_a.output,
+        gam_port_b_in => gam_mem_port_b.input,
+        gam_port_b_out => gam_mem_port_b.output,
+        res_port_a_in => res_mem_port_a.input,
+        res_port_a_out => res_mem_port_a.output,
+        res_port_b_in => res_mem_port_b.input,
+        res_port_b_out => res_mem_port_b.output,
         ready => rho_ready
     );
 
