@@ -12,7 +12,7 @@ entity sha3_atom is
         clk : in std_logic;
         enable : in std_logic;
         init : in std_logic;
-        atom_index : in atom_index_t;
+        atom_index_input : in atom_index_t;
         read : in std_logic;
         write : in std_logic;
         ready : out std_logic;
@@ -173,12 +173,17 @@ architecture arch of sha3_atom is
 
     signal buffered_transmission_in : transmission_t;
 
+    signal atom_index : atom_index_t;
+
 begin
 
     process(clk) is
     begin
         if rising_edge(clk) then
             buffered_transmission_in <= transmission_in;
+            if init = '1' then
+                atom_index <= atom_index_input;
+            end if;
         end if;
     end process;
 

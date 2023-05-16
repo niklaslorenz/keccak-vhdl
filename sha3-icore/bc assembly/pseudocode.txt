@@ -1,0 +1,33 @@
+Requirements:
+    - Pre padded and formatted data in memory
+    - Arguments:
+        - $"start address"
+        - $"block count"
+        - $"result address"
+
+- Init atoms: 1 cycle
+    - Trigger Init signal
+    - Atom Index setup
+
+- Setup AGU for atom 0 with $"start address", data width 8 and stride 16
+- Setup AGU for atom 1 with §"start address"+8, data width 8 and stride 16
+- Wait for atoms to emit "ready"
+- For b in 1 to $"block count"
+    - Trigger Read signal
+    - For i in 1 to 16
+        - read from memory and forward to atoms
+        - generate next address in agu
+    - wait for atoms to emit "ready"
+
+- Trigger write signal
+- setup AGU with $"result address", data width 4 and stride 4
+- i <= 0
+- while i < 4
+    - if transmission_active from atom_0 is active
+        - write transmission data from atom_0 to memory
+        - generate next address in agu
+        - i++
+        
+
+
+-- NOTE: maybe add a transmission_active input signal into the atom so it can adapt to the transmission pattern while reading?
