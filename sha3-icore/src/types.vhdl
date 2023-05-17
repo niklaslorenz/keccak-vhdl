@@ -1,6 +1,7 @@
 library IEEE;
 
 use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
 package types is
 
@@ -43,4 +44,31 @@ package types is
 
     type buffer_data_t is array(natural range 6 downto 0) of std_logic_vector(3 downto 0);
 
+    function "or"(left, right : quad_tile_slice_t) return quad_tile_slice_t;
+    
+    function "or"(left, right : mem_port_input) return mem_port_input;
+
 end package;
+
+package body types is
+
+    function "or"(left, right : quad_tile_slice_t) return quad_tile_slice_t is
+        variable res : quad_tile_slice_t;
+    begin
+        for i in 0 to 3 loop
+            res(i) := left(i) or right(i);
+        end loop;
+        return res;
+    end function;
+    
+    function "or"(left, right : mem_port_input) return mem_port_input is
+        variable res : mem_port_input;
+    begin
+        res.en := left.en or right.en;
+        res.we := left.en or right.en;
+        res.addr := to_integer(unsigned(std_logic_vector(to_unsigned(left.addr, 7)) or std_logic_vector(to_unsigned(right.addr, 7))));
+        res.data := (left.data(0) or right.data(0), left.data(1) or right.data(1));
+        return res;
+    end function;
+
+end package body;

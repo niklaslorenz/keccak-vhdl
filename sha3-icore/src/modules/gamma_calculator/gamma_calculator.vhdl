@@ -60,7 +60,7 @@ architecture arch of gamma_calculator is
             init : in std_logic;
             atom_index : in atom_index_t;
             round : in round_index_t;
-            round_constant : out std_logic_vector(1 downto 0);
+            round_constant_slice : out std_logic_vector(1 downto 0);
             res_a_en : out std_logic;
             res_a_addr : out mem_addr_t;
             res_b_en : out std_logic;
@@ -132,7 +132,7 @@ begin
         init => init,
         atom_index => atom_index,
         round => round,
-        round_constant => round_constant,
+        round_constant_slice => round_constant,
         res_a_en => res_mem_port_a_in.en,
         res_a_addr => res_mem_port_a_in.addr,
         res_b_en => res_mem_port_b_in.en,

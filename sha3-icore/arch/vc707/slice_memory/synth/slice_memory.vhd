@@ -14,13 +14,13 @@ use UNISIM.VCOMPONENTS.ALL;
 entity slice_memory is
   port (
     BRAM_PORTA_0_addr : in STD_LOGIC_VECTOR ( 6 downto 0 );
-    BRAM_PORTA_0_din : in STD_LOGIC_VECTOR ( 49 downto 0 );
-    BRAM_PORTA_0_dout : out STD_LOGIC_VECTOR ( 49 downto 0 );
+    BRAM_PORTA_0_din : in STD_LOGIC_VECTOR ( 25 downto 0 );
+    BRAM_PORTA_0_dout : out STD_LOGIC_VECTOR ( 25 downto 0 );
     BRAM_PORTA_0_en : in STD_LOGIC;
     BRAM_PORTA_0_we : in STD_LOGIC_VECTOR ( 0 to 0 );
     BRAM_PORTB_0_addr : in STD_LOGIC_VECTOR ( 6 downto 0 );
-    BRAM_PORTB_0_din : in STD_LOGIC_VECTOR ( 49 downto 0 );
-    BRAM_PORTB_0_dout : out STD_LOGIC_VECTOR ( 49 downto 0 );
+    BRAM_PORTB_0_din : in STD_LOGIC_VECTOR ( 25 downto 0 );
+    BRAM_PORTB_0_dout : out STD_LOGIC_VECTOR ( 25 downto 0 );
     BRAM_PORTB_0_en : in STD_LOGIC;
     BRAM_PORTB_0_we : in STD_LOGIC_VECTOR ( 0 to 0 );
     clk : in STD_LOGIC
@@ -38,24 +38,24 @@ architecture STRUCTURE of slice_memory is
     ena : in STD_LOGIC;
     wea : in STD_LOGIC_VECTOR ( 0 to 0 );
     addra : in STD_LOGIC_VECTOR ( 6 downto 0 );
-    dina : in STD_LOGIC_VECTOR ( 49 downto 0 );
-    douta : out STD_LOGIC_VECTOR ( 49 downto 0 );
+    dina : in STD_LOGIC_VECTOR ( 25 downto 0 );
+    douta : out STD_LOGIC_VECTOR ( 25 downto 0 );
     clkb : in STD_LOGIC;
     enb : in STD_LOGIC;
     web : in STD_LOGIC_VECTOR ( 0 to 0 );
     addrb : in STD_LOGIC_VECTOR ( 6 downto 0 );
-    dinb : in STD_LOGIC_VECTOR ( 49 downto 0 );
-    doutb : out STD_LOGIC_VECTOR ( 49 downto 0 )
+    dinb : in STD_LOGIC_VECTOR ( 25 downto 0 );
+    doutb : out STD_LOGIC_VECTOR ( 25 downto 0 )
   );
   end component slice_memory_blk_mem_gen_0_0;
   signal BRAM_PORTA_0_1_ADDR : STD_LOGIC_VECTOR ( 6 downto 0 );
-  signal BRAM_PORTA_0_1_DIN : STD_LOGIC_VECTOR ( 49 downto 0 );
-  signal BRAM_PORTA_0_1_DOUT : STD_LOGIC_VECTOR ( 49 downto 0 );
+  signal BRAM_PORTA_0_1_DIN : STD_LOGIC_VECTOR ( 25 downto 0 );
+  signal BRAM_PORTA_0_1_DOUT : STD_LOGIC_VECTOR ( 25 downto 0 );
   signal BRAM_PORTA_0_1_EN : STD_LOGIC;
   signal BRAM_PORTA_0_1_WE : STD_LOGIC_VECTOR ( 0 to 0 );
   signal BRAM_PORTB_0_1_ADDR : STD_LOGIC_VECTOR ( 6 downto 0 );
-  signal BRAM_PORTB_0_1_DIN : STD_LOGIC_VECTOR ( 49 downto 0 );
-  signal BRAM_PORTB_0_1_DOUT : STD_LOGIC_VECTOR ( 49 downto 0 );
+  signal BRAM_PORTB_0_1_DIN : STD_LOGIC_VECTOR ( 25 downto 0 );
+  signal BRAM_PORTB_0_1_DOUT : STD_LOGIC_VECTOR ( 25 downto 0 );
   signal BRAM_PORTB_0_1_EN : STD_LOGIC;
   signal BRAM_PORTB_0_1_WE : STD_LOGIC_VECTOR ( 0 to 0 );
   signal clk_1 : STD_LOGIC;
@@ -75,15 +75,15 @@ architecture STRUCTURE of slice_memory is
   attribute X_INTERFACE_INFO of BRAM_PORTB_0_we : signal is "xilinx.com:interface:bram:1.0 BRAM_PORTB_0 WE";
 begin
   BRAM_PORTA_0_1_ADDR(6 downto 0) <= BRAM_PORTA_0_addr(6 downto 0);
-  BRAM_PORTA_0_1_DIN(49 downto 0) <= BRAM_PORTA_0_din(49 downto 0);
+  BRAM_PORTA_0_1_DIN(25 downto 0) <= BRAM_PORTA_0_din(25 downto 0);
   BRAM_PORTA_0_1_EN <= BRAM_PORTA_0_en;
   BRAM_PORTA_0_1_WE(0) <= BRAM_PORTA_0_we(0);
-  BRAM_PORTA_0_dout(49 downto 0) <= BRAM_PORTA_0_1_DOUT(49 downto 0);
+  BRAM_PORTA_0_dout(25 downto 0) <= BRAM_PORTA_0_1_DOUT(25 downto 0);
   BRAM_PORTB_0_1_ADDR(6 downto 0) <= BRAM_PORTB_0_addr(6 downto 0);
-  BRAM_PORTB_0_1_DIN(49 downto 0) <= BRAM_PORTB_0_din(49 downto 0);
+  BRAM_PORTB_0_1_DIN(25 downto 0) <= BRAM_PORTB_0_din(25 downto 0);
   BRAM_PORTB_0_1_EN <= BRAM_PORTB_0_en;
   BRAM_PORTB_0_1_WE(0) <= BRAM_PORTB_0_we(0);
-  BRAM_PORTB_0_dout(49 downto 0) <= BRAM_PORTB_0_1_DOUT(49 downto 0);
+  BRAM_PORTB_0_dout(25 downto 0) <= BRAM_PORTB_0_1_DOUT(25 downto 0);
   clk_1 <= clk;
 blk_mem_gen_0: component slice_memory_blk_mem_gen_0_0
      port map (
@@ -91,10 +91,10 @@ blk_mem_gen_0: component slice_memory_blk_mem_gen_0_0
       addrb(6 downto 0) => BRAM_PORTB_0_1_ADDR(6 downto 0),
       clka => clk_1,
       clkb => clk_1,
-      dina(49 downto 0) => BRAM_PORTA_0_1_DIN(49 downto 0),
-      dinb(49 downto 0) => BRAM_PORTB_0_1_DIN(49 downto 0),
-      douta(49 downto 0) => BRAM_PORTA_0_1_DOUT(49 downto 0),
-      doutb(49 downto 0) => BRAM_PORTB_0_1_DOUT(49 downto 0),
+      dina(25 downto 0) => BRAM_PORTA_0_1_DIN(25 downto 0),
+      dinb(25 downto 0) => BRAM_PORTB_0_1_DIN(25 downto 0),
+      douta(25 downto 0) => BRAM_PORTA_0_1_DOUT(25 downto 0),
+      doutb(25 downto 0) => BRAM_PORTB_0_1_DOUT(25 downto 0),
       ena => BRAM_PORTA_0_1_EN,
       enb => BRAM_PORTB_0_1_EN,
       wea(0) => BRAM_PORTA_0_1_WE(0),

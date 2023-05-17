@@ -10,7 +10,7 @@ entity calculator_controller is
         init : in std_logic;
         atom_index : in atom_index_t;
         round : in round_index_t;
-        round_constant : out std_logic_vector(1 downto 0);
+        round_constant_slice : out std_logic_vector(1 downto 0);
         res_a_en : out std_logic;
         res_a_addr : out mem_addr_t;
         res_b_en : out std_logic;
@@ -51,9 +51,9 @@ begin
     process(iterator, atom_index) is
     begin
         if iterator >= 5 and iterator <= 20 then
-            round_constant <= util.round_constant(round)((iterator - 5) * 2 + 1 downto (iterator - 5) * 2);
+            round_constant_slice <= round_constant(round)((iterator - 5) * 2 + 1 downto (iterator - 5) * 2);
         else
-            round_constant <= "00";
+            round_constant_slice <= "00";
         end if;
 
         if iterator = 2 then

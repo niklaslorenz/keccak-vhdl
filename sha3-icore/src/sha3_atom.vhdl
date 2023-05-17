@@ -148,24 +148,37 @@ architecture arch of sha3_atom is
 
     signal purger_start : std_logic;
     signal purger_ready : std_logic;
+    signal purger_res_a_in : mem_port_input;
+    signal purger_res_b_in : mem_port_input;
 
     signal reader_init : std_logic;
     signal reader_enable : std_logic;
     signal reader_ready : std_logic;
+    signal reader_res_a_in : mem_port_input;
 
     signal gamma_enable : std_logic;
     signal gamma_init : std_logic;
     signal gamma_theta_only : std_logic;
     signal gamma_no_theta : std_logic;
     signal gamma_ready : std_logic;
+    signal gamma_res_a_in : mem_port_input;
+    signal gamma_res_b_in : mem_port_input;
+    signal gamma_gam_a_in : mem_port_input;
+    signal gamma_gam_b_in : mem_port_input;
 
     signal rho_init : std_logic;
     signal rho_enable : std_logic;
     signal rho_ready : std_logic;
+    signal rho_res_a_in : mem_port_input;
+    signal rho_res_b_in : mem_port_input;
+    signal rho_gam_a_in : mem_port_input;
+    signal rho_gam_b_in : mem_port_input;
 
     signal writer_init : std_logic;
     signal writer_enable : std_logic;
     signal writer_ready : std_logic;
+    signal writer_res_a_in : mem_port_input;
+    signal writer_res_b_in : mem_port_input;
 
     signal round : round_index_t;
 
@@ -176,6 +189,11 @@ architecture arch of sha3_atom is
     signal atom_index : atom_index_t;
 
 begin
+
+    res_mem_port_a.input <= purger_res_a_in or reader_res_a_in or gamma_res_a_in or rho_res_a_in or writer_res_a_in;
+    res_mem_port_b.input <= purger_res_b_in                    or gamma_res_b_in or rho_res_b_in or writer_res_b_in;
+    gam_mem_port_a.input <=                                       gamma_gam_a_in or rho_gam_a_in;
+    gam_mem_port_b.input <=                                       gamma_gam_b_in or rho_gam_b_in;
 
     process(clk) is
     begin
@@ -232,8 +250,8 @@ begin
     prgr : purger port map(
         clk => clk,
         start => purger_start,
-        port_a_in => res_mem_port_a.input,
-        port_b_in => res_mem_port_b.input,
+        port_a_in => purger_res_a_in,
+        port_b_in => purger_res_b_in,
         ready => purger_ready
     );
 
@@ -243,7 +261,7 @@ begin
         enable => reader_enable,
         atom_index => atom_index,
         transmission => transmission_in,
-        mem_input => res_mem_port_a.input,
+        mem_input => reader_res_a_in,
         ready => reader_ready
     );
 
@@ -255,12 +273,12 @@ begin
         round => round,
         theta_only => gamma_theta_only,
         no_theta => gamma_no_theta,
-        res_mem_port_a_in => res_mem_port_a.input,
+        res_mem_port_a_in => gamma_res_a_in,
         res_mem_port_a_out => res_mem_port_a.output,
-        res_mem_port_b_in => res_mem_port_b.input,
+        res_mem_port_b_in => gamma_res_b_in,
         res_mem_port_b_out => res_mem_port_b.output,
-        gam_mem_port_a_in => gam_mem_port_a.input,
-        gam_mem_port_b_in => gam_mem_port_b.input,
+        gam_mem_port_a_in => gamma_gam_a_in,
+        gam_mem_port_b_in => gamma_gam_b_in,
         transmission_in => buffered_transmission_in,
         transmission_out => transmission_out,
         ready => gamma_ready
@@ -271,13 +289,13 @@ begin
         init => rho_init,
         enable => rho_enable,
         atom_index => atom_index,
-        gam_port_a_in => gam_mem_port_a.input,
+        gam_port_a_in => rho_gam_a_in,
         gam_port_a_out => gam_mem_port_a.output,
-        gam_port_b_in => gam_mem_port_b.input,
+        gam_port_b_in => rho_gam_b_in,
         gam_port_b_out => gam_mem_port_b.output,
-        res_port_a_in => res_mem_port_a.input,
+        res_port_a_in => rho_res_a_in,
         res_port_a_out => res_mem_port_a.output,
-        res_port_b_in => res_mem_port_b.input,
+        res_port_b_in => rho_res_b_in,
         res_port_b_out => res_mem_port_b.output,
         ready => rho_ready
     );
@@ -287,9 +305,9 @@ begin
         init => writer_init,
         enable => writer_enable,
         atom_index => atom_index,
-        mem_input_a => res_mem_port_a.input,
+        mem_input_a => writer_res_a_in,
         mem_output_a => res_mem_port_a.output,
-        mem_input_b => res_mem_port_b.input,
+        mem_input_b => writer_res_b_in,
         mem_output_b => res_mem_port_b.output,
         transmission => transmission_out,
         transmission_active => transmission_active,

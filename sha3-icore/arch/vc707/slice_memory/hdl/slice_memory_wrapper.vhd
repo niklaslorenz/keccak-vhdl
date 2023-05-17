@@ -14,13 +14,13 @@ use UNISIM.VCOMPONENTS.ALL;
 entity slice_memory_wrapper is
   port (
     BRAM_PORTA_0_addr : in STD_LOGIC_VECTOR ( 6 downto 0 );
-    BRAM_PORTA_0_din : in STD_LOGIC_VECTOR ( 49 downto 0 );
-    BRAM_PORTA_0_dout : out STD_LOGIC_VECTOR ( 49 downto 0 );
+    BRAM_PORTA_0_din : in STD_LOGIC_VECTOR ( 25 downto 0 );
+    BRAM_PORTA_0_dout : out STD_LOGIC_VECTOR ( 25 downto 0 );
     BRAM_PORTA_0_en : in STD_LOGIC;
     BRAM_PORTA_0_we : in STD_LOGIC_VECTOR ( 0 to 0 );
     BRAM_PORTB_0_addr : in STD_LOGIC_VECTOR ( 6 downto 0 );
-    BRAM_PORTB_0_din : in STD_LOGIC_VECTOR ( 49 downto 0 );
-    BRAM_PORTB_0_dout : out STD_LOGIC_VECTOR ( 49 downto 0 );
+    BRAM_PORTB_0_din : in STD_LOGIC_VECTOR ( 25 downto 0 );
+    BRAM_PORTB_0_dout : out STD_LOGIC_VECTOR ( 25 downto 0 );
     BRAM_PORTB_0_en : in STD_LOGIC;
     BRAM_PORTB_0_we : in STD_LOGIC_VECTOR ( 0 to 0 );
     clk : in STD_LOGIC
@@ -31,13 +31,13 @@ architecture STRUCTURE of slice_memory_wrapper is
   component slice_memory is
   port (
     BRAM_PORTA_0_addr : in STD_LOGIC_VECTOR ( 6 downto 0 );
-    BRAM_PORTA_0_din : in STD_LOGIC_VECTOR ( 49 downto 0 );
-    BRAM_PORTA_0_dout : out STD_LOGIC_VECTOR ( 49 downto 0 );
+    BRAM_PORTA_0_din : in STD_LOGIC_VECTOR ( 25 downto 0 );
+    BRAM_PORTA_0_dout : out STD_LOGIC_VECTOR ( 25 downto 0 );
     BRAM_PORTA_0_en : in STD_LOGIC;
     BRAM_PORTA_0_we : in STD_LOGIC_VECTOR ( 0 to 0 );
     BRAM_PORTB_0_addr : in STD_LOGIC_VECTOR ( 6 downto 0 );
-    BRAM_PORTB_0_din : in STD_LOGIC_VECTOR ( 49 downto 0 );
-    BRAM_PORTB_0_dout : out STD_LOGIC_VECTOR ( 49 downto 0 );
+    BRAM_PORTB_0_din : in STD_LOGIC_VECTOR ( 25 downto 0 );
+    BRAM_PORTB_0_dout : out STD_LOGIC_VECTOR ( 25 downto 0 );
     BRAM_PORTB_0_en : in STD_LOGIC;
     BRAM_PORTB_0_we : in STD_LOGIC_VECTOR ( 0 to 0 );
     clk : in STD_LOGIC
@@ -47,13 +47,13 @@ begin
 slice_memory_i: component slice_memory
      port map (
       BRAM_PORTA_0_addr(6 downto 0) => BRAM_PORTA_0_addr(6 downto 0),
-      BRAM_PORTA_0_din(49 downto 0) => BRAM_PORTA_0_din(49 downto 0),
-      BRAM_PORTA_0_dout(49 downto 0) => BRAM_PORTA_0_dout(49 downto 0),
+      BRAM_PORTA_0_din(25 downto 0) => BRAM_PORTA_0_din(25 downto 0),
+      BRAM_PORTA_0_dout(25 downto 0) => BRAM_PORTA_0_dout(25 downto 0),
       BRAM_PORTA_0_en => BRAM_PORTA_0_en,
       BRAM_PORTA_0_we(0) => BRAM_PORTA_0_we(0),
       BRAM_PORTB_0_addr(6 downto 0) => BRAM_PORTB_0_addr(6 downto 0),
-      BRAM_PORTB_0_din(49 downto 0) => BRAM_PORTB_0_din(49 downto 0),
-      BRAM_PORTB_0_dout(49 downto 0) => BRAM_PORTB_0_dout(49 downto 0),
+      BRAM_PORTB_0_din(25 downto 0) => BRAM_PORTB_0_din(25 downto 0),
+      BRAM_PORTB_0_dout(25 downto 0) => BRAM_PORTB_0_dout(25 downto 0),
       BRAM_PORTB_0_en => BRAM_PORTB_0_en,
       BRAM_PORTB_0_we(0) => BRAM_PORTB_0_we(0),
       clk => clk

@@ -33,8 +33,6 @@ package util is
 
     function asBit(condition : boolean) return std_logic;
 
-    function "or"(left, right : quad_tile_slice_t) return quad_tile_slice_t;
-
 end package;
 
 package body util is
@@ -175,15 +173,6 @@ package body util is
         else
             return '0';
         end if;
-    end function;
-
-    function "or"(left, right : quad_tile_slice_t) return quad_tile_slice_t is
-        variable res : quad_tile_slice_t;
-    begin
-        for i in 0 to 3 loop
-            res(i) := left(i) or right(i);
-        end loop;
-        return res;
     end function;
 
 end package body;
