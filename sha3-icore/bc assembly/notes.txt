@@ -1,0 +1,24 @@
+AGU Parameters:
+    - InitMode: How consecutive addresses are calculated
+        - 18: Take DirectStride as stride and skip; span and count are set to max
+    - InitData: From which input to take stride, skip, span and count in dynamic modules
+        - Signal0L to Signal3R
+    - BaseAddr: Start Address Source:
+        - Signal0L to Signal3R
+    
+Atom Parameters:
+    - AtomControl: 6 Bit
+    - AtomInput0 to AtomOutput1: Signal0L to Signal3R
+    - MemoryInput: ?
+    - Memory0 to ?: ?
+
+Sha3 Atom control: 6 bit
+    - 0: init
+    - 1: read
+    - 2: write
+    - 3: transmission active
+    - 4: atom index
+
+Sha3 Atom status: 8 bit
+    - 0: ready
+    - 1: transmission active

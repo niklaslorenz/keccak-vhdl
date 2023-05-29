@@ -1,7 +1,8 @@
 Requirements:
     - Pre padded and formatted data in memory
     - Arguments:
-        - $"start address"
+        - $"start address a" for atom 0
+        - $"start address b" for atom 1
         - $"block count"
         - $"result address"
 
@@ -9,8 +10,9 @@ Requirements:
     - Trigger Init signal
     - Atom Index setup
 
-- Setup AGU for atom 0 with $"start address", data width 8 and stride 16
-- Setup AGU for atom 1 with §"start address"+8, data width 8 and stride 16
+- Setup AGU for atom 0 with $"start address a", span 4 and stride 4
+- Setup AGU for atom 1 with §"start address b", span 4 and stride 4
+
 - Wait for atoms to emit "ready"
 - For b in 1 to $"block count"
     - Trigger Read signal
@@ -20,13 +22,10 @@ Requirements:
     - wait for atoms to emit "ready"
 
 - Trigger write signal
-- setup AGU with $"result address", data width 4 and stride 4
-- i <= 0
-- while i < 4
-    - if transmission_active from atom_0 is active
-        - write transmission data from atom_0 to memory
-        - generate next address in agu
-        - i++
+- setup AGU with $"result address", span 4 and stride 4
+- for i in 0 to 3
+    - write transmission data from atom_0 to memory
+    - generate next address in agu
         
 
 
