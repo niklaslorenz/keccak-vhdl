@@ -3,6 +3,7 @@
 
 #relative to the "src" directory
 sources=( \
+"interface/Atom" \
 "types" \
 "util" \
 "modules/memory/memory_block" \
@@ -24,6 +25,7 @@ sources=( \
 "modules/writer" \
 "modules/sha3_atom_controller" \
 "sha3_atom" \
+"dynamic_iterator_atom" \
 )
 
 #relative to the "simulation" directory
