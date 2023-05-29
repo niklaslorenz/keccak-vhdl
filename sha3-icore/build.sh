@@ -132,7 +132,13 @@ touch ./bc_assembly/sha3.bc
 for (( c=0; c<${bc_assembly_steps}; c++))
 do
 cat ${bc_assembly_dir}/step_${c}.bc >> ./bc_assembly/sha3.bc
+if [ $? -ne 0 ]; then
+exit 1
+fi
 done
+if [ $? -ne 0 ]; then
+exit 1
+fi
 
 popd > /dev/null
 exit 0
