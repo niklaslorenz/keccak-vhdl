@@ -13,15 +13,14 @@ architecture dynamic_iterator_atom of Atom is
 
     -- outputs
     signal jump : std_logic;
-
-    -- for edge detection on control signals to handle different lengths of control steps
-    signal init_buf : std_logic;
-    signal reset_buf : std_logic;
-    signal step_buf : std_logic;
-    
-    -- internal state and outputs
     signal target : natural;
     signal iterator : natural;
+
+    -- dynamic control step length adaption
+    signal step_clk : std_logic; -- modified clock signal
+    signal control_step_iterator : natural;
+    signal control_step_length : natural;
+    signal init_buf : std_logic; -- for edge detection
 
 begin
 
@@ -39,20 +38,43 @@ begin
     
     -- logic
     jump <= '1' when (iterator < target) else '0';
-    process(clk) is
+
+    process(step_clk) is
     begin
-        if rising_edge(clk) then
-            if init = '1' and init_buf = '0' then
-                iterator <= 0;
-                target <= target_in;
-            elsif reset = '1' and reset_buf = '0' then
-                iterator <= 0;
-            elsif step = '1' and step_buf = '0' and iterator < target then
+        if rising_edge(step_clk) then
+            if reset = '1' then
+                iterator <= '0';
+            elsif step = '1' and iterator < target then
                 iterator <= iterator + 1;
             end if;
+        end if;
+    end process;
+
+    process(clk) is
+    begin
+        if falling_edge(clk) then
+            step_clk <= '0';
+        end if;
+        if rising_edge(clk) then
+            if init = '1' then
+                if init_buf = '0' then -- first init clock cycle
+                    control_step_length <= 0;
+                    control_step_iterator <= 0;
+                    target <= target_in;
+                    iterator <= 0;
+                else -- consecutive init clock cycles
+                    control_step_length <= control_step_length + 1;
+                end if;
+                step_clk <= '0';
+            else
+                if control_step_iterator >= control_step_length then
+                    step_clk <= '1';
+                    control_step_iterator <= 0;
+                else
+                    control_step_iterator <= control_step_iterator + 1;
+                end if;
+            end if;
             init_buf <= init;
-            reset_buf <= reset;
-            step_buf <= step;
         end if;
     end process;
 

@@ -1,0 +1,34 @@
+-- init atom and jump
+when 0 =>
+    s_control6 <=
+    -- REPLACE_ATOM_CONTROL
+    AtomControl := 000001
+    Input0 := Signal0L
+    -- END_REPLACE
+
+    -- JMP_EXC_CONTROL
+    -- INSTRUCTION := SET_JMP_STEPS
+    -- SET := 00
+    -- VALUE := 3
+    -- SIGN := 1
+    -- END_JMP_EXC_CONTROL
+
+when 1 =>
+    s_control6 <=
+    -- REPLACE_ATOM_CONTROL
+    AtomControl := 000100
+    -- END_REPLACE
+
+when 2 =>
+    s_control6 <=
+    -- REPLACE_ATOM_CONTROL
+    AtomControl := 000000
+    -- END_REPLACE
+
+when 3 =>
+    -- JMP_EXC_CONTROL
+    -- INSTRUCTION := JMP_IF_ATOM_EQ
+    -- ATOM := 10000
+    -- VALUE := 11111111
+    -- END_JMP_EXC_CONTROL
+    
