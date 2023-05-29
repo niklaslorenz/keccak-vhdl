@@ -1,0 +1,75 @@
+
+when 5 =>                       -- forward upper data to atoms
+    s_control1 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control2 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control3 <=
+	-- REPLACE_LSU_CONTROL
+    Signal0R := Memory2 Port0 Address0
+    Signal1R := Memory3 Port0 Address0
+	-- END_REPLACE
+
+	s_control4 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control5 <=
+	-- REPLACE_PACK_CONTROL
+	-- END_REPLACE
+
+	s_control6 <=
+	-- REPLACE_ATOM_CONTROL
+	-- END_REPLACE
+
+	s_control7 <=
+	-- REPLACE_ATOM_CONTROL
+	-- END_REPLACE
+
+	s_control8 <=
+	-- REPLACE_ATOM_CONTROL
+    AtomInput0 := Signal0L
+    AtomInput1 := Signal1L
+	-- END_REPLACE
+
+	s_control9 <=
+	-- REPLACE_ATOM_CONTROL
+    AtomInput0 := Signal0R
+    AtomInput1 := Signal1R
+	-- END_REPLACE
+
+	s_control10 <=
+	-- REPLACE_ATOM_CONTROL
+	-- END_REPLACE
+
+	s_control11 <=
+	-- REPLACE_PACK_CONTROL
+	-- END_REPLACE
+
+	s_control12 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control13 <=
+	-- REPLACE_LSU_CONTROL
+    Signal0L := Memory2 Port0 Address0
+    Signal1L := Memory3 Port0 Address0
+	-- END_REPLACE
+
+	s_control14 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control15 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+    -- JMP_EXC_CONTROL                  -- jump to start of read loop
+    -- INSTRUCTION := JMP_IF_CNT_GT
+    -- SET := 10
+    -- VALUE := 0
+    -- END_JMP_EXC_CONTROL

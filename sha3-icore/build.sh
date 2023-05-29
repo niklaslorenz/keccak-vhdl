@@ -54,6 +54,9 @@ test_sources=( \
 "visualizer" \
 )
 
+#number of bc assembly steps (be careful to include step 0 ;) )
+bc_assembly_steps=17
+
 #END OF CONFIGURATION BLOCK
 #LEAVE THE REST AS IS
 
@@ -61,6 +64,7 @@ src_dir=$(pwd)/src
 sim_dir=$(pwd)/simulation
 test_dir=$(pwd)/test
 test_src_dir=$(pwd)/test_src
+bc_assembly_dir=$(pwd)/bc_assembly
 
 echo export test instances
 mkdir -p ../build/sha3-icore
@@ -119,6 +123,15 @@ echo -e "\e[31mfailed to elaborate test instance ${f}\e[0m"
 popd > /dev/null
 exit 1
 fi
+done
+
+echo build bc assembly file
+mkdir -p ./bc_assembly
+rm -f ./bc_assembly/sha3.bc
+touch ./bc_assembly/sha3.bc
+for (( c=0; c<${bc_assembly_steps}; c++))
+do
+cat ${bc_assembly_dir}/step_${c}.bc >> ./bc_assembly/sha3.bc
 done
 
 popd > /dev/null

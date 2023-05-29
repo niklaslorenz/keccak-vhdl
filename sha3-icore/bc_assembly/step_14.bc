@@ -1,0 +1,72 @@
+
+when 14 =>
+	s_control1 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control2 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control3 <=
+	-- REPLACE_LSU_CONTROL
+    SystemMemoryAddress := AGU0 Port0
+    Phase := 0
+    Access := Write
+    LSU.0 := Memory0 Address1 Port0
+    LSU.1 := Memory1 Address1 Port0
+    LSU.2 := Memory2 Address1 Port0
+    LSU.3 := Memory3 Address1 Port0
+    Memory0[Address2] := Signal0R
+    Memory1[Address2] := Signal1R
+	-- END_REPLACE
+
+	s_control4 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control5 <=
+	-- REPLACE_PACK_CONTROL
+	-- END_REPLACE
+
+	s_control6 <=
+	-- REPLACE_ATOM_CONTROL
+	-- END_REPLACE
+
+	s_control7 <=
+	-- REPLACE_ATOM_CONTROL
+	-- END_REPLACE
+
+	s_control8 <=
+	-- REPLACE_ATOM_CONTROL
+    Signal0L := AtomOutput0
+    Signal1L := AtomOutput1
+	-- END_REPLACE
+
+	s_control9 <=
+	-- REPLACE_ATOM_CONTROL
+	-- END_REPLACE
+
+	s_control10 <=
+	-- REPLACE_ATOM_CONTROL
+	-- END_REPLACE
+
+	s_control11 <=
+	-- REPLACE_PACK_CONTROL
+	-- END_REPLACE
+
+	s_control12 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control13 <=
+	-- REPLACE_LSU_CONTROL
+	-- END_REPLACE
+
+	s_control14 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE
+
+	s_control15 <=
+	-- REPLACE_AGU_CONTROL
+	-- END_REPLACE

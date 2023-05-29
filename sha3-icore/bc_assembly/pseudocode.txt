@@ -1,0 +1,69 @@
+Requirements:
+    - Pre padded and formatted data in memory
+    - Arguments:
+        - $"start address a" for atom 0
+        - $"start address b" for atom 1
+        - $"block count"
+        - $"result address"
+
+- Init atoms: 1 cycle
+    - Trigger Init signal
+    - Atom Index setup
+
+- Setup AGU for atom 0 with $"start address a", span 4 and stride 4
+- Setup AGU for atom 1 with §"start address b", span 4 and stride 4
+
+- Wait for atoms to emit "ready"
+- For b in 1 to $"block count"
+    - Trigger Read signal
+    - For i in 1 to 16
+        - read from memory and forward to atoms
+        - generate next address in agu
+    - wait for atoms to emit "ready"
+
+- Trigger write signal
+- setup AGU with $"result address", span 4 and stride 4
+- for i in 0 to 3
+    - write transmission data from atom_0 to memory
+    - generate next address in agu
+        
+
+
+-- NOTE: maybe add a transmission_active input signal into the atom so it can adapt to the transmission pattern while reading?
+
+jump set 0:
+    wait for atom ready loop
+    jump -1
+
+agu0: s_control1
+agu1: s_control2
+lsu0: s_control3
+atom0: s_control8
+atom1: s_control9
+lsu1: s_control13
+
+step 0:
+    agu0: set address from parameter 0
+    agu1: set address from parameter 1
+    atom0: init with atom_index 0
+    atom1: init with atom_index 1
+    jump control: setup jump set 0
+
+#while atom control equals 0 for atom0 and atom1: loop
+step 1:
+    jump control: jump if atoms equal 0 in set 0
+
+step 2:
+    jump control: set counter for jump set 1 to 3 (3 blocks default)
+
+label: BEGIN_FOR_EACH_BLOCK
+step 3:
+    lsu0: load
+    atom0: trigger read
+    atom1: trigger read
+    lsu1: load
+    jump control: setup jump set 1 to jump back to step 2
+
+step 4:
+    
+

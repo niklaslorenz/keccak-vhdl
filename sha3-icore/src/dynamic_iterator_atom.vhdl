@@ -30,7 +30,7 @@ begin
     step <= control(2);
     target_in <= to_integer(unsigned(input0(30 downto 0))); -- lower 31 bits interpreted as unsigned, msb is ignored
     
-    for i in 0 to 7 generate
+    status_gen : for i in 0 to 7 generate
         status(i) <= jump;
     end generate;
     output0 <= std_logic_vector(to_unsigned(iterator, 32));
@@ -43,7 +43,7 @@ begin
     begin
         if rising_edge(step_clk) then
             if reset = '1' then
-                iterator <= '0';
+                iterator <= 0;
             elsif step = '1' and iterator < target then
                 iterator <= iterator + 1;
             end if;
