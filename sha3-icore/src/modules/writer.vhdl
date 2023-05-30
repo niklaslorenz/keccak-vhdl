@@ -14,7 +14,6 @@ entity writer is
         mem_input_b : out mem_port_input;
         mem_output_b : in mem_port_output;
         transmission : out transmission_t;
-        transmission_active : out std_logic;
         ready : out std_logic
     );
 end entity;
@@ -71,10 +70,8 @@ begin
     begin
         if iterator >= 17 and iterator <= 20 then
             transmission <= hash(iterator - 17);
-            transmission_active <= '1';
         else
             transmission <= (others => '0');
-            transmission_active <= '0';
         end if;
     end process;
 

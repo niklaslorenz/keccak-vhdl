@@ -16,7 +16,6 @@ entity sha3_atom is
         read : in std_logic;
         write : in std_logic;
         ready : out std_logic;
-        transmission_active : out std_logic;
         transmission_in : in transmission_t;
         transmission_out : out transmission_t
     );
@@ -134,7 +133,6 @@ architecture arch of sha3_atom is
             mem_input_b : out mem_port_input;
             mem_output_b : in mem_port_output;
             transmission : out transmission_t;
-            transmission_active : out std_logic;
             ready : out std_logic
         );
     end component;
@@ -310,7 +308,6 @@ begin
         mem_input_b => writer_res_b_in,
         mem_output_b => res_mem_port_b.output,
         transmission => transmission_out,
-        transmission_active => transmission_active,
         ready => writer_ready
     );
 
