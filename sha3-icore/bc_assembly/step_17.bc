@@ -1,5 +1,5 @@
 
-when 16 =>
+when 17 =>
 	s_control1 <=
 	-- REPLACE_AGU_CONTROL
 	-- END_REPLACE
