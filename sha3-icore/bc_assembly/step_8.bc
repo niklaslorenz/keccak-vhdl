@@ -72,5 +72,5 @@ when 8 =>                       -- atoms still process the block, set block loop
     -- INSTRUCTION := SET_CNT_OP
     -- SET := 01
     -- OP := 0010
-    -- VALUE := 1
+    -- VALUE := 00000001
     -- END_JMP_EXC_CONTROL

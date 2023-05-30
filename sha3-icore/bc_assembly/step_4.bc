@@ -79,5 +79,5 @@ when 4 =>                           -- load data
     -- INSTRUCTION := SET_CNT_OP
     -- SET := 10
     -- OP := 0010
-    -- VALUE := 1
+    -- VALUE := 00000001
     -- END_JMP_EXC_CONTROL

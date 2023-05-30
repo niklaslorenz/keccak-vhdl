@@ -71,5 +71,6 @@ when 5 =>                       -- forward lower data to atoms
     -- JMP_EXC_CONTROL
     -- INSTRUCTION := SET_JMP_STEPS
     -- SET := 10
-    -- VALUE := 3
+	-- SIGN := 1
+    -- VALUE := 00000011
     -- END_JMP_EXC_CONTROL

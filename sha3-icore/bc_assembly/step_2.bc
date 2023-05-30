@@ -63,5 +63,5 @@ when 2 =>                       -- set jump count for jump set 01 to 3 (only 3 b
     -- JMP_EXC_CONTROL              -- set block loop counter to 3 (3 blocks default)
     -- INSTRUCTION := SET_CNT
     -- SET := 01
-    -- VALUE := 3
+    -- VALUE := 000000000011
     -- END_JMP_EXC_CONTROL

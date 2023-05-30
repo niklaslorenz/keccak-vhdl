@@ -71,5 +71,5 @@ when 5 =>                       -- forward upper data to atoms
     -- JMP_EXC_CONTROL                  -- jump to start of read loop
     -- INSTRUCTION := JMP_IF_CNT_GT
     -- SET := 10
-    -- VALUE := 0
+    -- VALUE := 000000000000
     -- END_JMP_EXC_CONTROL

@@ -71,5 +71,5 @@ when 7 =>                       -- atoms process the block, setup block loop jum
     -- JMP_EXC_CONTROL
     -- INSTRUCTION := SET_JMP_STEPS
     -- SET := 01
-    -- VALUE := 5
+    -- VALUE := 00000101
     -- END_JMP_EXC_CONTROL

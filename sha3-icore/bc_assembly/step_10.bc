@@ -63,5 +63,5 @@ when 10 =>                       -- block done, jump to begin of block loop
     -- JMP_EXC_CONTROL
     -- INSTRUCTION := JMP_IF_CNT_GT
     -- SET := 01
-    -- VALUE := 0
+    -- VALUE := 000000000000
     -- END_JMP_EXC_CONTROL

@@ -63,6 +63,6 @@ when 1 =>                               -- wait until atoms emit ready
     -- JMP_EXC_CONTROL                  -- wait loop (jump if atom0 = 0 and atom1 = 0)
     -- INSTRUCTION := JMP_IF_ATOM_EQ
     -- SET := 00
-    -- VALUE := 0
+    -- VALUE := 00
     -- AC := 01100
     -- END_JMP_EXC_CONTROL

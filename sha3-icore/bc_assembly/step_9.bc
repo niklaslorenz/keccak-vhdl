@@ -72,5 +72,5 @@ when 9 =>                       -- wait for atoms to finish the block
     -- INSTRUCTION := JMP_IF_ATOM_EQ
     -- SET := 00
     -- AC := 01100
-    -- VALUE := 0
+    -- VALUE := 00
     -- END_JMP_EXC_CONTROL

@@ -71,6 +71,6 @@ when 0 =>                           -- init atoms; setup AGUs; prepare wait loop
 	-- JMP_EXC_CONTROL                  -- setup jump set 0 as wait loop
     -- INSTRUCTION := SET_JMP_STEPS
     -- SET := 00
-    -- VALUE := 1
+    -- VALUE := 00000001
     -- SIGN := 1
 	-- END_JMP_EXC_CONTROL

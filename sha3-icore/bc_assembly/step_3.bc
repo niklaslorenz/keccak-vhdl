@@ -66,5 +66,5 @@ when 3 =>                           -- switch atoms to read mode
     -- JMP_EXC_CONTROL                  -- set read loop counter to 8
     INSTRUCTION := SET_CNT
     SET := 10
-    VALUE := 8
+    VALUE := 000000001000
     -- END_JMP_EXC_CONTROL
