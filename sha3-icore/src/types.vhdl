@@ -45,6 +45,8 @@ package types is
     type buffer_data_t is array(natural range 6 downto 0) of std_logic_vector(3 downto 0);
 
     function "or"(left, right : quad_tile_slice_t) return quad_tile_slice_t;
+
+    function "xor"(left, right : double_tile_slice_t) return double_tile_slice_t;
     
     function "or"(left, right : mem_port_input) return mem_port_input;
 
@@ -59,6 +61,11 @@ package body types is
             res(i) := left(i) or right(i);
         end loop;
         return res;
+    end function;
+
+    function "xor"(left, right : double_tile_slice_t) return double_tile_slice_t is
+    begin
+        return (left(1) xor right(1), left(0) xor right(0));
     end function;
     
     function "or"(left, right : mem_port_input) return mem_port_input is
