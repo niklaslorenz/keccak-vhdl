@@ -10,13 +10,10 @@ when 16 =>
 
 	s_control3 <=
 	-- REPLACE_LSU_CONTROL
-    SystemMemoryAddress := AGU0 Port0
-    Phase := 0
-    Access := Write
-    LSU.0 := Memory0 Address2 Port0
-    LSU.1 := Memory1 Address2 Port0
-    LSU.2 := Memory2 Address2 Port0
-    LSU.3 := Memory3 Address2 Port0
+	Memory0[Address2] := Signal0R
+	Memory1[Address2] := Signal1R
+	Memory2[Address2] := Signal2R
+	Memory3[Address2] := Signal3R
 	-- END_REPLACE
 
 	s_control4 <=
@@ -37,6 +34,10 @@ when 16 =>
 
 	s_control8 <=
 	-- REPLACE_ATOM_CONTROL
+	Signal0L := Memory0 Port0 Address2
+	Signal1L := Memory1 Port0 Address2
+	Signal2L := Memory0 Port1 Address3
+	Signal3L := Memory1 Port1 Address3
 	-- END_REPLACE
 
 	s_control9 <=

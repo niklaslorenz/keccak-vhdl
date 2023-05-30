@@ -55,7 +55,7 @@ test_sources=( \
 )
 
 #number of bc assembly steps (be careful to include step 0 ;) )
-bc_assembly_steps=17
+bc_assembly_steps=18
 
 #END OF CONFIGURATION BLOCK
 #LEAVE THE REST AS IS

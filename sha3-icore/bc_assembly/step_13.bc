@@ -10,8 +10,6 @@ when 13 =>
 
 	s_control3 <=
 	-- REPLACE_LSU_CONTROL
-    Memory2[Address1] := Signal0R
-    Memory3[Address1] := Signal1R
 	-- END_REPLACE
 
 	s_control4 <=
@@ -32,8 +30,9 @@ when 13 =>
 
 	s_control8 <=
 	-- REPLACE_ATOM_CONTROL
-    Signal0L := AtomOutput0
-    Signal1L := AtomOutput1
+	MemoryInput := FromAtomOutput
+	Memory0 := Address1
+	Memory1 := Address1
 	-- END_REPLACE
 
 	s_control9 <=

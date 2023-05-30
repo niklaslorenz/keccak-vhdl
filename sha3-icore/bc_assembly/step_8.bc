@@ -32,16 +32,22 @@ when 8 =>                       -- atoms still process the block, set block loop
 	-- REPLACE_ATOM_CONTROL
     AtomInput0 := Signal0R
     AtomInput1 := Signal1R
-    Signal0R := AtomOutput0
-    Signal1R := AtomOutput1
+	MemoryInput := FromAtomOutput
+	Memory0 := Address0
+	Memory1 := Address0
+    Signal0R := Memory0 Port0 Address0
+    Signal1R := Memory1 Port0 Address0
 	-- END_REPLACE
 
 	s_control9 <=
 	-- REPLACE_ATOM_CONTROL
     AtomInput0 := Signal0L
     AtomInput1 := Signal1L
-    Signal0L := AtomOutput0
-    Signal1L := AtomOutput1
+	MemoryInput := FromAtomOutput
+	Memory0 := Address0
+	Memory1 := Address0
+    Signal0L := Memory0 Port0 Address0
+    Signal1L := Memory1 Port0 Address0
 	-- END_REPLACE
 
 	s_control10 <=
