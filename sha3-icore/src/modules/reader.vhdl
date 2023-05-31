@@ -34,7 +34,6 @@ architecture arch of reader is
     signal data : quad_tile_slice_t;
     signal writing_data : double_tile_slice_t;
 
-
 begin
 
     reading <= iterator >= reading_offset and iterator < reading_offset + reading_duration;
@@ -49,17 +48,17 @@ begin
     data(3) <= transmission_high(28 downto  16);
 
     with (iterator - writing_offset) mod 2 select writing_data <=
-        data(1 downto 0) when 0,
-        data(3 downto 2) when 1;
+        double_tile_slice_t(data(1 downto 0)) when 0,
+        double_tile_slice_t(data(3 downto 2)) when others;
 
     mem_input_a.en <= asBit(reading);
     mem_input_a.we <= '0';
-    mem_input_a.addr <= filterAddress(iterator - reading_offset, reading);
+    mem_input_a.addr <= filterAddress(iterator, reading_offset, reading);
     mem_input_a.data <= dt_zero;
 
     mem_input_b.en <= '0';
     mem_input_b.we <= asBit(writing);
-    mem_input_b.addr <= filterAddress(iterator - writing_offset, writing);
+    mem_input_b.addr <= filterAddress(iterator, writing_offset, writing);
     mem_input_b.data <= filterData(writing_data xor mem_output_a.data, writing);
 
     ready <= asBit(iterator = iterator_max);
