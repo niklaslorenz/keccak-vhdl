@@ -21,8 +21,8 @@ begin
 
     running <= iterator < 16;
 
-    port_a_in.data <= ((others => '0'), (others => '0'));
-    port_b_in.data <= ((others => '0'), (others => '0'));
+    port_a_in.data <= dt_zero;
+    port_b_in.data <= dt_zero;
 
     port_a_in.en <= '0';
     port_b_in.en <= '0';

@@ -8,4 +8,6 @@ package test_types is
 
     type lane_aligned_block_t is array(natural range 12 downto 0) of lane_t;
 
+    type full_lane_aligned_block_t is array(natural range 24 downto 0) of lane_t;
+
 end package;

@@ -22,18 +22,24 @@ architecture arch of reader is
     constant iterator_max : integer := 50;
     constant reading_offset : integer := 1;
     constant reading_duration : integer := 32;
-    constant writing_offset : integer := 4;
+    constant writing_offset : integer := 2;
     constant writing_duration : integer := 32;
 
 
     subtype iterator_t is integer range 0 to iterator_max;
-    signal iterator : iterator_t := 0;
+    signal iterator : iterator_t := iterator_max;
+    signal reading : boolean;
+    signal writing : boolean;
 
     signal transmission_low, transmission_high : std_logic_vector(31 downto 0);
     signal data : quad_tile_slice_t;
     signal writing_data : double_tile_slice_t;
 
+
 begin
+
+    reading <= iterator >= reading_offset and iterator < reading_offset + reading_duration;
+    writing <= iterator >= writing_offset and iterator < writing_offset + writing_duration;
 
     transmission_low <= transmission(31 downto 0);
     transmission_high <= transmission(63 downto 32);
@@ -43,23 +49,25 @@ begin
     data(2) <= transmission_high(12 downto  0);
     data(3) <= transmission_high(28 downto  16);
 
-    writing_data <= (data(1), data(0)) when (iterator - writing_offset) mod 2 = 0 else (data(3), data(2));
+    with (iterator - writing_offset) mod 2 select writing_data <=
+        data(1 downto 0) when 0,
+        data(3 downto 2) when 1;
 
-    mem_input_a.en <= asBit(iterator >= reading_offset and iterator < reading_offset + reading_duration);
+    mem_input_a.en <= asBit(reading);
     mem_input_a.we <= '0';
-    mem_input_a.addr <= 0;
-    mem_input_a.data <= ((others => '0'), (others => '0'));
+    mem_input_a.addr <= filterAddress(iterator - reading_offset, reading);
+    mem_input_a.data <= dt_zero;
 
     mem_input_b.en <= '0';
-    mem_input_b.we <= asBit(iterator >= writing_offset and iterator < writing_offset + writing_duration);
-    mem_input_b.addr <= iterator - writing_offset;
-    mem_input_b.data <= writing_data xor mem_output_a.data when enable = '1' else ((others => '0'), (others => '0'));
+    mem_input_b.we <= asBit(writing);
+    mem_input_b.addr <= filterAddress(iterator - writing_offset, writing);
+    mem_input_b.data <= filterData(writing_data xor mem_output_a.data, writing);
 
     ready <= asBit(iterator = iterator_max);
 
     process(clk) is
     begin
-        if rising_edge(clk) and enable = '1' then
+        if rising_edge(clk) then
             if init = '1' then
                 iterator <= 0;
             elsif iterator < iterator_max then

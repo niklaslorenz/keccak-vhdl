@@ -16,6 +16,8 @@ package types is
     type double_remote_tile_slice_t is array(natural range 1 downto 0) of remote_tile_slice_t;
     subtype transmission_t is std_logic_vector(63 downto 0);
 
+    constant dt_zero : double_tile_slice_t := ((others => '0'), (others => '0'));
+
     --Indices
     subtype atom_index_t is natural range 0 to 1;
     subtype round_index_t is natural range 0 to 23;

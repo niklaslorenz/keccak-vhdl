@@ -4,7 +4,7 @@ use work.types.all;
 use work.test_types.all;
 
 package test_util is
-    
+
     procedure rho(data : inout block_t; atom_index : atom_index_t);
     
     function rho_function(data : block_t; atom_index : atom_index_t) return block_t;
@@ -22,6 +22,12 @@ package test_util is
     function isValid(state : block_t) return boolean;
 
     function to_slice_aligned_block(state : lane_aligned_block_t) return block_t;
+
+    function block_from_hex_text(text : std_logic_vector(1087 downto 0)) return full_lane_aligned_block_t;
+
+    function upper_block(full_block : full_lane_aligned_block_t) return block_t;
+
+    function lower_block(full_block : full_lane_aligned_block_t) return block_t;
 
 end package;
 
@@ -102,6 +108,42 @@ package body test_util is
             end loop;
         end loop;
         return result;
+    end function;
+
+    function block_from_hex_text(text : std_logic_vector(1087 downto 0)) return full_lane_aligned_block_t is
+        constant extension : std_logic_vector(511 downto 0) := (others => '0');
+        variable extended : std_logic_vector(1599 downto 0);
+        variable res : full_lane_aligned_block_t;
+        variable current_lane : lane_t;
+        variable flipped_lane : lane_t;
+    begin
+        extended := text & extension;
+        for i in 0 to 24 loop
+            current_lane := extended(64 * i + 63 downto 64 * i);
+            for j in 0 to 7 loop
+                flipped_lane(8 * j + 7 downto 8 * j) := current_lane(8 * (7 - j) + 7 downto 8 * (7 - j));
+            end loop;
+            res(i) := flipped_lane;
+        end loop;
+        return res;
+    end function;
+
+    function lower_block(full_block : full_lane_aligned_block_t) return block_t is
+        variable temp : lane_aligned_block_t;
+    begin
+        for i in 0 to 12 loop
+            temp(i) := full_block(24 - i);
+        end loop;
+        return to_slice_aligned_block(temp);
+    end function;
+
+    function upper_block(full_block : full_lane_aligned_block_t) return block_t is
+        variable temp : lane_aligned_block_t;
+    begin
+        for i in 0 to 12 loop
+            temp(i) := full_block(12 - i);
+        end loop;
+        return to_slice_aligned_block(temp);
     end function;
 
 end package body;

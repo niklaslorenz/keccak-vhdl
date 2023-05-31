@@ -33,6 +33,10 @@ package util is
 
     function asBit(condition : boolean) return std_logic;
 
+    function filterAddress(addr : mem_addr_t; filter : boolean) return mem_addr_t;
+
+    function filterData(data : double_tile_slice_t; filter : boolean) return double_tile_slice_t;
+
 end package;
 
 package body util is
@@ -173,6 +177,16 @@ package body util is
         else
             return '0';
         end if;
+    end function;
+
+    function filterAddress(addr : mem_addr_t; filter : boolean) return mem_addr_t is
+    begin
+        return addr when filter else 0;
+    end function;
+
+    function filterData(data : double_tile_slice_t; filter : boolean) return double_tile_slice_t is
+    begin
+        return data when filter else ((others => '0'), (others => '0'));
     end function;
 
 end package body;
