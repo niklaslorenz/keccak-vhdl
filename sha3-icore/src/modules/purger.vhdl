@@ -28,15 +28,18 @@ begin
     port_b_in.en <= '0';
 
     port_a_in.we <= asBit(running);
-    port_a_in.we <= asBit(running);
+    port_b_in.we <= asBit(running);
 
-    ready <= asBit(running);
+    ready <= asBit(not running and start /= '1');
 
-    process(iterator) is
+    process(iterator, running) is
     begin
         if running then
             port_a_in.addr <= iterator;
             port_b_in.addr <= iterator + 16;
+        else
+            port_a_in.addr <= 0;
+            port_b_in.addr <= 0;
         end if;
     end process;
 
