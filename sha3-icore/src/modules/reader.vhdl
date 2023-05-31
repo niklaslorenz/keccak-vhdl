@@ -8,7 +8,6 @@ entity reader is
     port(
         clk : in std_logic;
         init : in std_logic;
-        enable : in std_logic;
         transmission : in transmission_t;
         mem_input_a : out mem_port_input;
         mem_output_a : in mem_port_output;
