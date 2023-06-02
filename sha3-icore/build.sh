@@ -44,6 +44,7 @@ test_instances=( \
 "theta_test" \
 "single_slice_calculator_test" \
 "gamma_calculator_test" \
+"sha3_atom_test" \
 )
 
 #relative to the "test_src" directory

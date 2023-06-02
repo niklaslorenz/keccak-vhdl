@@ -75,10 +75,10 @@ architecture arch of sha3_atom is
         port(
             clk : in std_logic;
             init : in std_logic;
-            enable : in std_logic;
-            atom_index : in atom_index_t;
             transmission : in transmission_t;
-            mem_input : out mem_port_input;
+            mem_input_a : out mem_port_input;
+            mem_output_a : in mem_port_output;
+            mem_input_b : out mem_port_input;
             ready : out std_logic
         );
     end component;
@@ -153,6 +153,7 @@ architecture arch of sha3_atom is
     signal reader_enable : std_logic;
     signal reader_ready : std_logic;
     signal reader_res_a_in : mem_port_input;
+    signal reader_res_b_in : mem_port_input;
 
     signal gamma_enable : std_logic;
     signal gamma_init : std_logic;
@@ -182,21 +183,18 @@ architecture arch of sha3_atom is
 
     -- data signals
 
-    signal buffered_transmission_in : transmission_t;
-
     signal atom_index : atom_index_t;
 
 begin
 
     res_mem_port_a.input <= purger_res_a_in or reader_res_a_in or gamma_res_a_in or rho_res_a_in or writer_res_a_in;
-    res_mem_port_b.input <= purger_res_b_in                    or gamma_res_b_in or rho_res_b_in or writer_res_b_in;
+    res_mem_port_b.input <= purger_res_b_in or reader_res_b_in or gamma_res_b_in or rho_res_b_in or writer_res_b_in;
     gam_mem_port_a.input <=                                       gamma_gam_a_in or rho_gam_a_in;
     gam_mem_port_b.input <=                                       gamma_gam_b_in or rho_gam_b_in;
 
     process(clk) is
     begin
         if rising_edge(clk) then
-            buffered_transmission_in <= transmission_in;
             if init = '1' then
                 atom_index <= atom_index_input;
             end if;
@@ -256,10 +254,10 @@ begin
     rdr : reader port map(
         clk => clk,
         init => reader_init,
-        enable => reader_enable,
-        atom_index => atom_index,
         transmission => transmission_in,
-        mem_input => reader_res_a_in,
+        mem_input_a => reader_res_a_in,
+        mem_output_a => res_mem_port_a.output,
+        mem_input_b => reader_res_b_in,
         ready => reader_ready
     );
 
@@ -277,7 +275,7 @@ begin
         res_mem_port_b_out => res_mem_port_b.output,
         gam_mem_port_a_in => gamma_gam_a_in,
         gam_mem_port_b_in => gamma_gam_b_in,
-        transmission_in => buffered_transmission_in,
+        transmission_in => transmission_in,
         transmission_out => transmission_out,
         ready => gamma_ready
     );

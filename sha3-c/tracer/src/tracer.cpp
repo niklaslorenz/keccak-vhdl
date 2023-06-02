@@ -98,8 +98,8 @@ std::function<int(int argc, const char** argv, std::istream&, std::ostream&)> ge
     auto padFunction = getPadFunction(name);
     if(padFunction != nullptr) {
         return [padFunction, name](int argc, const char** argv, std::istream& input, std::ostream& output) {
-            if(argc != 1) {
-                std::cout << "expected one function parameter for function " << name << ": <block size>" << std::endl;
+            if(argc != 0) {
+                std::cout << "expected no function parameter for function " << name << std::endl;
             }
             padFunction(input, output);
             return 0;
@@ -111,7 +111,7 @@ std::function<int(int argc, const char** argv, std::istream&, std::ostream&)> ge
 
 int main(int argc, const char** argv) {
 
-    const std::string syntax = "Usage: tracer <function> <function parameters> <input file> <output file>";
+    const std::string syntax = "Usage: tracer <function> [function parameters] <input file> <output file>";
 
     if(argc < 4) {
         std::cout << syntax << std::endl;
