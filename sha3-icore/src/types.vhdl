@@ -74,7 +74,7 @@ package body types is
         variable res : mem_port_input;
     begin
         res.en := left.en or right.en;
-        res.we := left.en or right.en;
+        res.we := left.we or right.we;
         res.addr := to_integer(unsigned(std_logic_vector(to_unsigned(left.addr, 7)) or std_logic_vector(to_unsigned(right.addr, 7))));
         res.data := (left.data(0) or right.data(0), left.data(1) or right.data(1));
         return res;

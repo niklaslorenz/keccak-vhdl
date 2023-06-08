@@ -15,7 +15,6 @@ architecture arch of rho_buffer_test is
         port(
             clk : in std_logic;
             init : in std_logic;
-            enable : in std_logic;
             atom_index : in atom_index_t;
             gam_port_a_in : out mem_port_input;
             gam_port_a_out : in mem_port_output;
@@ -54,7 +53,6 @@ architecture arch of rho_buffer_test is
     signal gam_a, gam_b, res_a, res_b : mem_port := mem_port_init;
 
     signal init : std_logic := '0';
-    signal enable : std_logic := '0';
     signal atom_index : atom_index_t := 0;
     signal ready : std_logic;
     signal gam_manual : std_logic := '0';
@@ -74,7 +72,7 @@ begin
     gam_mem : manual_port_memory_block port map(clk, gam_manual, manual_in, gam_a.input, gam_a.output, gam_b.input, gam_b.output);
     res_mem : manual_port_memory_block port map(clk, res_manual, manual_in, res_a.input, res_a.output, res_b.input, res_b.output);
 
-    buf : rho_buffer port map(clk, init, enable, atom_index,
+    buf : rho_buffer port map(clk, init, atom_index,
         gam_a.input, gam_a.output, gam_b.input, gam_b.output,
         res_a.input, res_a.output, res_b.input, res_b.output,
         ready);
@@ -154,7 +152,6 @@ begin
         gam_manual <= '0';
         -- Calculate shifts, left shift result should be in gam_mem from address 6, right shift in res_mem from address 0
         stage <= shift;
-        enable <= '1';
         init <= '1';
         wait until rising_edge(clk);
         init <= '0';
