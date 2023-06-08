@@ -18,8 +18,8 @@ end entity;
 
 architecture arch of reader is
 
-    constant iterator_max : integer := 50;
-    constant reading_offset : integer := 1;
+    constant iterator_max : integer := 34;
+    constant reading_offset : integer := 0;
     constant reading_duration : integer := 32;
     constant writing_offset : integer := 2;
     constant writing_duration : integer := 32;
@@ -61,7 +61,7 @@ begin
     mem_input_b.addr <= filterAddress(iterator, writing_offset, writing);
     mem_input_b.data <= filterData(writing_data xor mem_output_a.data, writing);
 
-    ready <= asBit(iterator = iterator_max);
+    ready <= asBit(iterator = iterator_max and init /= '1');
 
     process(clk) is
     begin
