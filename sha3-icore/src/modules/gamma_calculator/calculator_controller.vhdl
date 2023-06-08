@@ -6,7 +6,6 @@ use work.util.all;
 entity calculator_controller is
     port(
         clk : in std_logic;
-        enable : in std_logic;
         init : in std_logic;
         atom_index : in atom_index_t;
         round : in round_index_t;
@@ -36,7 +35,7 @@ architecture arch of calculator_controller is
     constant writing_duration : natural := 16;
 
     subtype iterator_t is natural range 0 to iterator_max;
-    signal iterator : iterator_t;
+    signal iterator : iterator_t := iterator_max;
     signal local_offset, remote_offset : natural range 0 to 16;
 
     signal reading_local : boolean;
@@ -65,7 +64,7 @@ begin
     gam_b_we <= asBit(writing_remote);
     gam_b_addr <= filterAddress(iterator + remote_offset, writing_remote_offset, writing_remote);
 
-    ready <= asBit(iterator = 22);
+    ready <= asBit(iterator = iterator_max and init /= '1');
 
     process(iterator, atom_index) is
     begin
@@ -94,7 +93,7 @@ begin
 
     process(clk) is
     begin
-        if rising_edge(clk) and enable = '1' then
+        if rising_edge(clk) then
             if init = '1' then
                 iterator <= 0;
             elsif iterator < iterator_max then

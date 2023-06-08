@@ -28,7 +28,6 @@ architecture arch of gamma_calculator_test is
     component gamma_calculator is
         port(
             clk : in std_logic;
-            enable : in std_logic;
             init : in std_logic;
             atom_index : in atom_index_t;
             round : in round_index_t;
@@ -73,7 +72,6 @@ architecture arch of gamma_calculator_test is
     signal atom_1_res_a : mem_port := mem_port_init;
     signal atom_1_res_b : mem_port := mem_port_init;
 
-    signal enable : std_logic := '0';
     signal init : std_logic := '0';
     signal round : round_index_t := 0;
     signal theta_only : std_logic := '0';
@@ -127,7 +125,6 @@ begin
 
     atom_0_calc : gamma_calculator port map(
         clk => clk,
-        enable => enable,
         init => init,
         atom_index => 0,
         round => round,
@@ -166,7 +163,6 @@ begin
 
     atom_1_calc : gamma_calculator port map(
         clk => clk,
-        enable => enable,
         init => init,
         atom_index => 1,
         round => round,
@@ -222,7 +218,6 @@ begin
         atom_1_res_manual_in <= mem_port_init.input;
         wait until rising_edge(clk);
         -- test theta only
-        enable <= '1';
         init <= '1';
         theta_only <= '1';
         wait until rising_edge(clk);
@@ -231,7 +226,6 @@ begin
             wait until rising_edge(clk);
         end loop;
         assert atom_1_ready = '1' report "expected atom 1 to be ready" severity FAILURE;
-        enable <= '0';
         theta_only <= '0';
         atom_0_gam_manual <= '1';
         atom_1_gam_manual <= '1';

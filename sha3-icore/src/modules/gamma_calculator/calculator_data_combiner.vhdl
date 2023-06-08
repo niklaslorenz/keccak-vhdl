@@ -5,7 +5,7 @@ use work.types.all;
 entity calculator_data_combiner is
     port(
         atom_index : in atom_index_t;
-        enable : in std_logic;
+        running : in std_logic;
         data : out double_slice_t;
         remote_data : in double_tile_slice_t;
         local_data : in double_tile_slice_t;
@@ -27,17 +27,17 @@ begin
         end if;
     end process;
 
-    process(atom_index, enable, result) is
+    process(atom_index, running, result) is
     begin
         if atom_index = 0 then
-            if enable = '1' then
+            if running = '1' then
                 local_result <= (result(1)(12 downto  0), result(0)(12 downto  0));
             else
                 local_result <= ((others => '0'), (others => '0'));
             end if;
             remote_result <= (result(1)(24 downto 12), result(0)(24 downto 12));
         else
-            if enable = '1' then
+            if running = '1' then
                 local_result  <= (result(1)(24 downto 12), result(0)(24 downto 12));
             else
                 local_result <= ((others => '0'), (others => '0'));

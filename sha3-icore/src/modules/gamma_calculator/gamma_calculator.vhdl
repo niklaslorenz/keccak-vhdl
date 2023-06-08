@@ -8,7 +8,6 @@ use work.calculator_controller;
 entity gamma_calculator is
     port(
         clk : in std_logic;
-        enable : in std_logic;
         init : in std_logic;
         atom_index : in atom_index_t;
         round : in round_index_t;
@@ -30,7 +29,7 @@ architecture arch of gamma_calculator is
 
     component calculator_transmission_converter is
         port(
-            enable : in std_logic;
+            running : in std_logic;
             transmission_in : in transmission_t;
             transmission_out : out transmission_t;
             data_slice_receive : out double_tile_slice_t;
@@ -43,7 +42,7 @@ architecture arch of gamma_calculator is
     component calculator_data_combiner is
         port(
             atom_index : in atom_index_t;
-            enable : in std_logic;
+            running : in std_logic;
             data : out double_slice_t;
             remote_data : in double_tile_slice_t;
             local_data : in double_tile_slice_t;
@@ -56,7 +55,6 @@ architecture arch of gamma_calculator is
     component calculator_controller is
         port(
             clk : in std_logic;
-            enable : in std_logic;
             init : in std_logic;
             atom_index : in atom_index_t;
             round : in round_index_t;
@@ -86,6 +84,9 @@ architecture arch of gamma_calculator is
         );
     end component;
 
+    signal running : std_logic;
+    signal ctl_ready : std_logic;
+
     signal round_constant : std_logic_vector(1 downto 0);
 
     -- data
@@ -102,11 +103,14 @@ architecture arch of gamma_calculator is
 
 begin
 
+    running <= not ctl_ready;
+    ready <= ctl_ready;
+
     combined_data_0 <= combined_data(0);
     combined_data_1 <= combined_data(1);
 
     converter : calculator_transmission_converter port map(
-        enable => enable,
+        running => running,
         transmission_in => transmission_in,
         transmission_out => transmission_out,
         data_slice_receive => received_data,
@@ -117,7 +121,7 @@ begin
 
     combiner : calculator_data_combiner port map(
         atom_index => atom_index,
-        enable => enable,
+        running => running,
         data => combined_data,
         remote_data => received_data,
         local_data => res_mem_port_a_out.data,
@@ -128,7 +132,6 @@ begin
 
     controller : calculator_controller port map(
         clk => clk,
-        enable => enable,
         init => init,
         atom_index => atom_index,
         round => round,
@@ -143,7 +146,7 @@ begin
         gam_b_en => gam_mem_port_b_in.en,
         gam_b_we => gam_mem_port_b_in.we,
         gam_b_addr => gam_mem_port_b_in.addr,
-        ready => ready
+        ready => ctl_ready
     );
 
     calc : clocked_double_slice_calculator port map(
