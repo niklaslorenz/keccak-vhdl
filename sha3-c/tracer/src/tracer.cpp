@@ -9,6 +9,8 @@
 #include <sha3/sha3.h>
 #include <sstream>
 #include <functional>
+#include <bitset>
+#include <cstring>
 
 void execute(const std::function<void(keccak::StateArray&, const keccak::StateArray&)>& f, std::istream& input, std::ostream& output) {
     keccak::StateArray state;
@@ -20,8 +22,100 @@ void execute(const std::function<void(keccak::StateArray&, const keccak::StateAr
             break;
         }
         f(result, state);
+
         output << result << std::endl;
     }
+}
+
+const std::function<void(std::istream& input, std::ostream& output)> getReformatFunction(const std::string& name) {
+    if(name == "array2slices") {
+        return [](std::istream& input, std::ostream& output) {
+            keccak::StateArray state;
+            input >> state;
+            
+            for(int i = 0; i < 64; i++) {
+                int tile_slice = 0;
+                for(int j = 12; j >= 0; j--) {
+                    int x = j % 5;
+                    int y = j / 5;
+                    tile_slice = (tile_slice << 1) | (state[y][x] >> i) & 1;
+                }
+                output << "slice " << std::dec << std::setw(2) << std::setfill('0') << i << ": " << std::flush
+                << std::hex << std::setw(4) << std::setfill('0') << tile_slice << std::flush
+                << " | " << std::bitset<13>(tile_slice) << std::endl;
+            }
+            output << std::endl;
+
+            for(int i = 0; i < 64; i++) {
+                int tile_slice = 0;
+                for(int j = 24; j >= 12; j--) {
+                    int x = j % 5;
+                    int y = j / 5;
+                    tile_slice = (tile_slice << 1) | (state[y][x] >> i) & 1;
+                }
+                output << "slice " << std::dec << std::setw(2) << std::setfill('0') << i << ": " << std::flush
+                << std::hex << std::setw(4) << std::setfill('0') << tile_slice << std::flush
+                << " | " << std::bitset<13>(tile_slice) << std::endl;
+            }
+
+            output << std::dec << std::flush;
+        };
+    }
+    if(name == "pad2array") {
+        return [](std::istream& input, std::ostream& output){
+            keccak::StateArray state;
+            memset(&state, 0, 200);
+            std::string line;
+            std::getline(input, line);
+
+            if(line.length() != 1088 / 8 * 2) {
+                std::cout << "Wrong input length" << std::endl;
+                return;
+            }
+
+            size_t iterator = 0;
+            for(int i = 0; i < 17; i++) {
+                int x = i % 5;
+                int y = i / 5;
+                char* lane = (char*)(void*) &state[y][x];
+                for(int j = 0; j < 8; j++) {
+                    char dat = std::stoi(line.substr(iterator, 2), 0, 16);
+                    iterator += 2;
+                    lane[j] = dat;
+                }
+            }
+
+            output << state << std::endl;
+        };
+    }
+    if(name == "array2lanes") {
+        return [](std::istream& input, std::ostream& output){
+            keccak::StateArray state;
+            input >> state;
+            for(int y = 4; y >= 0; y--) {
+                for(int x = 4; x >= 0; x--) {
+                    output << "lane " << std::dec << std::setw(2) << std::setfill('0') << y * 5 + x << ": " << std::flush
+                    << std::hex << std::setw(16) << std::setfill('0') << state[y][x] << std::endl << std::flush;
+                }
+            }
+            output << std::dec;
+        };
+    }
+    if(name == "array2binary") {
+        return [](std::istream& input, std::ostream& output) {
+            keccak::StateArray state;
+            input >> state;
+            for(int y = 4; y >= 0; y--) {
+                for(int x = 4; x >= 0; x--) {
+                    output << "lane " << std::dec << std::setw(2) << std::setfill('0') << y * 5 + x << ": "
+                    << std::hex << std::setw(16) << std::setfill('0') << state[y][x] << " | " << std::flush
+                    << std::flush << std::bitset<64>(state[y][x]) << std::endl;
+                }
+            }
+            output << std::dec;
+        };
+    }
+    return nullptr;
 }
 
 const std::function<void(std::istream& input, std::ostream& output)> getPadFunction(const std::string& name) {
@@ -51,6 +145,7 @@ const std::function<void(std::istream& input, std::ostream& output)> getPadFunct
 std::function<void(keccak::StateArray&, const keccak::StateArray&, uint8_t)> getRoundDependentFunction(const std::string& name) {
     if(name == "iota") return keccak::iota;
     if(name == "keccak-p") return keccak::keccak_p;
+    if(name == "gamma") return keccak::gamma;
     return nullptr;
 }
 
@@ -106,6 +201,17 @@ std::function<int(int argc, const char** argv, std::istream&, std::ostream&)> ge
         };
     }
 
+    auto reformatFunction = getReformatFunction(name);
+    if(reformatFunction != nullptr) {
+        return [reformatFunction, name](int argc, const char** argv, std::istream& input, std::ostream& output) {
+            if(argc != 0) {
+                std::cout << "expected no function parameter for function " << name << std::endl;
+            }
+            reformatFunction(input, output);
+            return 0;
+        };
+    }
+
     return nullptr;
 }
 
@@ -127,9 +233,16 @@ int main(int argc, const char** argv) {
 
     std::ifstream inputFile;
     inputFile.open(argv[argc - 2]);
-    std::ofstream outputFile;
-    outputFile.open(argv[argc - 1]);
 
-    return function(argc - 4, argv + 2, inputFile, outputFile);
+    std::ostream* outputStream;
+    std::ofstream outputFile;
+    if(strcmp(argv[argc - 1], "out") == 0) {
+        outputStream = &std::cout;
+    } else {
+        outputFile.open(argv[argc - 1]);
+        outputStream = &outputFile;
+    }
+
+    return function(argc - 4, argv + 2, inputFile, *outputStream);
 
 }

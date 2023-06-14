@@ -66,6 +66,7 @@ namespace keccak {
                 result[y][x] = rotl(input[y][x], rho_shifts[y][x]);
             }
         }
+
     }
 
     void pi(StateArray& result, const StateArray& input) {
@@ -112,6 +113,15 @@ namespace keccak {
             iota(temp1, temp1, i);
         }
         result = temp1;
+    }
+
+    void gamma(StateArray& result, const StateArray& input, uint8_t roundIndex) {
+        StateArray temp1 = input, temp2;
+        pi(temp2, temp1);
+        chi(temp1, temp2);
+        iota(temp1, temp1, roundIndex);
+        theta(temp2, temp1);
+        result = temp2;
     }
 
 }

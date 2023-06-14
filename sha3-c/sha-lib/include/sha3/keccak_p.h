@@ -33,6 +33,8 @@ namespace keccak {
 
     void keccak_f(StateArray& result, const StateArray& input);
 
+    void gamma(StateArray& result, const StateArray& input, uint8_t roundIndex);
+
 }
 
 std::istream& operator >>(std::istream& stream, keccak::StateArray& stateArray);
