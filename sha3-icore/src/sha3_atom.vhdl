@@ -44,18 +44,14 @@ architecture arch of sha3_atom is
             purger_start : out std_logic;
             purger_ready : in std_logic;
             reader_init : out std_logic;
-            reader_enable : out std_logic;
             reader_ready : in std_logic;
-            gamma_enable : out std_logic;
             gamma_init : out std_logic;
             gamma_theta_only : out std_logic;
             gamma_no_theta : out std_logic;
             gamma_ready : in std_logic;
             rho_init : out std_logic;
-            rho_enable : out std_logic;
             rho_ready : in std_logic;
             writer_init : out std_logic;
-            writer_enable : out std_logic;
             writer_ready : in std_logic;
             round : out round_index_t
         );
@@ -86,7 +82,6 @@ architecture arch of sha3_atom is
     component gamma_calculator is
         port(
             clk : in std_logic;
-            enable : in std_logic;
             init : in std_logic;
             atom_index : in atom_index_t;
             round : in round_index_t;
@@ -108,7 +103,6 @@ architecture arch of sha3_atom is
         port(
             clk : in std_logic;
             init : in std_logic;
-            enable : in std_logic;
             atom_index : in atom_index_t;
             gam_port_a_in : out mem_port_input;
             gam_port_a_out : in mem_port_output;
@@ -126,7 +120,6 @@ architecture arch of sha3_atom is
         port(
             clk : in std_logic;
             init : in std_logic;
-            enable : in std_logic;
             atom_index : in atom_index_t;
             mem_input_a : out mem_port_input;
             mem_output_a : in mem_port_output;
@@ -150,12 +143,10 @@ architecture arch of sha3_atom is
     signal purger_res_b_in : mem_port_input;
 
     signal reader_init : std_logic;
-    signal reader_enable : std_logic;
     signal reader_ready : std_logic;
     signal reader_res_a_in : mem_port_input;
     signal reader_res_b_in : mem_port_input;
 
-    signal gamma_enable : std_logic;
     signal gamma_init : std_logic;
     signal gamma_theta_only : std_logic;
     signal gamma_no_theta : std_logic;
@@ -164,9 +155,9 @@ architecture arch of sha3_atom is
     signal gamma_res_b_in : mem_port_input;
     signal gamma_gam_a_in : mem_port_input;
     signal gamma_gam_b_in : mem_port_input;
+    signal gamma_transmission_out : transmission_t;
 
     signal rho_init : std_logic;
-    signal rho_enable : std_logic;
     signal rho_ready : std_logic;
     signal rho_res_a_in : mem_port_input;
     signal rho_res_b_in : mem_port_input;
@@ -174,10 +165,10 @@ architecture arch of sha3_atom is
     signal rho_gam_b_in : mem_port_input;
 
     signal writer_init : std_logic;
-    signal writer_enable : std_logic;
     signal writer_ready : std_logic;
     signal writer_res_a_in : mem_port_input;
     signal writer_res_b_in : mem_port_input;
+    signal writer_transmission_out : transmission_t;
 
     signal round : round_index_t;
 
@@ -191,6 +182,8 @@ begin
     res_mem_port_b.input <= purger_res_b_in or reader_res_b_in or gamma_res_b_in or rho_res_b_in or writer_res_b_in;
     gam_mem_port_a.input <=                                       gamma_gam_a_in or rho_gam_a_in;
     gam_mem_port_b.input <=                                       gamma_gam_b_in or rho_gam_b_in;
+
+    transmission_out <= gamma_transmission_out or writer_transmission_out;
 
     process(clk) is
     begin
@@ -227,18 +220,14 @@ begin
         purger_start => purger_start,
         purger_ready => purger_ready,
         reader_init => reader_init,
-        reader_enable => reader_enable,
         reader_ready => reader_ready,
-        gamma_enable => gamma_enable,
         gamma_init => gamma_init,
         gamma_theta_only => gamma_theta_only,
         gamma_no_theta => gamma_no_theta,
         gamma_ready => gamma_ready,
         rho_init => rho_init,
-        rho_enable => rho_enable,
         rho_ready => rho_ready,
         writer_init => writer_init,
-        writer_enable => writer_enable,
         writer_ready => writer_ready,
         round => round
     );
@@ -263,7 +252,6 @@ begin
 
     gamma : gamma_calculator port map(
         clk => clk,
-        enable => gamma_enable,
         init => gamma_init,
         atom_index => atom_index,
         round => round,
@@ -276,14 +264,13 @@ begin
         gam_mem_port_a_in => gamma_gam_a_in,
         gam_mem_port_b_in => gamma_gam_b_in,
         transmission_in => transmission_in,
-        transmission_out => transmission_out,
+        transmission_out => gamma_transmission_out,
         ready => gamma_ready
     );
 
     rho : rho_buffer port map(
         clk => clk,
         init => rho_init,
-        enable => rho_enable,
         atom_index => atom_index,
         gam_port_a_in => rho_gam_a_in,
         gam_port_a_out => gam_mem_port_a.output,
@@ -299,13 +286,12 @@ begin
     wrtr : writer port map(
         clk => clk,
         init => writer_init,
-        enable => writer_enable,
         atom_index => atom_index,
         mem_input_a => writer_res_a_in,
         mem_output_a => res_mem_port_a.output,
         mem_input_b => writer_res_b_in,
         mem_output_b => res_mem_port_b.output,
-        transmission => transmission_out,
+        transmission => writer_transmission_out,
         ready => writer_ready
     );
 

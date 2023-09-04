@@ -14,18 +14,14 @@ entity sha3_atom_controller is
         purger_start : out std_logic;
         purger_ready : in std_logic;
         reader_init : out std_logic;
-        reader_enable : out std_logic;
         reader_ready : in std_logic;
-        gamma_enable : out std_logic;
         gamma_init : out std_logic;
         gamma_theta_only : out std_logic;
         gamma_no_theta : out std_logic;
         gamma_ready : in std_logic;
         rho_init : out std_logic;
-        rho_enable : out std_logic;
         rho_ready : in std_logic;
         writer_init : out std_logic;
-        writer_enable : out std_logic;
         writer_ready : in std_logic;
         round : out round_index_t
     );
@@ -51,18 +47,14 @@ begin
     purger_start <= purger_trigger;
 
     reader_init <= reader_trigger;
-    reader_enable <= asBit(stage = read);
 
     gamma_init <= gamma_trigger;
-    gamma_enable <= asBit(stage = gamma or stage = theta);
     gamma_theta_only <= asBit(stage = theta);
     gamma_no_theta <= asBit(current_round = 23);
 
     rho_init <= rho_trigger;
-    rho_enable <= asBit(stage = rho);
 
     writer_init <= writer_trigger;
-    writer_enable <= asBit(stage = write);
 
     round <= current_round;
 

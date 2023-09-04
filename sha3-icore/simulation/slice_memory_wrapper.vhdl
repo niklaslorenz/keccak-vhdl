@@ -33,9 +33,13 @@ begin
 		if rising_edge(clk) then
 			if BRAM_PORTA_0_en = '1' then
 				port_a_out_temp <= mem(to_integer(unsigned(BRAM_PORTA_0_addr)));
+			else
+				port_a_out_temp <= (others => '0');
 			end if;
 			if BRAM_PORTB_0_en = '1' then
 				port_b_out_temp <= mem(to_integer(unsigned(BRAM_PORTB_0_addr)));
+			else
+				port_b_out_temp <= (others => '0');
 			end if;
 			if BRAM_PORTA_0_we(0) = '1' then
 				mem(to_integer(unsigned(BRAM_PORTA_0_addr))) <= BRAM_PORTA_0_din;

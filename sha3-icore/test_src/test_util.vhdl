@@ -25,6 +25,8 @@ package test_util is
 
     function block_from_hex_text(text : std_logic_vector(1087 downto 0)) return full_lane_aligned_block_t;
 
+    function block_from_hex_array(arr : std_logic_vector(1599 downto 0)) return full_lane_aligned_block_t;
+
     function upper_block(full_block : full_lane_aligned_block_t) return block_t;
 
     function lower_block(full_block : full_lane_aligned_block_t) return block_t;
@@ -124,6 +126,15 @@ package body test_util is
                 flipped_lane(8 * j + 7 downto 8 * j) := current_lane(8 * (7 - j) + 7 downto 8 * (7 - j));
             end loop;
             res(i) := flipped_lane;
+        end loop;
+        return res;
+    end function;
+
+    function block_from_hex_array(arr : std_logic_vector(1599 downto 0)) return full_lane_aligned_block_t is
+        variable res : full_lane_aligned_block_t;
+    begin
+        for i in 0 to 24 loop
+            res(24 - i) := arr(64 * i + 63 downto 64 * i);
         end loop;
         return res;
     end function;

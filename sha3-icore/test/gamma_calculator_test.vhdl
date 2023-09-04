@@ -86,22 +86,29 @@ architecture arch of gamma_calculator_test is
 
     signal theta_only_result_0, theta_only_result_1 : block_t;
 
-    signal theta_only_expectation_0, theta_only_expectation_1 : block_t;
+    signal gamma_result_0, gamma_result_1 : block_t;
 
 begin
 
-    input_visual_0_visual : block_visualizer port map(test_data.test_block_a);
+    input_visual_0_visual : block_visualizer port map(test_data.test_block_0);
 
-    input_visual_1_visual : block_visualizer port map(test_data.test_block_b);
+    input_visual_1_visual : block_visualizer port map(test_data.test_block_1);
 
     theta_only_result_0_visual : block_visualizer port map(theta_only_result_0);
 
     theta_only_result_1_visual : block_visualizer port map(theta_only_result_1);
 
-    theta_only_expectation_0_visual : block_visualizer port map(theta_only_expectation_0);
+    theta_only_expectation_0_visual : block_visualizer port map(test_data.theta_result_0);
 
-    theta_only_expectation_1_visual : block_visualizer port map(theta_only_expectation_1);
+    theta_only_expectation_1_visual : block_visualizer port map(test_data.theta_result_1);
 
+    gamma_result_0_visual : block_visualizer port map(gamma_result_0);
+
+    gamma_result_1_visual : block_visualizer port map(gamma_result_1);
+
+    gamma_expectation_0_visual : block_visualizer port map(test_data.gamma_result_0);
+
+    gamma_expectation_1_visual : block_visualizer port map(test_data.gamma_result_1);
 
     atom_0_gam_mem : manual_port_memory_block port map(
         clk => clk,
@@ -191,15 +198,7 @@ begin
         variable slice0, slice1 : slice_t;
         variable theta_slice : slice_t;
     begin
-        slice1 := test_data.test_block_b(63)(12 downto 1) & test_data.test_block_a(63);
-        for i in 0 to 63 loop
-            slice0 := slice1;
-            slice1 := test_data.test_block_b(i)(12 downto 1) & test_data.test_block_a(i);
-            theta_slice := theta(slice0, slice1);
-            theta_only_expectation_0(i) <= theta_slice(12 downto 0);
-            theta_only_expectation_1(i) <= theta_slice(24 downto 12);
-        end loop;
-
+        -- read test data into memory
         wait until rising_edge(clk);
         atom_0_res_manual <= '1';
         atom_1_res_manual <= '1';
@@ -208,8 +207,8 @@ begin
         for i in 0 to 31 loop
             atom_0_res_manual_in.addr <= i;
             atom_1_res_manual_in.addr <= i;
-            atom_0_res_manual_in.data <= get_double_tile_slice(test_data.test_block_a, i);
-            atom_1_res_manual_in.data <= get_double_tile_slice(test_data.test_block_b, i);
+            atom_0_res_manual_in.data <= get_double_tile_slice(test_data.test_block_0, i);
+            atom_1_res_manual_in.data <= get_double_tile_slice(test_data.test_block_1, i);
             wait until rising_edge(clk);
         end loop;
         atom_0_res_manual <= '0';
@@ -226,7 +225,6 @@ begin
             wait until rising_edge(clk);
         end loop;
         assert atom_1_ready = '1' report "expected atom 1 to be ready" severity FAILURE;
-        theta_only <= '0';
         atom_0_gam_manual <= '1';
         atom_1_gam_manual <= '1';
         atom_0_gam_manual_in.en <= '1';
@@ -249,10 +247,52 @@ begin
         atom_0_gam_manual_in <= mem_port_init.input;
         atom_1_gam_manual_in <= mem_port_init.input;
         wait until rising_edge(clk);
-        
+        -- check theta only result
         for i in 0 to 63 loop
-            assert theta_only_expectation_0(i) = theta_only_result_0(i) report "Theta only failed for atom 0" severity FAILURE;
-            assert theta_only_expectation_1(i) = theta_only_result_1(i) report "Theta only failed for atom 1" severity FAILURE;
+            assert test_data.theta_result_0(i) = theta_only_result_0(i) report "Theta only failed for atom 0" severity FAILURE;
+            assert test_data.theta_result_1(i) = theta_only_result_1(i) report "Theta only failed for atom 1" severity FAILURE;
+        end loop;
+
+        -- test gamma
+        init <= '1';
+        theta_only <= '0';
+        round <= 5;
+        wait until rising_edge(clk);
+        init <= '0';
+        wait until rising_edge(clk);
+        while atom_0_ready = '0' loop
+            wait until rising_edge(clk);
+        end loop;
+        assert atom_1_ready = '1' report "expected atom 1 to be ready" severity FAILURE;
+        
+        -- read gamma result
+        atom_0_gam_manual <= '1';
+        atom_1_gam_manual <= '1';
+        atom_0_gam_manual_in.en <= '1';
+        atom_1_gam_manual_in.en <= '1';
+        for i in 0 to 33 loop
+            if i <= 31 then
+                atom_0_gam_manual_in.addr <= i;
+                atom_1_gam_manual_in.addr <= i;
+            end if;
+            wait until rising_edge(clk);
+            if i >= 2 then
+                gamma_result_0(2 * (i - 2) + 1) <= atom_0_gam_a.output.data(1);
+                gamma_result_0(2 * (i - 2))     <= atom_0_gam_a.output.data(0);
+                gamma_result_1(2 * (i - 2) + 1) <= atom_1_gam_a.output.data(1);
+                gamma_result_1(2 * (i - 2))     <= atom_1_gam_a.output.data(0);
+            end if;
+        end loop;
+        atom_0_gam_manual <= '0';
+        atom_1_gam_manual <= '0';
+        atom_0_gam_manual_in <= mem_port_init.input;
+        atom_1_gam_manual_in <= mem_port_init.input;
+        wait until rising_edge(clk);
+
+        -- check gamma result
+        for i in 0 to 63 loop
+            assert test_data.gamma_result_0(i) = gamma_result_0(i) report "Gamma failed for atom 0" severity FAILURE;
+            assert test_data.gamma_result_1(i) = gamma_result_1(i) report "Gamma failed for atom 1" severity FAILURE;
         end loop;
 
         wait until rising_edge(clk);

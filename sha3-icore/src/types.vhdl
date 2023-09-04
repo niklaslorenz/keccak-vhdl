@@ -52,6 +52,8 @@ package types is
     
     function "or"(left, right : mem_port_input) return mem_port_input;
 
+    function "or"(left, right : mem_addr_t) return mem_addr_t;
+
 end package;
 
 package body types is
@@ -66,8 +68,11 @@ package body types is
     end function;
 
     function "xor"(left, right : double_tile_slice_t) return double_tile_slice_t is
+        variable res : double_tile_slice_t;
     begin
-        return (left(1) xor right(1), left(0) xor right(0));
+        res(0) := left(0) xor right(0);
+        res(1) := left(1) xor right(1);
+        return res;
     end function;
     
     function "or"(left, right : mem_port_input) return mem_port_input is
@@ -75,9 +80,15 @@ package body types is
     begin
         res.en := left.en or right.en;
         res.we := left.we or right.we;
-        res.addr := to_integer(unsigned(std_logic_vector(to_unsigned(left.addr, 7)) or std_logic_vector(to_unsigned(right.addr, 7))));
-        res.data := (left.data(0) or right.data(0), left.data(1) or right.data(1));
+        res.addr := left.addr or right.addr;
+        res.data(0) := left.data(0) or right.data(0);
+        res.data(1) := left.data(1) or right.data(1);
         return res;
+    end function;
+
+    function "or"(left, right : mem_addr_t) return mem_addr_t is
+    begin
+        return to_integer(unsigned(std_logic_vector(to_unsigned(left, 7)) or std_logic_vector(to_unsigned(right, 7))));
     end function;
 
 end package body;

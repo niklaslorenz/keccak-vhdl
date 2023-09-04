@@ -43,7 +43,23 @@ architecture arch of memory_block is
     signal b_en : std_logic;
     signal b_we : std_logic_vector(0 to 0);
 
+    signal a_din_extended : std_logic_vector(31 downto 0);
+    signal a_dout_extended : std_logic_vector(31 downto 0);
+    signal b_din_extended : std_logic_vector(31 downto 0);
+    signal b_dout_extended : std_logic_vector(31 downto 0);
+
+    signal a_din_0 : tile_slice_t;
+    signal a_din_1 : tile_slice_t;
+
+    signal b_din_0 : tile_slice_t;
+    signal b_din_1 : tile_slice_t;
+
 begin
+
+    a_din_0 <= port_a_in.data(0);
+    a_din_1 <= port_a_in.data(1);
+    b_din_0 <= port_b_in.data(0);
+    b_din_1 <= port_b_in.data(1);
 
     mem : slice_memory_wrapper port map(a_addr, a_din, a_dout, a_en, a_we, b_addr, b_din, b_dout, b_en, b_we, clk);
 
@@ -60,5 +76,10 @@ begin
     b_we(0) <= port_b_in.we;
     port_b_out.data(0) <= b_dout(12 downto 0) when port_b_in.en = '1' else (others => '0');
     port_b_out.data(1) <= b_dout(25 downto 13) when port_b_in.en = '1' else (others => '0');
+
+    a_din_extended <= "000" & a_din(25 downto 13) & "000" & a_din(12 downto 0);
+    a_dout_extended <= "000" & a_dout(25 downto 13) & "000" & a_dout(12 downto 0);
+    b_din_extended <= "000" & b_din(25 downto 13) & "000" & b_din(12 downto 0);
+    b_dout_extended <= "000" & b_dout(25 downto 13) & "000" & b_dout(12 downto 0);
 
 end architecture arch;

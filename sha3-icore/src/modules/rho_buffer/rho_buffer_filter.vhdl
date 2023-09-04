@@ -41,10 +41,24 @@ architecture arch of rho_buffer_filter is
 
     signal filtered_in_0, filtered_in_1, filtered_in_2, filtered_in_3, filtered_in_4, filtered_in_5, filtered_in_6 : std_logic_vector(3 downto 0);
 
+    signal filtered_out_0, filtered_out_1, filtered_out_2, filtered_out_3, filtered_out_4, filtered_out_5, filtered_out_6 : std_logic_vector(3 downto 0);
+
+    signal filtered_out_temp : buffer_data_t;
+
 begin
 
     data_out <= data_out_temp;
 
+    filtered_out <= filtered_out_temp;
+
+    filtered_out_0 <= filtered_out_temp(0);
+    filtered_out_1 <= filtered_out_temp(1);
+    filtered_out_2 <= filtered_out_temp(2);
+    filtered_out_3 <= filtered_out_temp(3);
+    filtered_out_4 <= filtered_out_temp(4);
+    filtered_out_5 <= filtered_out_temp(5);
+    filtered_out_6 <= filtered_out_temp(6);
+    
     data_in_0 <= data_in(0);
     data_in_1 <= data_in(1);
     data_in_2 <= data_in(2);
@@ -65,7 +79,7 @@ begin
     
     buffer_lane_for : for lane in 0 to 6 generate
         buffer_slice_for : for i in 0 to 3 generate
-            filtered_out(lane)(i) <= data_in(i)(current_lanes(lane));
+            filtered_out_temp(lane)(i) <= data_in(i)(current_lanes(lane));
         end generate;
     end generate;
 
