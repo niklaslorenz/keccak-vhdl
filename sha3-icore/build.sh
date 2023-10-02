@@ -11,7 +11,6 @@ sources=( \
 "modules/writer" \
 "modules/calculator" \
 "modules/chunk_calculator" \
-"modules/result_writer" \
 "modules/slice_manager" \
 "sha3_atom" \
 )
@@ -20,7 +19,7 @@ test_instances=( \
 "state_test" \
 "theta_test" \
 "calculator_test" \
-"result_writer_test" \
+#"result_writer_test" \
 "slice_manager_test" \
 "atom_read_test" \
 #"buffer_data_transmit_test" \
